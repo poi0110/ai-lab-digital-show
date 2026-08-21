@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="upload-safe" content="inline-core">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>零界 ZEROBOUND｜个人IP数字展厅</title>
+  <link rel="icon" href="assets/logo.optimized.webp" />
+  <style data-upload-safe-inline>
+/* tailwind import removed for standalone preview */
+:root{--paper:#f5f0e9;--ink:#171614;--orange:#e97513;--line:rgba(23,22,20,.14)}*{box-sizing:border-box}html{scroll-behavior:smooth;overflow-x:hidden}body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,"Noto Sans SC",sans-serif;overflow-x:hidden}img{display:block;max-width:100%}button,a{font:inherit}.topbar{position:sticky;top:0;z-index:50;height:78px;padding:0 clamp(18px,4vw,64px);display:flex;align-items:center;justify-content:space-between;background:rgba(245,240,233,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:12px;color:inherit;text-decoration:none}.brand img{width:54px;height:42px;object-fit:cover;object-position:50% 23%;border-radius:6px}.brand span{display:grid}.brand b{font-size:15px;letter-spacing:.18em}.brand small{font-size:11px;color:#777;margin-top:3px}.topbar nav{display:flex;gap:clamp(14px,2.5vw,34px)}.topbar nav a{color:#3e3b37;text-decoration:none;font-size:13px}.topbar nav a:hover{color:var(--orange)}
+.hero{height:min(820px,calc(100vh - 78px));min-height:600px;position:relative;display:grid;place-items:center;overflow:hidden;background:#211f1d}.video-bg{position:absolute;inset:-30px;background:url('./assets/card-artist.optimized.webp') center/cover;filter:blur(30px) brightness(.45);transform:scale(1.08);opacity:.68}.video-stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}.video-stage video,.video-fallback{width:100%;height:100%;object-fit:contain}.hero-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(12,11,10,.78) 0%,rgba(12,11,10,.18) 52%,rgba(12,11,10,.3) 100%),linear-gradient(0deg,rgba(12,11,10,.5),transparent 45%)}.hero-copy{position:absolute;left:clamp(24px,7vw,110px);bottom:clamp(110px,15vh,170px);color:white;max-width:650px}.eyebrow{font-size:12px;letter-spacing:.3em;color:#ffd0aa;margin:0 0 20px}.eyebrow.dark{color:var(--orange)}.hero-copy h1{font-size:clamp(42px,7vw,94px);line-height:1.02;letter-spacing:-.055em;margin:0}.hero-copy>p:last-child{font-size:clamp(16px,2vw,24px);letter-spacing:.16em;margin-top:24px}.video-controls{position:absolute;right:clamp(20px,4vw,64px);bottom:34px;display:flex;gap:10px}.video-controls button,.click-play{border:1px solid rgba(255,255,255,.5);background:rgba(14,13,12,.62);color:#fff;padding:11px 18px;border-radius:999px;cursor:pointer;backdrop-filter:blur(8px)}.click-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-weight:700;padding:16px 26px;border-color:#fff}.video-controls button:hover,.click-play:hover{background:var(--orange)}
+.marquee{overflow:hidden;background:var(--orange);color:#fff;border-block:1px solid rgba(0,0,0,.15);white-space:nowrap}.marquee div{width:max-content;padding:15px 0;font-size:11px;font-weight:700;letter-spacing:.28em;animation:ticker 28s linear infinite}@keyframes ticker{to{transform:translateX(-50%)}}.overview{max-width:1500px;display:grid;grid-template-columns:minmax(230px,.42fr) minmax(0,1.58fr);gap:clamp(28px,5vw,78px);align-items:start}.overview-title{position:sticky;top:120px}.overview-title>p{font-size:11px;letter-spacing:.24em;color:var(--orange);margin:0 0 25px}.overview-title h2{font-size:clamp(45px,6vw,86px);line-height:1.02;letter-spacing:-.06em;margin:0 0 28px}.overview-title span{display:block;max-width:250px;font-size:12px;line-height:1.8;letter-spacing:.08em;color:#746d65}.overview-visual{position:relative;margin:0;padding:18px;background:#171614;border-radius:4px;box-shadow:0 35px 100px rgba(29,22,14,.22);transform:rotate(.35deg)}.overview-visual img{width:100%;height:auto;border-radius:2px}.overview-visual figcaption{display:flex;justify-content:space-between;gap:30px;padding:20px 4px 3px;color:#fff}.overview-visual figcaption span{font-size:10px;letter-spacing:.18em;color:#f19a50}.overview-visual figcaption b{font-size:13px;font-weight:400}.corner{position:absolute;z-index:2;background:var(--orange);color:white;font-size:10px;letter-spacing:.13em;padding:9px 12px}.corner-a{left:-10px;top:-10px}.corner-b{right:-10px;bottom:56px;writing-mode:vertical-rl}
+.section{max-width:1320px;margin:0 auto;padding:clamp(76px,10vw,140px) clamp(20px,5vw,76px)}.section-head{display:grid;grid-template-columns:180px 1fr auto;align-items:end;border-top:1px solid var(--ink);padding-top:16px;margin-bottom:50px}.section-head p{margin:0;font-size:11px;letter-spacing:.2em;color:var(--orange)}.section-head h2{font-size:clamp(34px,5vw,66px);letter-spacing:-.05em;margin:0}.section-head span{font-size:13px;color:#777}.card-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.identity-card{position:relative;background:#ebe2d4;border-radius:22px;overflow:hidden;border:1px solid rgba(0,0,0,.08);transition:transform .25s}.identity-card:hover{transform:translateY(-7px)}.identity-card img{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:top}.identity-card>div:last-child{padding:18px}.identity-card h3{font-size:24px;margin:0 0 8px}.identity-card p{font-size:13px;line-height:1.6;color:#5e5145;margin:0}.card-number{position:absolute;z-index:2;top:14px;left:14px;background:var(--orange);color:#fff;padding:7px 10px;border-radius:50px;font-size:11px}.source-note{font-size:12px;color:#807870;margin-top:18px}.story{max-width:none;background:var(--ink);color:#f8f3eb;display:grid;grid-template-columns:minmax(220px,.7fr) minmax(300px,1.4fr);gap:8vw}.story-number{font-size:clamp(70px,12vw,180px);color:var(--orange);letter-spacing:-.08em}.story h2{font-size:clamp(36px,5vw,68px);line-height:1.15;margin:0 0 34px}.story>div:last-child>p:not(.eyebrow){font-size:18px;line-height:2;color:#cfc6bc;max-width:760px}.story blockquote{border-left:3px solid var(--orange);margin:36px 0 0;padding:8px 0 8px 22px;font-size:22px}.main-poster{width:min(700px,100%);margin:auto;border-radius:18px;box-shadow:0 30px 80px rgba(52,40,23,.18)}.figure-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.figure-grid figure,.merch-grid figure{margin:0;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}.figure-grid figure.wide{grid-column:span 4}.figure-grid img{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:top}.figure-grid .wide img{aspect-ratio:16/9;object-fit:contain;background:#eee8e1}.figure-grid figcaption,.merch-grid figcaption{padding:16px;font-size:13px;letter-spacing:.06em}.figure-grid figcaption span{color:var(--orange);margin-right:12px}.merch-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}.merch-grid .wide{grid-column:span 2}.merch-grid img{width:100%;height:auto}.experience img{width:100%;border-radius:20px;box-shadow:0 20px 60px rgba(50,35,20,.12)}.designer{display:grid;grid-template-columns:.82fr 1.18fr;gap:8vw;align-items:center}.designer-copy h2{font-size:clamp(48px,8vw,100px);margin:0 0 24px;letter-spacing:-.06em}.designer-copy>p:not(.eyebrow){font-size:17px;line-height:1.9;color:#5f5953}.designer>img{border-radius:20px;box-shadow:0 22px 65px rgba(28,22,17,.14)}.design-idea{margin-top:35px;border-top:1px solid var(--ink);padding-top:20px;display:grid;gap:10px}.design-idea b{color:var(--orange);font-size:13px;letter-spacing:.15em}.design-idea span{font-size:20px;line-height:1.7}footer{padding:80px 20px;background:#fff;text-align:center;border-top:1px solid var(--line)}footer img{width:180px;height:auto;margin:0 auto 24px}footer p{letter-spacing:.25em;font-size:12px}footer small{color:#888}
+@media(max-width:900px){.topbar nav{display:none}.overview{grid-template-columns:1fr}.overview-title{position:static}.section-head{grid-template-columns:1fr}.section-head p{margin-bottom:14px}.section-head span{margin-top:12px}.card-grid{grid-template-columns:1fr 1fr}.figure-grid{grid-template-columns:1fr 1fr}.figure-grid figure.wide{grid-column:span 2}.story{grid-template-columns:1fr}.story-number{font-size:90px}.designer{grid-template-columns:1fr}.designer>img{grid-row:1}.hero-copy{bottom:125px}.hero-copy h1{font-size:clamp(42px,10vw,70px)}}@media(max-width:560px){.topbar{height:68px}.brand img{width:46px;height:36px}.hero{height:74vh;min-height:540px}.hero-shade{background:linear-gradient(0deg,rgba(10,9,8,.82) 0%,rgba(10,9,8,.15) 70%)}.hero-copy{left:20px;right:20px;bottom:106px}.hero-copy>p:last-child{font-size:14px}.video-controls{left:20px;right:auto;bottom:28px}.video-controls button{padding:10px 14px}.section{padding:72px 18px}.overview{padding-top:90px}.overview-title h2{font-size:48px}.overview-visual{padding:8px}.overview-visual figcaption{display:grid;gap:8px;padding:14px 6px 6px}.corner-b{display:none}.card-grid,.figure-grid,.merch-grid{grid-template-columns:1fr}.identity-card img,.figure-grid img,.figure-grid .wide img{aspect-ratio:auto;object-fit:contain}.figure-grid figure.wide,.merch-grid .wide{grid-column:span 1}.story{padding-left:20px;padding-right:20px}.story-number{font-size:72px}.story h2{font-size:36px}.story>div:last-child>p:not(.eyebrow){font-size:16px}.designer{gap:40px}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.identity-card{transition:none}.marquee div{animation:none}}
+
+</style>
+  <style data-upload-safe-inline>
+.portfolio-back {
+  position: fixed;
+  z-index: 999999;
+  top: max(12px, env(safe-area-inset-top));
+  left: max(12px, env(safe-area-inset-left));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 15px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  background: rgba(22, 22, 28, 0.82);
+  color: #fff;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.2);
+  font: 700 13px/1 "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+  text-decoration: none;
+  backdrop-filter: blur(12px);
+}
+
+.portfolio-back:hover,
+.portfolio-back:focus-visible { background: rgba(22, 22, 28, 0.96); }
+
+@media (max-width: 640px) {
+  .portfolio-back { min-height: 40px; padding: 0 12px; font-size: 12px; }
+}
+
+</style>
+</head>
+<body>
+  <a class="portfolio-back" href="../../index.html#digital-galleries" aria-label="返回3D打印数字展厅">← 返回3D打印数字展厅</a>
+  <main>
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="返回顶部"><img src="assets/logo.optimized.webp" alt="ZEROBOUND 零界 Logo" /><span><b>ZEROBOUND</b><small>零界 · 数字展厅</small></span></a>
+      <nav aria-label="展厅导航">
+        <a href="#overview">总览</a>
+        <a href="#identity">角色</a>
+        <a href="#story">故事</a>
+        <a href="#figures">手办</a>
+        <a href="#designer">设计师</a>
+      </nav>
+    </header>
+
+    <section class="hero" id="top">
+      <div class="video-bg" aria-hidden="true"></div>
+      <div class="video-stage" id="video-stage">
+        <video id="hero-video" src="assets/character.optimized.mp4" poster="assets/card-artist.optimized.webp" muted autoplay loop playsinline preload="metadata"></video>
+      </div>
+      <div class="hero-shade"></div>
+      <div class="hero-copy">
+        <p class="eyebrow">GOOSE SERIES · 01</p>
+        <h1>同一只鹅，<br/>不止一种可能。</h1>
+        <p>从零出发，创造边界之外。</p>
+      </div>
+      <div class="video-controls" id="video-controls" style="display:none">
+        <button id="btn-play">暂停</button>
+        <button id="btn-sound">打开声音</button>
+      </div>
+      <button class="click-play" id="btn-clickplay" style="display:none">▶ 点击播放角色视频</button>
+    </section>
+
+    <div class="marquee" aria-label="品牌理念">
+      <div>ZEROBOUND · FROM ZERO · CREATE BEYOND BOUNDARIES · GOOSE SERIES · ZEROBOUND · FROM ZERO · CREATE BEYOND BOUNDARIES · GOOSE SERIES ·</div>
+    </div>
+
+    <section class="overview section" id="overview">
+      <div class="overview-title">
+        <p>00 / BRAND LANDSCAPE</p>
+        <h2>一个角色，<br/>一整个世界。</h2>
+        <span>角色 · 身份卡 · 盲盒 · 贴纸 · 收藏周边</span>
+      </div>
+      <figure class="overview-visual">
+        <div class="corner corner-a">01</div>
+        <div class="corner corner-b">ZEROBOUND</div>
+        <img src="assets/brand-panorama.optimized.webp" alt="ZEROBOUND 零界完整品牌展陈与周边全景" />
+        <figcaption><span>BRAND SYSTEM / 2026</span><b>从角色出发，构建完整的潮玩品牌体验。</b></figcaption>
+      </figure>
+    </section>
+
+    <section class="section" id="identity">
+      <div class="section-head">
+        <p>01 / CHARACTER FILE</p>
+        <h2>角色身份卡</h2>
+        <span>一次成长，一次新的破壳。</span>
+      </div>
+      <div class="card-grid">
+        <article class="identity-card">
+          <div class="card-number">01</div>
+          <img src="assets/card-artist.optimized.webp" alt="鹅画家身份卡" loading="lazy" />
+          <div><h3>鹅画家</h3><p>“颜色会说话，我负责翻译！”</p></div>
+        </article>
+        <article class="identity-card">
+          <div class="card-number">02</div>
+          <img src="assets/card-detective.optimized.webp" alt="鹅探长身份卡" loading="lazy" />
+          <div><h3>鹅探长</h3><p>“真相只有一个！”</p></div>
+        </article>
+        <article class="identity-card">
+          <div class="card-number">03</div>
+          <img src="assets/card-chef.optimized.webp" alt="鹅大厨身份卡" loading="lazy" />
+          <div><h3>鹅大厨</h3><p>“好饭能解决大部分烦恼！”</p></div>
+        </article>
+        <article class="identity-card">
+          <div class="card-number">04</div>
+          <img src="assets/card-eggshell.optimized.webp" alt="蛋壳仔身份卡" loading="lazy" />
+          <div><h3>蛋壳仔</h3><p>“我不说话，但我什么都知道。”</p></div>
+        </article>
+      </div>
+      <p class="source-note">当前已提供 4 张角色身份卡，均按原始比例完整展示。</p>
+    </section>
+
+    <section class="story section" id="story">
+      <div class="story-number">0 → ∞</div>
+      <div>
+        <p class="eyebrow dark">THE STORY</p>
+        <h2>成长，是不断突破自己的边界，<br/>成为新的自己。</h2>
+        <p>故事的主角始终是同一只鹅。最开始，它是躲在蛋壳里的“蛋壳仔”，对外面的世界充满好奇。随着成长，它不断尝试新的身份，成为鹅探长、鹅画家和鹅大厨。每一次身份变化，都代表一次新的“破壳”，也代表一次勇敢探索和认识自己的过程。</p>
+        <blockquote>“从零出发，创造边界之外。”</blockquote>
+      </div>
+    </section>
+
+    <section class="poster-section section" id="poster">
+      <div class="section-head">
+        <p>02 / KEY VISUAL</p>
+        <h2>60 × 90 主海报</h2>
+        <span>Becoming a new you.</span>
+      </div>
+      <img class="main-poster" src="assets/poster-main.optimized.webp" alt="ZEROBOUND 60×90 主海报" loading="lazy" />
+    </section>
+
+    <section class="section" id="figures">
+      <div class="section-head">
+        <p>03 / FIGURE GALLERY</p>
+        <h2>手办画廊</h2>
+        <span>四种身份，同一个成长中的主角。</span>
+      </div>
+      <div class="figure-grid">
+        <figure><img src="assets/card-artist.optimized.webp" alt="鹅画家手办展示" loading="lazy" /><figcaption><span>01</span>鹅画家</figcaption></figure>
+        <figure><img src="assets/card-detective.optimized.webp" alt="鹅探长手办展示" loading="lazy" /><figcaption><span>02</span>鹅探长</figcaption></figure>
+        <figure><img src="assets/card-chef.optimized.webp" alt="鹅大厨手办展示" loading="lazy" /><figcaption><span>03</span>鹅大厨</figcaption></figure>
+        <figure><img src="assets/card-eggshell.optimized.webp" alt="蛋壳仔 · 隐藏款手办展示" loading="lazy" /><figcaption><span>04</span>蛋壳仔 · 隐藏款</figcaption></figure>
+        <figure class="wide"><img src="assets/character-file.optimized.webp" alt="GOOSE SERIES · 全角色手办展示" loading="lazy" /><figcaption><span>05</span>GOOSE SERIES · 全角色</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="section" id="merch">
+      <div class="section-head">
+        <p>04 / COLLECTION</p>
+        <h2>贴纸与文创周边</h2>
+        <span>让角色从展台走进日常。</span>
+      </div>
+      <div class="merch-grid">
+        <figure><img src="assets/stickers.optimized.webp" alt="ZEROBOUND A4贴纸页" loading="lazy" /><figcaption>A4 贴纸页</figcaption></figure>
+        <figure><img src="assets/merch.optimized.webp" alt="ZEROBOUND A4周边宣传页" loading="lazy" /><figcaption>A4 周边宣传页</figcaption></figure>
+        <figure class="wide"><img src="assets/packaging.optimized.webp" alt="ZEROBOUND 盲盒包装展示" loading="lazy" /><figcaption>盲盒包装与隐藏款</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="section experience" id="experience">
+      <div class="section-head">
+        <p>05 / EXPERIENCE</p>
+        <h2>预售体验卡</h2>
+        <span>把你的选择，留在零界。</span>
+      </div>
+      <img src="assets/experience-card.optimized.webp" alt="零界工作室产品预售体验卡" loading="lazy" />
+    </section>
+
+    <section class="designer section" id="designer">
+      <div class="designer-copy">
+        <p class="eyebrow dark">06 / THE DESIGNER</p>
+        <h2>孙圆浩</h2>
+        <p>14岁，来自鄂尔多斯。热爱足球与短跑，也喜欢探索新事物。此次以“成长与破壳”为主题，完成 ZEROBOUND 零界的角色、盲盒、收藏卡、贴纸、钥匙扣与品牌发布视觉。</p>
+        <div class="design-idea"><b>设计理念</b><span>希望“零界”不只是一套潮玩，更能告诉大家：成长，就是不断突破自己的边界，成为新的自己。</span></div>
+      </div>
+      <img src="assets/designer-card.optimized.webp" alt="设计师孙圆浩身份卡" loading="lazy" />
+    </section>
+
+    <footer>
+      <img src="assets/logo.optimized.webp" alt="ZEROBOUND 零界" />
+      <p>FROM ZERO, CREATE BEYOND BOUNDARIES.</p>
+      <small>个人IP数字展厅 · 孙圆浩</small>
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      var video = document.getElementById("hero-video");
+      var stage = document.getElementById("video-stage");
+      var controls = document.getElementById("video-controls");
+      var btnPlay = document.getElementById("btn-play");
+      var btnSound = document.getElementById("btn-sound");
+      var clickPlay = document.getElementById("btn-clickplay");
+      var playing = true, muted = true, needsPlay = false, failed = false;
+
+      function setControls() {
+        if (failed) { controls.style.display = "none"; clickPlay.style.display = "none"; return; }
+        controls.style.display = "flex";
+        btnPlay.textContent = playing ? "暂停" : "播放";
+        btnSound.textContent = muted ? "打开声音" : "静音";
+        clickPlay.style.display = (needsPlay && !failed) ? "block" : "none";
+      }
+
+      function fallBack() {
+        failed = true;
+        var img = document.createElement("img");
+        img.className = "video-fallback";
+        img.src = "assets/card-artist.optimized.webp";
+        img.alt = "鹅画家手办备用画面";
+        stage.innerHTML = "";
+        stage.appendChild(img);
+        setControls();
+      }
+
+      function togglePlay() {
+        if (!video) return;
+        if (video.paused) {
+          video.play().then(function () { needsPlay = false; playing = true; setControls(); }).catch(function () { needsPlay = true; setControls(); });
+        } else { video.pause(); playing = false; setControls(); }
+      }
+      function toggleSound() {
+        if (!video) return;
+        video.muted = !video.muted; muted = video.muted; setControls();
+      }
+
+      video.addEventListener("play", function () { playing = true; setControls(); });
+      video.addEventListener("pause", function () { playing = false; setControls(); });
+      video.addEventListener("error", fallBack);
+      btnPlay.addEventListener("click", togglePlay);
+      btnSound.addEventListener("click", toggleSound);
+      clickPlay.addEventListener("click", togglePlay);
+
+      // 尝试自动播放
+      if (video) {
+        video.play().then(function () { needsPlay = false; setControls(); }).catch(function () { needsPlay = true; setControls(); });
+      }
+      setControls();
+    })();
+  </script>
+</body>
+</html>
