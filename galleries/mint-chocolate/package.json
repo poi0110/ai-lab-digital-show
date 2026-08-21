@@ -1,0 +1,9 @@
+{
+  "name": "mint-chocolate-ip-gallery",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "node server.mjs",
+    "build": "node validate.mjs"
+  }
+}
