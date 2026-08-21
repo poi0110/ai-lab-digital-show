@@ -1,0 +1,2365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <title>像素三蛇竞技场</title>
+
+  <style>
+    :root {
+      --ink: #27304a;
+      --panel: #fff8d8;
+      --pink: #ff6fae;
+      --blue: #49b8ff;
+      --green: #56d67d;
+      --yellow: #ffd447;
+      --shadow: #3d4770;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      min-height: 100vh;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+
+      color: var(--ink);
+      font-family: "Courier New", "Microsoft YaHei", monospace;
+
+      background:
+        linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.22) 1px,
+          transparent 1px
+        ),
+        linear-gradient(
+          rgba(255, 255, 255, 0.22) 1px,
+          transparent 1px
+        ),
+        linear-gradient(
+          135deg,
+          #7ee4ff,
+          #c2a6ff 50%,
+          #ff9dce
+        );
+
+      background-size: 24px 24px, 24px 24px, auto;
+      image-rendering: pixelated;
+    }
+
+    /* 游戏主面板 */
+    .game-shell {
+      width: min(96vw, 760px);
+      padding: 14px;
+      border: 5px solid var(--ink);
+      background: var(--panel);
+      box-shadow: 8px 8px 0 rgba(39, 48, 74, 0.55);
+    }
+
+    .title {
+      margin-bottom: 8px;
+      text-align: center;
+      font-size: clamp(24px, 5vw, 40px);
+      line-height: 1.1;
+      color: #5a3bc8;
+
+      text-shadow:
+        3px 3px 0 #ffffff,
+        5px 5px 0 #ffb7d8;
+    }
+
+    .subtitle {
+      margin-bottom: 12px;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    /* 分数显示区域 */
+    .hud {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .hud-card {
+      min-height: 66px;
+      padding: 8px;
+      border: 4px solid var(--ink);
+      background: #ffffff;
+      box-shadow: 4px 4px 0 rgba(39, 48, 74, 0.35);
+      text-align: center;
+    }
+
+    .hud-card span {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 12px;
+    }
+
+    .hud-card strong {
+      font-size: 21px;
+    }
+
+    /* 游戏画布外框 */
+    .arena-frame {
+      position: relative;
+      width: 100%;
+      max-width: 660px;
+      margin: 0 auto;
+
+      border: 6px solid var(--ink);
+      background: #17223b;
+
+      box-shadow:
+        inset 0 0 0 4px #576585,
+        6px 6px 0 rgba(39, 48, 74, 0.35);
+
+      /* 禁止手机触摸棋盘时滚动页面 */
+      touch-action: none;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1 / 1;
+
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    .status-line {
+      min-height: 28px;
+      margin: 12px 0 8px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 15px;
+    }
+
+    .power-line {
+      min-height: 24px;
+      margin-bottom: 8px;
+      text-align: center;
+      color: #b26200;
+      font-weight: bold;
+    }
+
+    /* 功能按钮 */
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .pixel-button,
+    .direction-button {
+      border: 4px solid var(--ink);
+      font-family: inherit;
+      font-weight: bold;
+      color: var(--ink);
+      cursor: pointer;
+      box-shadow: 4px 4px 0 var(--shadow);
+
+      transition:
+        transform 0.06s,
+        box-shadow 0.06s;
+    }
+
+    .pixel-button:active,
+    .direction-button:active {
+      transform: translate(3px, 3px);
+      box-shadow: 1px 1px 0 var(--shadow);
+    }
+
+    .pixel-button {
+      padding: 12px;
+      background: var(--yellow);
+      font-size: 16px;
+    }
+
+    #pauseButton {
+      background: #9de9ff;
+    }
+
+    /* 手机方向控制区 */
+    .mobile-controls {
+      display: grid;
+      grid-template-columns: repeat(3, 70px);
+      grid-template-rows: repeat(2, 58px);
+      justify-content: center;
+      gap: 8px;
+      margin: 0 auto;
+      user-select: none;
+    }
+
+    .direction-button {
+      background: #ffffff;
+      font-size: 26px;
+    }
+
+    #upButton {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    #leftButton {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    #downButton {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    #rightButton {
+      grid-column: 3;
+      grid-row: 2;
+    }
+
+    /* 蛇颜色说明 */
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+      font-size: 12px;
+    }
+
+    .legend-item {
+      padding: 8px;
+      border: 3px solid var(--ink);
+      background: #ffffff;
+      text-align: center;
+    }
+
+    .legend-dot {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      margin-right: 4px;
+      border: 2px solid var(--ink);
+      vertical-align: -2px;
+    }
+
+    .help {
+      margin-top: 12px;
+      line-height: 1.7;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    /* 手机屏幕适配 */
+    @media (max-width: 620px) {
+      body {
+        padding: 8px;
+      }
+
+      .game-shell {
+        padding: 10px;
+        border-width: 4px;
+      }
+
+      .hud {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .legend {
+        grid-template-columns: 1fr;
+      }
+
+      .buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .mobile-controls {
+        grid-template-columns: repeat(3, 64px);
+        grid-template-rows: repeat(2, 54px);
+      }
+    }
+  </style>
+
+<style id="portfolio-back-style">
+  .portfolio-back-link {
+    position: fixed;
+    z-index: 2147483647;
+    top: max(10px, env(safe-area-inset-top));
+    left: max(10px, env(safe-area-inset-left));
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid rgba(25, 52, 85, .18);
+    border-radius: 999px;
+    color: #173b68;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 8px 24px rgba(25, 52, 85, .16);
+    font: 800 14px/1 "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    text-decoration: none;
+    backdrop-filter: blur(12px);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .portfolio-back-link:active { transform: scale(.97); }
+</style>
+<style id="ai-lab-responsive-v2">
+  /* 全站响应式增强：宽屏保持网页版，移动设备自动切换 H5。 */
+  html, body { max-width: 100%; }
+  body { overflow-x: clip; }
+  img, video, svg { max-width: 100%; height: auto; }
+  canvas { max-width: 100%; }
+  table { max-width: 100%; }
+  .table-wrap, .table-responsive, .report-table, .admin-table-section { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  html.ai-lab-h5 { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  html.ai-lab-h5, html.ai-lab-h5 body { width: 100%; min-width: 0 !important; overflow-x: hidden !important; }
+  html.ai-lab-h5 body { overscroll-behavior-x: none; }
+  html.ai-lab-h5 .app-shell,
+  html.ai-lab-h5 .game-shell,
+  html.ai-lab-h5 .game-app,
+  html.ai-lab-h5 .shell,
+  html.ai-lab-h5 .container,
+  html.ai-lab-h5 .wrapper,
+  html.ai-lab-h5 .content,
+  html.ai-lab-h5 .main,
+  html.ai-lab-h5 main { width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin-right: auto !important; margin-left: auto !important; }
+
+  html.ai-lab-h5 .home-layout,
+  html.ai-lab-h5 .calendar-layout,
+  html.ai-lab-h5 .dashboard-grid,
+  html.ai-lab-h5 .manager-grid,
+  html.ai-lab-h5 .map-grid,
+  html.ai-lab-h5 .report-layout,
+  html.ai-lab-h5 .report-grid,
+  html.ai-lab-h5 .profile-grid,
+  html.ai-lab-h5 .content-grid,
+  html.ai-lab-h5 .detail-grid,
+  html.ai-lab-h5 .library-grid,
+  html.ai-lab-h5 .test-reader-grid,
+  html.ai-lab-h5 .tech-grid,
+  html.ai-lab-h5 .controls-guide-grid,
+  html.ai-lab-h5 .shop-layout,
+  html.ai-lab-h5 .login,
+  html.ai-lab-h5 .hero { grid-template-columns: minmax(0, 1fr) !important; }
+
+  html.ai-lab-h5 .form-grid,
+  html.ai-lab-h5 .admin-form,
+  html.ai-lab-h5 .stats-grid,
+  html.ai-lab-h5 .quick-grid,
+  html.ai-lab-h5 .book-grid,
+  html.ai-lab-h5 .person-grid,
+  html.ai-lab-h5 .region-grid,
+  html.ai-lab-h5 .rules-grid,
+  html.ai-lab-h5 .identity-role-grid,
+  html.ai-lab-h5 .grid-3,
+  html.ai-lab-h5 .rewards-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)) !important; }
+
+  html.ai-lab-h5 .header-actions,
+  html.ai-lab-h5 .hero-actions,
+  html.ai-lab-h5 .main-actions,
+  html.ai-lab-h5 .top-controls,
+  html.ai-lab-h5 .action-row,
+  html.ai-lab-h5 .modal-actions,
+  html.ai-lab-h5 .toolbar,
+  html.ai-lab-h5 .controls { max-width: 100%; flex-wrap: wrap !important; }
+
+  html.ai-lab-h5 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  html.ai-lab-h5 select,
+  html.ai-lab-h5 textarea { width: 100%; max-width: 100%; min-width: 0; font-size: 16px !important; }
+  html.ai-lab-h5 button,
+  html.ai-lab-h5 .btn,
+  html.ai-lab-h5 [role="button"] { min-height: 44px; touch-action: manipulation; }
+  html.ai-lab-h5 textarea { resize: vertical; }
+
+  html.ai-lab-h5 canvas { display: block; width: auto; height: auto; max-width: 100% !important; max-height: min(68vh, 680px); margin-right: auto; margin-left: auto; touch-action: none; }
+  html.ai-lab-h5 .canvas-container,
+  html.ai-lab-h5 .canvas-wrapper,
+  html.ai-lab-h5 .canvas-wrap,
+  html.ai-lab-h5 .canvas-box,
+  html.ai-lab-h5 .board-shell,
+  html.ai-lab-h5 .board-wrapper,
+  html.ai-lab-h5 .gamewrap { width: 100% !important; max-width: 100% !important; min-width: 0 !important; overflow: hidden; }
+
+  html.ai-lab-h5 .modal-backdrop { padding: 12px !important; }
+  html.ai-lab-h5 .modal,
+  html.ai-lab-h5 .modal-card,
+  html.ai-lab-h5 .redeem-panel { width: min(100%, calc(100vw - 24px)) !important; max-width: calc(100vw - 24px) !important; max-height: 88dvh; overflow-y: auto; }
+  html.ai-lab-h5 .bottom-nav { padding-bottom: max(7px, env(safe-area-inset-bottom)); }
+  html.ai-lab-h5 .portfolio-return-bar { min-height: 54px; padding-right: 10px; padding-left: 10px; }
+  html.ai-lab-h5 .portfolio-back { max-width: calc(100vw - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  @media (max-width: 520px) {
+    html.ai-lab-h5 .stats-grid,
+    html.ai-lab-h5 .quick-grid,
+    html.ai-lab-h5 .form-grid,
+    html.ai-lab-h5 .admin-form,
+    html.ai-lab-h5 .identity-role-grid { grid-template-columns: minmax(0, 1fr) !important; }
+    html.ai-lab-h5 .card-footer { align-items: flex-start; flex-direction: column; }
+  }
+</style>
+<script id="ai-lab-responsive-runtime">
+(() => {
+  const root = document.documentElement;
+  const mobileUa = /Android|webOS|iPhone|iPad|iPod|Mobile|IEMobile|Opera Mini/i.test(navigator.userAgent || "");
+  const coarsePointer = window.matchMedia?.("(hover: none) and (pointer: coarse)")?.matches || false;
+  const updateLayoutMode = () => {
+    const narrowScreen = window.innerWidth <= 768;
+    const touchTablet = coarsePointer && window.innerWidth <= 1024;
+    const mobileDevice = mobileUa && window.innerWidth <= 1180;
+    const useH5 = narrowScreen || touchTablet || mobileDevice;
+    root.classList.toggle("ai-lab-h5", useH5);
+    root.classList.toggle("ai-lab-web", !useH5);
+    root.dataset.layoutMode = useH5 ? "h5" : "web";
+  };
+  updateLayoutMode();
+  window.addEventListener("resize", updateLayoutMode, { passive: true });
+  window.addEventListener("orientationchange", updateLayoutMode, { passive: true });
+})();
+</script>
+</head>
+
+<body>
+<a class="portfolio-back-link" href="../snake-games.html" data-portfolio-back>← 返回贪吃蛇合集</a>
+  <main class="game-shell">
+    <h1 class="title">像素三蛇竞技场</h1>
+    <p class="subtitle">抢食物、追金豆、开启5秒无敌！</p>
+
+    <!-- 分数面板 -->
+    <section class="hud">
+      <div class="hud-card">
+        <span>玩家分数</span>
+        <strong id="playerScore">0</strong>
+      </div>
+
+      <div class="hud-card">
+        <span>蓝蛇分数</span>
+        <strong id="blueScore">0</strong>
+      </div>
+
+      <div class="hud-card">
+        <span>粉蛇分数</span>
+        <strong id="pinkScore">0</strong>
+      </div>
+
+      <div class="hud-card">
+        <span>玩家击杀</span>
+        <strong id="playerKills">0</strong>
+      </div>
+    </section>
+
+    <!-- 游戏棋盘 -->
+    <div class="arena-frame" id="arenaFrame">
+      <canvas
+        id="gameCanvas"
+        width="600"
+        height="600"
+        aria-label="像素三蛇竞技场"
+      ></canvas>
+    </div>
+
+    <!-- 游戏状态 -->
+    <p class="status-line" id="statusLine">
+      比赛开始！绿色蛇由你控制。
+    </p>
+
+    <p class="power-line" id="powerLine">
+      金豆出现概率：25%
+    </p>
+
+    <!-- 游戏功能按钮 -->
+    <div class="buttons">
+      <button
+        class="pixel-button"
+        id="restartButton"
+        type="button"
+      >
+        重新开始
+      </button>
+
+      <button
+        class="pixel-button"
+        id="pauseButton"
+        type="button"
+      >
+        暂停游戏
+      </button>
+    </div>
+
+    <!-- 手机方向按钮 -->
+    <section
+      class="mobile-controls"
+      aria-label="手机方向控制"
+    >
+      <button
+        class="direction-button"
+        id="upButton"
+        type="button"
+      >
+        ▲
+      </button>
+
+      <button
+        class="direction-button"
+        id="leftButton"
+        type="button"
+      >
+        ◀
+      </button>
+
+      <button
+        class="direction-button"
+        id="downButton"
+        type="button"
+      >
+        ▼
+      </button>
+
+      <button
+        class="direction-button"
+        id="rightButton"
+        type="button"
+      >
+        ▶
+      </button>
+    </section>
+
+    <!-- 蛇颜色说明 -->
+    <section class="legend">
+      <div class="legend-item">
+        <span
+          class="legend-dot"
+          style="background: #56d67d"
+        ></span>
+        绿色：玩家蛇
+      </div>
+
+      <div class="legend-item">
+        <span
+          class="legend-dot"
+          style="background: #49b8ff"
+        ></span>
+        蓝色：电脑蛇
+      </div>
+
+      <div class="legend-item">
+        <span
+          class="legend-dot"
+          style="background: #ff6fae"
+        ></span>
+        粉色：电脑蛇
+      </div>
+    </section>
+
+    <p class="help">
+      电脑：方向键或 WASD　｜　手机：点击方向键或在棋盘滑动
+      <br />
+      普通食物 +1 分，金豆 +3 分并获得 5 秒战斗无敌；
+      无敌仍然不能穿墙。
+    </p>
+  </main>
+
+  <script>
+    "use strict";
+
+    // =====================================
+    // 获取网页元素
+    // =====================================
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const arenaFrame =
+      document.getElementById("arenaFrame");
+
+    const restartButton =
+      document.getElementById("restartButton");
+
+    const pauseButton =
+      document.getElementById("pauseButton");
+
+    const statusLine =
+      document.getElementById("statusLine");
+
+    const powerLine =
+      document.getElementById("powerLine");
+
+    const playerScoreEl =
+      document.getElementById("playerScore");
+
+    const blueScoreEl =
+      document.getElementById("blueScore");
+
+    const pinkScoreEl =
+      document.getElementById("pinkScore");
+
+    const playerKillsEl =
+      document.getElementById("playerKills");
+
+    // =====================================
+    // 游戏基础参数
+    // =====================================
+
+    // 棋盘为24×24格
+    const GRID_SIZE = 24;
+
+    // 每个格子的像素尺寸
+    const CELL_SIZE = canvas.width / GRID_SIZE;
+
+    // 每180毫秒移动一格
+    // 数字越大，蛇移动越慢
+    const GAME_SPEED = 180;
+
+    // 金豆出现概率25%，没有超过30%
+    const GOLD_SPAWN_CHANCE = 0.25;
+
+    // 金豆提供5秒战斗无敌
+    const INVINCIBLE_TIME = 5000;
+
+    // 重生后获得1.4秒保护
+    const RESPAWN_PROTECTION = 1400;
+
+    // 每条蛇重生时的初始长度
+    const START_LENGTH = 4;
+
+    // 所有可移动方向
+    const DIRECTIONS = [
+      { x: 1, y: 0 },
+      { x: -1, y: 0 },
+      { x: 0, y: 1 },
+      { x: 0, y: -1 }
+    ];
+
+    // =====================================
+    // 游戏状态变量
+    // =====================================
+    let snakes = [];
+    let food = null;
+    let goldBean = null;
+
+    let gameTimer = null;
+    let paused = false;
+
+    let playerKills = 0;
+
+    // 记录手机滑动的起始位置
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    // =====================================
+    // 创建蛇对象
+    // =====================================
+    function createSnake(config) {
+      return {
+        id: config.id,
+        name: config.name,
+
+        color: config.color,
+        headColor: config.headColor,
+
+        isPlayer: config.isPlayer,
+
+        body: [],
+
+        direction: {
+          ...config.direction
+        },
+
+        nextDirection: {
+          ...config.direction
+        },
+
+        score: 0,
+        alive: true,
+
+        // 无敌结束时间
+        invincibleUntil: 0,
+
+        // 重生保护结束时间
+        protectedUntil: 0,
+
+        kills: 0,
+
+        spawnPoint: {
+          ...config.spawnPoint
+        },
+
+        spawnDirection: {
+          ...config.direction
+        }
+      };
+    }
+
+    // =====================================
+    // 开始或重新开始游戏
+    // =====================================
+    function resetGame() {
+      clearInterval(gameTimer);
+
+      // 创建玩家蛇和两条电脑蛇
+      snakes = [
+        createSnake({
+          id: "player",
+          name: "玩家蛇",
+          color: "#56d67d",
+          headColor: "#2fb45a",
+          isPlayer: true,
+          spawnPoint: {
+            x: 5,
+            y: 12
+          },
+          direction: {
+            x: 1,
+            y: 0
+          }
+        }),
+
+        createSnake({
+          id: "blue",
+          name: "蓝蛇",
+          color: "#49b8ff",
+          headColor: "#1c83dc",
+          isPlayer: false,
+          spawnPoint: {
+            x: 18,
+            y: 6
+          },
+          direction: {
+            x: -1,
+            y: 0
+          }
+        }),
+
+        createSnake({
+          id: "pink",
+          name: "粉蛇",
+          color: "#ff6fae",
+          headColor: "#dc3e84",
+          isPlayer: false,
+          spawnPoint: {
+            x: 18,
+            y: 18
+          },
+          direction: {
+            x: -1,
+            y: 0
+          }
+        })
+      ];
+
+      playerKills = 0;
+      paused = false;
+
+      pauseButton.textContent = "暂停游戏";
+      statusLine.textContent =
+        "比赛开始！绿色蛇由你控制。";
+
+      // 让三条蛇在各自位置出生
+      snakes.forEach(function (snake) {
+        respawnSnake(snake, true);
+      });
+
+      // 生成普通食物
+      spawnFood();
+
+      // 清除旧金豆并尝试生成新金豆
+      goldBean = null;
+      maybeSpawnGoldBean();
+
+      updateHud();
+      drawGame();
+
+      // 启动游戏循环
+      gameTimer = setInterval(
+        gameStep,
+        GAME_SPEED
+      );
+    }
+
+    // =====================================
+    // 蛇重生
+    // =====================================
+    function respawnSnake(snake, firstSpawn = false) {
+      const safe = findSafeSpawn(
+        snake.spawnPoint
+      );
+
+      snake.body = [];
+
+      snake.direction = {
+        ...snake.spawnDirection
+      };
+
+      snake.nextDirection = {
+        ...snake.spawnDirection
+      };
+
+      snake.alive = true;
+      snake.invincibleUntil = 0;
+
+      // 重生后短暂保护
+      snake.protectedUntil =
+        performance.now() + RESPAWN_PROTECTION;
+
+      // 根据出生方向生成蛇身
+      for (let i = 0; i < START_LENGTH; i++) {
+        snake.body.push({
+          x:
+            safe.x -
+            snake.spawnDirection.x * i,
+
+          y:
+            safe.y -
+            snake.spawnDirection.y * i
+        });
+      }
+
+      if (!firstSpawn) {
+        statusLine.textContent =
+          `${snake.name} 已经重生！`;
+      }
+    }
+
+    // 寻找距离其他蛇较远的安全出生点
+    function findSafeSpawn(preferred) {
+      const candidates = [preferred];
+
+      // 添加随机候选位置
+      for (let i = 0; i < 60; i++) {
+        candidates.push({
+          x:
+            3 +
+            Math.floor(
+              Math.random() *
+              (GRID_SIZE - 6)
+            ),
+
+          y:
+            3 +
+            Math.floor(
+              Math.random() *
+              (GRID_SIZE - 6)
+            )
+        });
+      }
+
+      for (const point of candidates) {
+        let safe = true;
+
+        for (const snake of snakes) {
+          for (const part of snake.body) {
+            const distance =
+              Math.abs(part.x - point.x) +
+              Math.abs(part.y - point.y);
+
+            if (distance < 5) {
+              safe = false;
+            }
+          }
+        }
+
+        if (safe) {
+          return point;
+        }
+      }
+
+      // 找不到理想位置时使用备用位置
+      return {
+        x: 4,
+        y: 4
+      };
+    }
+
+    // =====================================
+    // 普通食物和金豆
+    // =====================================
+
+    // 生成普通食物
+    function spawnFood() {
+      food = getRandomEmptyCell();
+    }
+
+    // 按25%概率生成金豆
+    function maybeSpawnGoldBean() {
+      // 棋盘上最多同时存在一颗金豆
+      if (
+        !goldBean &&
+        Math.random() < GOLD_SPAWN_CHANCE
+      ) {
+        goldBean = getRandomEmptyCell();
+      }
+    }
+
+    // 获取没有蛇和食物的随机空格
+    function getRandomEmptyCell() {
+      for (
+        let attempt = 0;
+        attempt < 500;
+        attempt++
+      ) {
+        const point = {
+          x:
+            Math.floor(
+              Math.random() * GRID_SIZE
+            ),
+
+          y:
+            Math.floor(
+              Math.random() * GRID_SIZE
+            )
+        };
+
+        const occupiedBySnake =
+          snakes.some(function (snake) {
+            return snake.body.some(
+              function (part) {
+                return (
+                  part.x === point.x &&
+                  part.y === point.y
+                );
+              }
+            );
+          });
+
+        const occupiedByFood =
+          food &&
+          food.x === point.x &&
+          food.y === point.y;
+
+        const occupiedByGold =
+          goldBean &&
+          goldBean.x === point.x &&
+          goldBean.y === point.y;
+
+        if (
+          !occupiedBySnake &&
+          !occupiedByFood &&
+          !occupiedByGold
+        ) {
+          return point;
+        }
+      }
+
+      return {
+        x: 1,
+        y: 1
+      };
+    }
+
+    // =====================================
+    // 游戏主循环
+    // 三条蛇在同一回合中同时行动
+    // =====================================
+    function gameStep() {
+      if (paused) {
+        return;
+      }
+
+      const now = performance.now();
+
+      // 两条电脑蛇先分析当前棋盘
+      snakes
+        .filter(function (snake) {
+          return !snake.isPlayer;
+        })
+        .forEach(function (snake) {
+          snake.nextDirection =
+            chooseAiDirection(snake, now);
+        });
+
+      // 计算每条蛇的下一格位置
+      const plans = snakes.map(
+        function (snake) {
+          return {
+            snake: snake,
+
+            nextHead: {
+              x:
+                snake.body[0].x +
+                snake.nextDirection.x,
+
+              y:
+                snake.body[0].y +
+                snake.nextDirection.y
+            },
+
+            grow: false,
+            ateGold: false,
+            dead: false,
+            killer: null
+          };
+        }
+      );
+
+      // 判断下一格是否有食物或金豆
+      plans.forEach(function (plan) {
+        plan.grow =
+          sameCell(
+            plan.nextHead,
+            food
+          );
+
+        plan.ateGold =
+          goldBean &&
+          sameCell(
+            plan.nextHead,
+            goldBean
+          );
+      });
+
+      // 第一种死亡情况：撞墙
+      // 即使处于无敌状态，撞墙也会死亡
+      plans.forEach(function (plan) {
+        if (isOutside(plan.nextHead)) {
+          plan.dead = true;
+        }
+      });
+
+      // 第二种死亡情况：蛇头正面相撞
+      for (
+        let i = 0;
+        i < plans.length;
+        i++
+      ) {
+        for (
+          let j = i + 1;
+          j < plans.length;
+          j++
+        ) {
+          const snakeA = plans[i];
+          const snakeB = plans[j];
+
+          if (
+            snakeA.dead ||
+            snakeB.dead
+          ) {
+            continue;
+          }
+
+          if (
+            sameCell(
+              snakeA.nextHead,
+              snakeB.nextHead
+            )
+          ) {
+            resolveSnakeCollision(
+              snakeA,
+              snakeB,
+              now
+            );
+          }
+        }
+      }
+
+      // 第三种死亡情况：
+      // 一条蛇的头撞到另一条蛇的身体
+      for (const attackerPlan of plans) {
+        if (attackerPlan.dead) {
+          continue;
+        }
+
+        for (const defenderPlan of plans) {
+          if (
+            attackerPlan === defenderPlan ||
+            defenderPlan.dead
+          ) {
+            continue;
+          }
+
+          /*
+           * 如果目标蛇本回合不生长，
+           * 它的最后一节尾巴会离开当前位置，
+           * 因此不把最后一节尾巴算作障碍。
+           */
+          const defenderBody =
+            defenderPlan.grow ||
+            defenderPlan.ateGold
+              ? defenderPlan.snake.body
+              : defenderPlan.snake.body.slice(
+                  0,
+                  -1
+                );
+
+          const hitBody =
+            defenderBody.some(
+              function (part) {
+                return sameCell(
+                  attackerPlan.nextHead,
+                  part
+                );
+              }
+            );
+
+          if (hitBody) {
+            resolveSnakeCollision(
+              attackerPlan,
+              defenderPlan,
+              now
+            );
+
+            if (attackerPlan.dead) {
+              break;
+            }
+          }
+        }
+      }
+
+      // 第四种死亡情况：撞到自己的身体
+      plans.forEach(function (plan) {
+        if (plan.dead) {
+          return;
+        }
+
+        const ownBody =
+          plan.grow ||
+          plan.ateGold
+            ? plan.snake.body
+            : plan.snake.body.slice(
+                0,
+                -1
+              );
+
+        const hitSelf =
+          ownBody.some(
+            function (part) {
+              return sameCell(
+                plan.nextHead,
+                part
+              );
+            }
+          );
+
+        if (hitSelf) {
+          plan.dead = true;
+        }
+      });
+
+      // 先处理所有死亡和重生
+      plans
+        .filter(function (plan) {
+          return plan.dead;
+        })
+        .forEach(function (plan) {
+          killSnake(
+            plan.snake,
+            plan.killer
+          );
+        });
+
+      let foodWasEaten = false;
+      let goldWasEaten = false;
+
+      // 移动所有存活的蛇
+      plans
+        .filter(function (plan) {
+          return !plan.dead;
+        })
+        .forEach(function (plan) {
+          const snake = plan.snake;
+
+          snake.direction = {
+            ...snake.nextDirection
+          };
+
+          // 新蛇头加入身体最前面
+          snake.body.unshift(
+            plan.nextHead
+          );
+
+          if (plan.grow) {
+            // 普通食物增加1分
+            snake.score += 1;
+            foodWasEaten = true;
+          } else if (plan.ateGold) {
+            // 金豆增加3分
+            snake.score += 3;
+
+            // 开启5秒无敌
+            snake.invincibleUntil =
+              now + INVINCIBLE_TIME;
+
+            goldWasEaten = true;
+
+            statusLine.textContent =
+              `${snake.name} 吃到金豆，获得5秒战斗无敌！`;
+          } else {
+            // 没吃到任何东西时删除蛇尾
+            snake.body.pop();
+          }
+        });
+
+      // 普通食物被吃掉后重新生成
+      if (foodWasEaten) {
+        spawnFood();
+
+        // 每次食物被吃掉后，
+        // 都有25%概率生成一颗金豆
+        maybeSpawnGoldBean();
+      }
+
+      // 金豆被吃掉后从棋盘消失
+      if (goldWasEaten) {
+        goldBean = null;
+      }
+
+      updateHud();
+      drawGame();
+    }
+
+    // =====================================
+    // 蛇与蛇的战斗碰撞
+    // =====================================
+    function resolveSnakeCollision(
+      attackerPlan,
+      defenderPlan,
+      now
+    ) {
+      const attackerProtected =
+        attackerPlan.snake.protectedUntil >
+        now;
+
+      const defenderProtected =
+        defenderPlan.snake.protectedUntil >
+        now;
+
+      const attackerInvincible =
+        attackerPlan.snake.invincibleUntil >
+        now;
+
+      const defenderInvincible =
+        defenderPlan.snake.invincibleUntil >
+        now;
+
+      /*
+       * 重生保护中的蛇不会被其他蛇击杀，
+       * 也不会主动击杀其他蛇。
+       */
+      if (
+        attackerProtected ||
+        defenderProtected
+      ) {
+        if (!attackerProtected) {
+          attackerPlan.dead = true;
+        }
+
+        if (!defenderProtected) {
+          defenderPlan.dead = true;
+        }
+
+        return;
+      }
+
+      // 攻击方无敌，防守方普通
+      if (
+        attackerInvincible &&
+        !defenderInvincible
+      ) {
+        defenderPlan.dead = true;
+        defenderPlan.killer =
+          attackerPlan.snake;
+      }
+
+      // 防守方无敌，攻击方普通
+      else if (
+        !attackerInvincible &&
+        defenderInvincible
+      ) {
+        attackerPlan.dead = true;
+        attackerPlan.killer =
+          defenderPlan.snake;
+      }
+
+      // 双方都普通或双方都无敌时一起死亡
+      else {
+        attackerPlan.dead = true;
+        defenderPlan.dead = true;
+      }
+    }
+
+    // 处理死亡、击杀和重生
+    function killSnake(victim, killer) {
+      if (
+        killer &&
+        killer !== victim
+      ) {
+        killer.kills += 1;
+
+        if (killer.isPlayer) {
+          playerKills += 1;
+        }
+
+        statusLine.textContent =
+          `${killer.name} 击杀了 ${victim.name}！`;
+      } else {
+        statusLine.textContent =
+          `${victim.name} 撞毁了，立即重生！`;
+      }
+
+      // 死亡后立即重生，原有分数保留
+      respawnSnake(victim);
+    }
+
+    // =====================================
+    // 电脑蛇AI
+    // 会寻找食物、争夺金豆和避开危险
+    // =====================================
+    function chooseAiDirection(
+      snake,
+      now
+    ) {
+      const head = snake.body[0];
+
+      // 选择当前追踪目标
+      const target =
+        chooseAiTarget(snake, now);
+
+      const current =
+        snake.direction;
+
+      /*
+       * 评估四个方向。
+       * 电脑蛇不能直接反方向转弯。
+       */
+      const candidates =
+        DIRECTIONS
+          .filter(function (direction) {
+            return !(
+              direction.x ===
+                -current.x &&
+              direction.y ===
+                -current.y
+            );
+          })
+          .map(function (direction) {
+            const next = {
+              x:
+                head.x +
+                direction.x,
+
+              y:
+                head.y +
+                direction.y
+            };
+
+            let score = 0;
+
+            // 撞墙是严重危险
+            if (isOutside(next)) {
+              score -= 10000;
+            }
+
+            // 撞蛇身体也是严重危险
+            if (
+              isDangerousCell(
+                next,
+                snake,
+                now
+              )
+            ) {
+              score -= 5000;
+            }
+
+            // 越接近目标，评分越高
+            const distance =
+              Math.abs(
+                next.x - target.x
+              ) +
+              Math.abs(
+                next.y - target.y
+              );
+
+            score -= distance * 13;
+
+            // 尽量不要长时间贴着墙走
+            const wallDistance =
+              Math.min(
+                next.x,
+                next.y,
+                GRID_SIZE - 1 - next.x,
+                GRID_SIZE - 1 - next.y
+              );
+
+            score += wallDistance * 2;
+
+            /*
+             * 计算下一格周围还有多少出口，
+             * 出口越多，越不容易钻进死胡同。
+             */
+            score +=
+              countSafeExits(
+                next,
+                snake,
+                now
+              ) * 25;
+
+            // 加入少量随机变化
+            score += Math.random() * 18;
+
+            return {
+              direction: direction,
+              score: score
+            };
+          })
+          .sort(function (a, b) {
+            return b.score - a.score;
+          });
+
+      if (candidates.length > 0) {
+        return candidates[0].direction;
+      }
+
+      return current;
+    }
+
+    // 电脑蛇决定要追普通食物、金豆还是敌蛇
+    function chooseAiTarget(
+      snake,
+      now
+    ) {
+      /*
+       * 有金豆时，
+       * 电脑蛇有70%概率优先争夺金豆。
+       */
+      if (
+        goldBean &&
+        Math.random() < 0.7
+      ) {
+        return goldBean;
+      }
+
+      /*
+       * 获得无敌后，
+       * 电脑蛇会寻找距离最近的敌蛇。
+       */
+      if (
+        snake.invincibleUntil > now
+      ) {
+        const enemies =
+          snakes.filter(
+            function (other) {
+              return other !== snake;
+            }
+          );
+
+        enemies.sort(
+          function (a, b) {
+            return (
+              manhattan(
+                snake.body[0],
+                a.body[0]
+              ) -
+              manhattan(
+                snake.body[0],
+                b.body[0]
+              )
+            );
+          }
+        );
+
+        return enemies[0].body[0];
+      }
+
+      // 普通状态下追踪普通食物
+      return food;
+    }
+
+    // 判断某个格子对电脑蛇是否危险
+    function isDangerousCell(
+      cell,
+      movingSnake,
+      now
+    ) {
+      if (isOutside(cell)) {
+        return true;
+      }
+
+      for (const snake of snakes) {
+        const protectedSnake =
+          snake.protectedUntil > now;
+
+        const movingInvincible =
+          movingSnake.invincibleUntil > now;
+
+        /*
+         * 无敌蛇可以主动冲撞其他普通蛇，
+         * 但不能撞自己的身体。
+         */
+        if (
+          snake !== movingSnake &&
+          movingInvincible &&
+          !protectedSnake
+        ) {
+          continue;
+        }
+
+        const occupied =
+          snake.body.some(
+            function (part, index) {
+              const isMovingTail =
+                snake === movingSnake &&
+                index ===
+                  snake.body.length - 1;
+
+              return (
+                !isMovingTail &&
+                sameCell(cell, part)
+              );
+            }
+          );
+
+        if (occupied) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    // 计算一个位置周围有多少安全出口
+    function countSafeExits(
+      cell,
+      movingSnake,
+      now
+    ) {
+      return DIRECTIONS.reduce(
+        function (count, direction) {
+          const next = {
+            x:
+              cell.x +
+              direction.x,
+
+            y:
+              cell.y +
+              direction.y
+          };
+
+          if (
+            isDangerousCell(
+              next,
+              movingSnake,
+              now
+            )
+          ) {
+            return count;
+          }
+
+          return count + 1;
+        },
+        0
+      );
+    }
+
+    // =====================================
+    // 玩家方向控制
+    // =====================================
+    function changePlayerDirection(
+      x,
+      y
+    ) {
+      if (paused) {
+        return;
+      }
+
+      const player =
+        snakes.find(
+          function (snake) {
+            return snake.isPlayer;
+          }
+        );
+
+      if (!player) {
+        return;
+      }
+
+      // 禁止直接向相反方向转弯
+      const isReverse =
+        x === -player.direction.x &&
+        y === -player.direction.y;
+
+      if (!isReverse) {
+        player.nextDirection = {
+          x: x,
+          y: y
+        };
+      }
+    }
+
+    // 监听电脑键盘
+    document.addEventListener(
+      "keydown",
+      function (event) {
+        const key =
+          event.key.toLowerCase();
+
+        // 防止方向键让网页滚动
+        if (
+          [
+            "arrowup",
+            "arrowdown",
+            "arrowleft",
+            "arrowright",
+            " "
+          ].includes(key)
+        ) {
+          event.preventDefault();
+        }
+
+        if (
+          key === "arrowup" ||
+          key === "w"
+        ) {
+          changePlayerDirection(
+            0,
+            -1
+          );
+        }
+
+        if (
+          key === "arrowdown" ||
+          key === "s"
+        ) {
+          changePlayerDirection(
+            0,
+            1
+          );
+        }
+
+        if (
+          key === "arrowleft" ||
+          key === "a"
+        ) {
+          changePlayerDirection(
+            -1,
+            0
+          );
+        }
+
+        if (
+          key === "arrowright" ||
+          key === "d"
+        ) {
+          changePlayerDirection(
+            1,
+            0
+          );
+        }
+
+        // 空格键暂停或继续
+        if (key === " ") {
+          togglePause();
+        }
+      }
+    );
+
+    // 手机方向按钮
+    document
+      .getElementById("upButton")
+      .addEventListener(
+        "pointerdown",
+        function (event) {
+          event.preventDefault();
+          changePlayerDirection(
+            0,
+            -1
+          );
+        }
+      );
+
+    document
+      .getElementById("downButton")
+      .addEventListener(
+        "pointerdown",
+        function (event) {
+          event.preventDefault();
+          changePlayerDirection(
+            0,
+            1
+          );
+        }
+      );
+
+    document
+      .getElementById("leftButton")
+      .addEventListener(
+        "pointerdown",
+        function (event) {
+          event.preventDefault();
+          changePlayerDirection(
+            -1,
+            0
+          );
+        }
+      );
+
+    document
+      .getElementById("rightButton")
+      .addEventListener(
+        "pointerdown",
+        function (event) {
+          event.preventDefault();
+          changePlayerDirection(
+            1,
+            0
+          );
+        }
+      );
+
+    // =====================================
+    // 手机滑动控制
+    // =====================================
+    arenaFrame.addEventListener(
+      "touchstart",
+      function (event) {
+        event.preventDefault();
+
+        const touch =
+          event.changedTouches[0];
+
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+      },
+      {
+        passive: false
+      }
+    );
+
+    arenaFrame.addEventListener(
+      "touchend",
+      function (event) {
+        event.preventDefault();
+
+        const touch =
+          event.changedTouches[0];
+
+        const dx =
+          touch.clientX - touchStartX;
+
+        const dy =
+          touch.clientY - touchStartY;
+
+        // 滑动距离太短时不处理
+        if (
+          Math.abs(dx) < 20 &&
+          Math.abs(dy) < 20
+        ) {
+          return;
+        }
+
+        // 判断是横向滑动还是纵向滑动
+        if (
+          Math.abs(dx) >
+          Math.abs(dy)
+        ) {
+          changePlayerDirection(
+            dx > 0 ? 1 : -1,
+            0
+          );
+        } else {
+          changePlayerDirection(
+            0,
+            dy > 0 ? 1 : -1
+          );
+        }
+      },
+      {
+        passive: false
+      }
+    );
+
+    // 重新开始按钮
+    restartButton.addEventListener(
+      "click",
+      resetGame
+    );
+
+    // 暂停按钮
+    pauseButton.addEventListener(
+      "click",
+      togglePause
+    );
+
+    function togglePause() {
+      paused = !paused;
+
+      pauseButton.textContent =
+        paused
+          ? "继续游戏"
+          : "暂停游戏";
+
+      statusLine.textContent =
+        paused
+          ? "游戏已暂停"
+          : "游戏继续！";
+
+      drawGame();
+    }
+
+    // =====================================
+    // 绘制整个游戏
+    // =====================================
+    function drawGame() {
+      drawBoard();
+      drawFood();
+      drawGoldBean();
+
+      snakes.forEach(
+        function (snake) {
+          drawSnake(snake);
+        }
+      );
+
+      // 暂停时显示遮罩
+      if (paused) {
+        ctx.fillStyle =
+          "rgba(20, 30, 55, 0.68)";
+
+        ctx.fillRect(
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
+
+        drawPixelText(
+          "PAUSED",
+          canvas.width / 2,
+          canvas.height / 2,
+          40,
+          "#ffffff"
+        );
+      }
+    }
+
+    // 绘制像素棋盘
+    function drawBoard() {
+      ctx.fillStyle = "#dff6d8";
+
+      ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+      // 棋盘交替颜色
+      for (
+        let y = 0;
+        y < GRID_SIZE;
+        y++
+      ) {
+        for (
+          let x = 0;
+          x < GRID_SIZE;
+          x++
+        ) {
+          ctx.fillStyle =
+            (x + y) % 2 === 0
+              ? "#dff6d8"
+              : "#d3efce";
+
+          ctx.fillRect(
+            x * CELL_SIZE,
+            y * CELL_SIZE,
+            CELL_SIZE,
+            CELL_SIZE
+          );
+        }
+      }
+
+      // 绘制格子线
+      ctx.strokeStyle =
+        "rgba(39, 48, 74, 0.09)";
+
+      ctx.lineWidth = 1;
+
+      for (
+        let i = 0;
+        i <= GRID_SIZE;
+        i++
+      ) {
+        const position =
+          i * CELL_SIZE;
+
+        ctx.beginPath();
+        ctx.moveTo(position, 0);
+        ctx.lineTo(
+          position,
+          canvas.height
+        );
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(0, position);
+        ctx.lineTo(
+          canvas.width,
+          position
+        );
+        ctx.stroke();
+      }
+    }
+
+    // 绘制像素苹果
+    function drawFood() {
+      if (!food) {
+        return;
+      }
+
+      const x =
+        food.x * CELL_SIZE;
+
+      const y =
+        food.y * CELL_SIZE;
+
+      const pixel =
+        CELL_SIZE / 8;
+
+      // 苹果梗
+      ctx.fillStyle = "#27304a";
+
+      ctx.fillRect(
+        x + pixel * 3,
+        y + pixel,
+        pixel * 2,
+        pixel
+      );
+
+      // 苹果叶子
+      ctx.fillStyle = "#43b65d";
+
+      ctx.fillRect(
+        x + pixel * 5,
+        y + pixel,
+        pixel * 2,
+        pixel
+      );
+
+      // 苹果主体
+      ctx.fillStyle = "#ff4f64";
+
+      ctx.fillRect(
+        x + pixel * 2,
+        y + pixel * 2,
+        pixel * 4,
+        pixel * 5
+      );
+
+      ctx.fillRect(
+        x + pixel,
+        y + pixel * 3,
+        pixel * 6,
+        pixel * 3
+      );
+
+      // 苹果高光
+      ctx.fillStyle = "#ff9aa8";
+
+      ctx.fillRect(
+        x + pixel * 2,
+        y + pixel * 3,
+        pixel,
+        pixel
+      );
+
+      // 苹果黑色像素边框
+      ctx.strokeStyle = "#27304a";
+      ctx.lineWidth = 2;
+
+      ctx.strokeRect(
+        x + pixel,
+        y + pixel * 2,
+        pixel * 6,
+        pixel * 5
+      );
+    }
+
+    // 绘制像素金豆
+    function drawGoldBean() {
+      if (!goldBean) {
+        return;
+      }
+
+      const x =
+        goldBean.x * CELL_SIZE;
+
+      const y =
+        goldBean.y * CELL_SIZE;
+
+      const pixel =
+        CELL_SIZE / 8;
+
+      // 金豆周围的发光区域
+      ctx.fillStyle =
+        "rgba(255, 212, 71, 0.25)";
+
+      ctx.fillRect(
+        x,
+        y,
+        CELL_SIZE,
+        CELL_SIZE
+      );
+
+      // 金豆黑色外层
+      ctx.fillStyle = "#27304a";
+
+      ctx.fillRect(
+        x + pixel * 2,
+        y + pixel * 2,
+        pixel * 4,
+        pixel * 4
+      );
+
+      // 金豆主体
+      ctx.fillStyle = "#ffd447";
+
+      ctx.fillRect(
+        x + pixel * 2,
+        y + pixel * 3,
+        pixel * 4,
+        pixel * 2
+      );
+
+      ctx.fillRect(
+        x + pixel * 3,
+        y + pixel * 2,
+        pixel * 2,
+        pixel * 4
+      );
+
+      // 金豆高光
+      ctx.fillStyle = "#fff4a8";
+
+      ctx.fillRect(
+        x + pixel * 3,
+        y + pixel * 2,
+        pixel,
+        pixel
+      );
+    }
+
+    // 绘制一整条蛇
+    function drawSnake(snake) {
+      const now =
+        performance.now();
+
+      const invincible =
+        snake.invincibleUntil > now;
+
+      const protectedSnake =
+        snake.protectedUntil > now;
+
+      snake.body.forEach(
+        function (part, index) {
+          const x =
+            part.x * CELL_SIZE;
+
+          const y =
+            part.y * CELL_SIZE;
+
+          const padding =
+            index === 0 ? 2 : 3;
+
+          /*
+           * 无敌时显示金色闪烁边框。
+           * 重生保护时显示白色闪烁边框。
+           */
+          if (
+            invincible ||
+            protectedSnake
+          ) {
+            const flash =
+              Math.floor(now / 140) %
+                2 ===
+              0;
+
+            if (invincible) {
+              ctx.fillStyle =
+                flash
+                  ? "#ffd447"
+                  : "#fff2a0";
+            } else {
+              ctx.fillStyle =
+                flash
+                  ? "#ffffff"
+                  : "#bff5ff";
+            }
+
+            ctx.fillRect(
+              x,
+              y,
+              CELL_SIZE,
+              CELL_SIZE
+            );
+          }
+
+          // 蛇头和蛇身使用不同深浅
+          ctx.fillStyle =
+            index === 0
+              ? snake.headColor
+              : snake.color;
+
+          ctx.fillRect(
+            x + padding,
+            y + padding,
+            CELL_SIZE -
+              padding * 2,
+            CELL_SIZE -
+              padding * 2
+          );
+
+          // 黑色像素边框
+          ctx.strokeStyle = "#27304a";
+          ctx.lineWidth = 2;
+
+          ctx.strokeRect(
+            x + padding,
+            y + padding,
+            CELL_SIZE -
+              padding * 2,
+            CELL_SIZE -
+              padding * 2
+          );
+
+          // 只给蛇头绘制眼睛
+          if (index === 0) {
+            drawSnakeEyes(
+              snake,
+              x,
+              y
+            );
+          }
+        }
+      );
+    }
+
+    // 根据移动方向绘制蛇眼睛
+    function drawSnakeEyes(
+      snake,
+      x,
+      y
+    ) {
+      const direction =
+        snake.direction;
+
+      const eyeSize = 4;
+      let eyes;
+
+      if (direction.x === 1) {
+        eyes = [
+          [
+            CELL_SIZE - 9,
+            7
+          ],
+          [
+            CELL_SIZE - 9,
+            CELL_SIZE - 11
+          ]
+        ];
+      } else if (
+        direction.x === -1
+      ) {
+        eyes = [
+          [5, 7],
+          [
+            5,
+            CELL_SIZE - 11
+          ]
+        ];
+      } else if (
+        direction.y === -1
+      ) {
+        eyes = [
+          [7, 5],
+          [
+            CELL_SIZE - 11,
+            5
+          ]
+        ];
+      } else {
+        eyes = [
+          [
+            7,
+            CELL_SIZE - 9
+          ],
+          [
+            CELL_SIZE - 11,
+            CELL_SIZE - 9
+          ]
+        ];
+      }
+
+      // 白色眼球
+      ctx.fillStyle = "#ffffff";
+
+      eyes.forEach(
+        function (eye) {
+          ctx.fillRect(
+            x + eye[0],
+            y + eye[1],
+            eyeSize,
+            eyeSize
+          );
+        }
+      );
+
+      // 黑色眼珠
+      ctx.fillStyle = "#27304a";
+
+      eyes.forEach(
+        function (eye) {
+          ctx.fillRect(
+            x + eye[0] + 1,
+            y + eye[1] + 1,
+            2,
+            2
+          );
+        }
+      );
+    }
+
+    // 绘制暂停文字
+    function drawPixelText(
+      text,
+      x,
+      y,
+      size,
+      color
+    ) {
+      ctx.save();
+
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      ctx.font =
+        `bold ${size}px Courier New`;
+
+      // 文字阴影
+      ctx.fillStyle = "#27304a";
+
+      ctx.fillText(
+        text,
+        x + 4,
+        y + 4
+      );
+
+      ctx.fillStyle = color;
+
+      ctx.fillText(
+        text,
+        x,
+        y
+      );
+
+      ctx.restore();
+    }
+
+    // =====================================
+    // 更新分数和无敌时间显示
+    // =====================================
+    function updateHud() {
+      const player =
+        snakes.find(
+          function (snake) {
+            return snake.id === "player";
+          }
+        );
+
+      const blue =
+        snakes.find(
+          function (snake) {
+            return snake.id === "blue";
+          }
+        );
+
+      const pink =
+        snakes.find(
+          function (snake) {
+            return snake.id === "pink";
+          }
+        );
+
+      playerScoreEl.textContent =
+        player.score;
+
+      blueScoreEl.textContent =
+        blue.score;
+
+      pinkScoreEl.textContent =
+        pink.score;
+
+      playerKillsEl.textContent =
+        playerKills;
+
+      const now =
+        performance.now();
+
+      const remaining =
+        Math.max(
+          0,
+          player.invincibleUntil - now
+        );
+
+      if (remaining > 0) {
+        powerLine.textContent =
+          `玩家无敌剩余：${(
+            remaining / 1000
+          ).toFixed(1)}秒`;
+      } else {
+        powerLine.textContent =
+          `金豆出现概率：${Math.round(
+            GOLD_SPAWN_CHANCE * 100
+          )}%`;
+      }
+    }
+
+    // =====================================
+    // 通用工具函数
+    // =====================================
+
+    // 判断两个坐标是否是同一个格子
+    function sameCell(a, b) {
+      return Boolean(
+        a &&
+        b &&
+        a.x === b.x &&
+        a.y === b.y
+      );
+    }
+
+    // 判断坐标是否超出棋盘
+    function isOutside(point) {
+      return (
+        point.x < 0 ||
+        point.x >= GRID_SIZE ||
+        point.y < 0 ||
+        point.y >= GRID_SIZE
+      );
+    }
+
+    // 计算两个位置之间的曼哈顿距离
+    function manhattan(a, b) {
+      return (
+        Math.abs(a.x - b.x) +
+        Math.abs(a.y - b.y)
+      );
+    }
+
+    // 页面加载完成后自动开始游戏
+    resetGame();
+  </script>
+
+<script id="portfolio-back-bridge">
+  document.querySelector('[data-portfolio-back]').addEventListener('click', function (event) {
+    if (window.parent === window) return;
+    event.preventDefault();
+    window.parent.postMessage({ type: 'ai-lab-full-preview-nav', href: './snake-games.html' }, '*');
+  });
+</script>
+</body>
+</html>

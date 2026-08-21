@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="11位小小创造者带来的11款贪吃蛇小游戏作品合集">
+  <title>AI实验室-贪吃蛇小游戏合集</title>
+  <link rel="stylesheet" href="style.css">
+<style id="ai-lab-responsive-v2">
+  /* 全站响应式增强：宽屏保持网页版，移动设备自动切换 H5。 */
+  html, body { max-width: 100%; }
+  body { overflow-x: clip; }
+  img, video, svg { max-width: 100%; height: auto; }
+  canvas { max-width: 100%; }
+  table { max-width: 100%; }
+  .table-wrap, .table-responsive, .report-table, .admin-table-section { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  html.ai-lab-h5 { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  html.ai-lab-h5, html.ai-lab-h5 body { width: 100%; min-width: 0 !important; overflow-x: hidden !important; }
+  html.ai-lab-h5 body { overscroll-behavior-x: none; }
+  html.ai-lab-h5 .app-shell,
+  html.ai-lab-h5 .game-shell,
+  html.ai-lab-h5 .game-app,
+  html.ai-lab-h5 .shell,
+  html.ai-lab-h5 .container,
+  html.ai-lab-h5 .wrapper,
+  html.ai-lab-h5 .content,
+  html.ai-lab-h5 .main,
+  html.ai-lab-h5 main { width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin-right: auto !important; margin-left: auto !important; }
+
+  html.ai-lab-h5 .home-layout,
+  html.ai-lab-h5 .calendar-layout,
+  html.ai-lab-h5 .dashboard-grid,
+  html.ai-lab-h5 .manager-grid,
+  html.ai-lab-h5 .map-grid,
+  html.ai-lab-h5 .report-layout,
+  html.ai-lab-h5 .report-grid,
+  html.ai-lab-h5 .profile-grid,
+  html.ai-lab-h5 .content-grid,
+  html.ai-lab-h5 .detail-grid,
+  html.ai-lab-h5 .library-grid,
+  html.ai-lab-h5 .test-reader-grid,
+  html.ai-lab-h5 .tech-grid,
+  html.ai-lab-h5 .controls-guide-grid,
+  html.ai-lab-h5 .shop-layout,
+  html.ai-lab-h5 .login,
+  html.ai-lab-h5 .hero { grid-template-columns: minmax(0, 1fr) !important; }
+
+  html.ai-lab-h5 .form-grid,
+  html.ai-lab-h5 .admin-form,
+  html.ai-lab-h5 .stats-grid,
+  html.ai-lab-h5 .quick-grid,
+  html.ai-lab-h5 .book-grid,
+  html.ai-lab-h5 .person-grid,
+  html.ai-lab-h5 .region-grid,
+  html.ai-lab-h5 .rules-grid,
+  html.ai-lab-h5 .identity-role-grid,
+  html.ai-lab-h5 .grid-3,
+  html.ai-lab-h5 .rewards-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)) !important; }
+
+  html.ai-lab-h5 .header-actions,
+  html.ai-lab-h5 .hero-actions,
+  html.ai-lab-h5 .main-actions,
+  html.ai-lab-h5 .top-controls,
+  html.ai-lab-h5 .action-row,
+  html.ai-lab-h5 .modal-actions,
+  html.ai-lab-h5 .toolbar,
+  html.ai-lab-h5 .controls { max-width: 100%; flex-wrap: wrap !important; }
+
+  html.ai-lab-h5 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  html.ai-lab-h5 select,
+  html.ai-lab-h5 textarea { width: 100%; max-width: 100%; min-width: 0; font-size: 16px !important; }
+  html.ai-lab-h5 button,
+  html.ai-lab-h5 .btn,
+  html.ai-lab-h5 [role="button"] { min-height: 44px; touch-action: manipulation; }
+  html.ai-lab-h5 textarea { resize: vertical; }
+
+  html.ai-lab-h5 canvas { display: block; width: auto; height: auto; max-width: 100% !important; max-height: min(68vh, 680px); margin-right: auto; margin-left: auto; touch-action: none; }
+  html.ai-lab-h5 .canvas-container,
+  html.ai-lab-h5 .canvas-wrapper,
+  html.ai-lab-h5 .canvas-wrap,
+  html.ai-lab-h5 .canvas-box,
+  html.ai-lab-h5 .board-shell,
+  html.ai-lab-h5 .board-wrapper,
+  html.ai-lab-h5 .gamewrap { width: 100% !important; max-width: 100% !important; min-width: 0 !important; overflow: hidden; }
+
+  html.ai-lab-h5 .modal-backdrop { padding: 12px !important; }
+  html.ai-lab-h5 .modal,
+  html.ai-lab-h5 .modal-card,
+  html.ai-lab-h5 .redeem-panel { width: min(100%, calc(100vw - 24px)) !important; max-width: calc(100vw - 24px) !important; max-height: 88dvh; overflow-y: auto; }
+  html.ai-lab-h5 .bottom-nav { padding-bottom: max(7px, env(safe-area-inset-bottom)); }
+  html.ai-lab-h5 .portfolio-return-bar { min-height: 54px; padding-right: 10px; padding-left: 10px; }
+  html.ai-lab-h5 .portfolio-back { max-width: calc(100vw - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  @media (max-width: 520px) {
+    html.ai-lab-h5 .stats-grid,
+    html.ai-lab-h5 .quick-grid,
+    html.ai-lab-h5 .form-grid,
+    html.ai-lab-h5 .admin-form,
+    html.ai-lab-h5 .identity-role-grid { grid-template-columns: minmax(0, 1fr) !important; }
+    html.ai-lab-h5 .card-footer { align-items: flex-start; flex-direction: column; }
+  }
+</style>
+<script id="ai-lab-responsive-runtime">
+(() => {
+  const root = document.documentElement;
+  const mobileUa = /Android|webOS|iPhone|iPad|iPod|Mobile|IEMobile|Opera Mini/i.test(navigator.userAgent || "");
+  const coarsePointer = window.matchMedia?.("(hover: none) and (pointer: coarse)")?.matches || false;
+  const updateLayoutMode = () => {
+    const narrowScreen = window.innerWidth <= 768;
+    const touchTablet = coarsePointer && window.innerWidth <= 1024;
+    const mobileDevice = mobileUa && window.innerWidth <= 1180;
+    const useH5 = narrowScreen || touchTablet || mobileDevice;
+    root.classList.toggle("ai-lab-h5", useH5);
+    root.classList.toggle("ai-lab-web", !useH5);
+    root.dataset.layoutMode = useH5 ? "h5" : "web";
+  };
+  updateLayoutMode();
+  window.addEventListener("resize", updateLayoutMode, { passive: true });
+  window.addEventListener("orientationchange", updateLayoutMode, { passive: true });
+})();
+</script>
+</head>
+<body>
+  <main>
+    <header class="site-header">
+      <a class="back-home" href="./index.html" aria-label="返回数字作品展">← <span>作品展首页</span></a>
+      <a class="brand" href="#games" aria-label="返回游戏列表顶部">
+        <span class="snake-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><b>●</b></span>
+        <span>AI实验室-贪吃蛇小游戏合集</span>
+      </a>
+      <nav aria-label="主导航">
+        <a class="active" href="#games">全部游戏</a>
+        <a href="#creators">小小创造者</a>
+      </nav>
+    </header>
+
+    <section class="games-section" id="games">
+      <div class="section-heading">
+        <div><p class="eyebrow"><span>11 GAME WORLDS</span></p><h2>进入小小创造者的游戏世界</h2></div>
+        <p>预览真实游戏画面，点击任意作品即可开始挑战。</p>
+      </div>
+
+      <div class="game-grid">
+        <a class="game-card blue" href="games/game01.html" aria-label="进入仔仔的蛇蛇大乱斗">
+          <div class="preview-wrap"><iframe src="games/game01.html" title="仔仔游戏预览" tabindex="-1" aria-hidden="true"></iframe><div class="preview-shade"></div><span class="preview-badge">程序页面</span><span class="play-bubble">▶</span></div>
+          <div class="card-content"><div class="creator-row"><span class="creator-avatar">🏆</span><div><h3>仔仔</h3><p>蛇蛇大乱斗</p></div></div><p class="highlight">60秒限时PK，和3条电脑蛇争夺蛇王冠军。</p><div class="card-footer"><div class="tags"><span>多人竞技</span><span>实时排行</span></div><span class="enter">进入游戏 <b>→</b></span></div></div>
+        </a>
+
+        <a class="game-card purple" href="games/game02.html" aria-label="进入伪人的霓虹宝藏贪吃蛇">
+          <div class="preview-wrap"><iframe src="games/game02.html" title="伪人游戏预览" tabindex="-1" aria-hidden="true"></iframe><div class="preview-shade"></div><span class="preview-badge">程序页面</span><span class="play-bubble">▶</span></div>
+          <div class="card-content"><div class="creator-row"><span class="creator-avatar">💎</span><div><h3>伪人</h3><p>霓虹宝藏贪吃蛇</p></div></div><p class="highlight">收集8种霓虹宝藏，吃到道具还有语音和彩带庆祝。</p><div class="card-footer"><div class="tags"><span>霓虹宝藏</span><span>满屏彩带</span></div><span class="enter">进入游戏 <b>→</b></span></div></div>
+        </a>
+
+        <a class="game-card yellow" href="games/game03.html" aria-label="进入佐助的神光棒免疫版">
+          <div class="preview-wrap"><iframe src="games/game03.html" title="佐助游戏预览" loading="lazy" tabindex="-1" aria-hidden="true"></iframe><div class="preview-shade"></div><span class="preview-badge">程序页面</span><span class="play-bubble">▶</span></div>
+          <div class="card-content"><div class="creator-row"><span class="creator-avatar">🔦</span><div><h3>佐助</h3><p>萌蛇吃果果·神光棒免疫版</p></div></div><p class="highlight">神光棒带来2秒免疫，怪兽还能吸引目标或切断蛇尾。</p><div class="card-footer"><div class="tags"><span>神光棒</span><span>怪兽道具</span></div><span class="enter">进入游戏 <b>→</b></span></div></div>
+        </a>
+
+        <a class="game-card cyan" href="games/game04.html" aria-label="进入凯文的双生神迹">
+          <div class="preview-wrap"><iframe src="games/game04.html" title="凯文游戏预览" loading="lazy" tabindex="-1" aria-hidden="true"></iframe><div class="preview-shade"></div><span class="preview-badge">程序页面</span><span class="play-bubble">▶</span></div>
+          <div class="card-content"><div class="creator-row"><span class="creator-avatar">🌙</span><div><h3>凯文</h3><p>冷月水果蛇·双生神迹</p></div></div><p class="highlight">一套方向控制双蛇，触发神迹后可以分裂复活。</p><div class="card-footer"><div class="tags"><span>双蛇控制</span><span>神迹复活</span></div><span class="enter">进入游戏 <b>→</b></span></div></div>
+        </a>
+
+        <a class="game-card green" href="games/game05.html" aria-label="进入小北的像素三蛇竞技场">
+          <div class="preview-wrap"><iframe src="games/game05.html" title="小北游戏预览" loading="lazy" tabindex="-1" aria-hidden="true"></iframe><div class="preview-shade"></div><span class="preview-badge">程序页面</span><span class="play-bubble">▶</span></div>
+          <div class="card-content"><div class="creator-row"><span class="creator-avatar">🟡</span><div><h3>小北</h3><p>像素三蛇竞技场</p></div></div><p class="highlight">争抢金豆开启5秒无敌，主动追击并击败对手。</p><div class="card-footer"><div class="tags"><span>战斗竞技</span><span>无敌金豆</span></div><span class="enter">进入游戏 <b>→</b></span></div></div>
+        </a>
+
+        <a class="game-card coral" href="games/game06.html" aria-label="进入桐桐的闯关挑战">
+          <div class="preview-wrap"><iframe src="games/game06.html" title="桐桐游戏预览" loading="lazy" tabindex="-1" aria-hidden="true"></iframe><div class="preview-shade"></div><span class="preview-badge">程序页面</span><span class="play-bubble">▶</span></div>
+          <div class="card-content"><div class="creator-row"><span class="creator-avatar">🌈</span><div><h3>桐桐</h3><p>彩虹果园·闯关挑战</p></div></div><p class="highlight">限时食物、连击倍率、岩石和迷雾组成完整闯关体验。</p><div class="card-footer"><div class="tags"><span>关卡成长</span><span>三档难度</span></div><span class="enter">进入游戏 <b>→</b></span></div></div>
+        </a>
+
+        <a class="game-card green" href="games/game07.html" aria-label="进入矛退的粽子蛇吃饼干">
+          <div class="preview-wrap"><iframe src="games/game07.html" title="矛退游戏预览" loading="lazy" tabindex="-1" aria-hidden="true"></iframe><div class="preview-shade"></div><span class="preview-badge">程序页面</span><span class="play-bubble">▶</span></div>
+          <div class="card-content"><div class="creator-row"><span class="creator-avatar">🥟</span><div><h3>矛退</h3><p>粽子蛇吃饼干</p></div></div><p class="highlight">粽子主题搭配原创背景音乐，还会开口说“那咋了”。</p><div class="card-footer"><div class="tags"><span>主题音乐</span><span>趣味语音</span></div><span class="enter">进入游戏 <b>→</b></span></div></div>
+        </a>
+
+        <a class="game-card coral" href="games/game08.html" aria-label="进入翊冰的彩虹贪吃蛇">
+          <div class="preview-wrap"><iframe src="games/game08.html" title="翊冰游戏预览" loading="lazy" tabindex="-1" aria-hidden="true"></iframe><div class="preview-shade"></div><span class="preview-badge">程序页面</span><span class="play-bubble">▶</span></div>
+          <div class="card-content"><div class="creator-row"><span class="creator-avatar">🍉</span><div><h3>翊冰</h3><p>彩虹贪吃蛇</p></div></div><p class="highlight">苹果和西瓜提供不同成长效果，还要避开6块石头。</p><div class="card-footer"><div class="tags"><span>彩虹蛇身</span><span>双水果</span></div><span class="enter">进入游戏 <b>→</b></span></div></div>
+        </a>
+
+        <a class="game-card purple" href="games/game09.html" aria-label="进入晨晨的冰火双魂">
+          <div class="preview-wrap"><iframe src="games/game09.html" title="晨晨游戏预览" loading="lazy" tabindex="-1" aria-hidden="true"></iframe><div class="preview-shade"></div><span class="preview-badge">程序页面</span><span class="play-bubble">▶</span></div>
+          <div class="card-content"><div class="creator-row"><span class="creator-avatar">⚔️</span><div><h3>晨晨</h3><p>冰火双魂：光弹黑洞追猎版</p></div></div><p class="highlight">冰雷枪骑与爆炎剑皇挑战30关BOSS，拥有三技能、二段跳、瞬移和装备商店。</p><div class="card-footer"><div class="tags"><span>冰火双英雄</span><span>BOSS挑战</span></div><span class="enter">进入游戏 <b>→</b></span></div></div>
+        </a>
+
+        <a class="game-card cyan" href="games/game10.html" aria-label="进入晓然的暗域贪吃蛇">
+          <div class="preview-wrap"><iframe src="games/game10.html" title="晓然游戏预览" loading="lazy" tabindex="-1" aria-hidden="true"></iframe><div class="preview-shade"></div><span class="preview-badge">程序页面</span><span class="play-bubble">▶</span></div>
+          <div class="card-content"><div class="creator-row"><span class="creator-avatar">⚡</span><div><h3>晓然</h3><p>暗域贪吃蛇</p></div></div><p class="highlight">断尾核心可以自撞重生，伪装危险食物考验临场判断。</p><div class="card-footer"><div class="tags"><span>断尾重生</span><span>隐藏危险</span></div><span class="enter">进入游戏 <b>→</b></span></div></div>
+        </a>
+
+        <a class="game-card blue" href="games/game11.html" aria-label="进入陈艺泽的火柴人游戏">
+          <div class="preview-wrap"><iframe src="games/game11.html" title="陈艺泽-火柴人游戏预览" loading="lazy" tabindex="-1" aria-hidden="true"></iframe><div class="preview-shade"></div><span class="preview-badge">程序页面</span><span class="play-bubble">▶</span></div>
+          <div class="card-content"><div class="creator-row"><span class="creator-avatar">🥋</span><div><h3>陈艺泽</h3><p>火柴人游戏</p></div></div><p class="highlight">用拳脚、二段跳、瞬移和能量技能挑战200关BOSS，也可进入20阶段无尽闯关。</p><div class="card-footer"><div class="tags"><span>200关BOSS</span><span>无尽闯关</span></div><span class="enter">进入游戏 <b>→</b></span></div></div>
+        </a>
+      </div>
+    </section>
+
+    <section class="creators" id="creators">
+      <div class="creator-art" aria-hidden="true">🐍</div>
+      <div><p class="eyebrow"><span>MADE BY YOUNG CREATORS</span></p><h2>从“会玩”到“会创造”</h2><p>孩子们从基础贪吃蛇出发，用AI辅助编程，把脑海里的新规则变成真正可以玩的网页游戏。</p></div>
+      <a class="secondary-button" href="#games">看看他们的作品 →</a>
+    </section>
+
+    <footer>
+      <div class="footer-brand"><span class="snake-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><b>●</b></span><span>AI实验室</span></div>
+      <p>贪吃蛇小游戏合集 · 让每个创意都能被看见</p>
+      <a href="#games">回到顶部 ↑</a>
+    </footer>
+  </main>
+  <script>
+    function fitProgramPreviews() {
+      document.querySelectorAll('.preview-wrap iframe').forEach(function (frame) {
+        const wrap = frame.closest('.preview-wrap');
+        if (wrap) frame.style.transform = 'scale(' + (wrap.clientWidth / 1180) + ')';
+      });
+    }
+    fitProgramPreviews();
+    window.addEventListener('resize', fitProgramPreviews);
+    if (typeof ResizeObserver === 'function') {
+      const previewObserver = new ResizeObserver(fitProgramPreviews);
+      document.querySelectorAll('.preview-wrap').forEach(function (wrap) { previewObserver.observe(wrap); });
+    }
+    document.addEventListener('click', function (event) {
+      const link = event.target.closest('a[href^="#"]');
+      if (!link) return;
+      const targetId = link.getAttribute('href').slice(1);
+      const target = targetId ? document.getElementById(targetId) : document.documentElement;
+      if (!target) return;
+      event.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  </script>
+</body>
+</html>

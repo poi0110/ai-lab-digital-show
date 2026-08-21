@@ -1,0 +1,2054 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>暗域贪吃蛇</title>
+
+    <style>
+        /* =====================================================
+           1. 页面基础样式
+        ===================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --page-bg: #040608;
+            --panel-bg: rgba(13, 17, 22, 0.94);
+            --panel-border: rgba(112, 255, 198, 0.2);
+            --text: #eafff7;
+            --muted: #81928c;
+            --green: #76ffd0;
+            --purple: #bd88ff;
+            --red: #ff526f;
+            --danger: #ff4d61;
+        }
+
+        html,
+        body {
+            min-height: 100%;
+        }
+
+        body {
+            min-height: 100vh;
+            padding: 16px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: var(--text);
+            font-family: Inter, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+
+            background:
+                radial-gradient(circle at 50% 10%, #14211f 0%, transparent 34%),
+                radial-gradient(circle at 15% 90%, #181020 0%, transparent 30%),
+                var(--page-bg);
+
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+
+            background-image: repeating-linear-gradient(
+                0deg,
+                rgba(255, 255, 255, 0.014) 0,
+                rgba(255, 255, 255, 0.014) 1px,
+                transparent 1px,
+                transparent 4px
+            );
+
+            opacity: 0.65;
+        }
+
+        .game-shell {
+            width: min(100%, 680px);
+            padding: clamp(14px, 3vw, 24px);
+
+            border: 1px solid var(--panel-border);
+            border-radius: 22px;
+            background: var(--panel-bg);
+
+            box-shadow:
+                0 28px 80px rgba(0, 0, 0, 0.56),
+                inset 0 1px rgba(255, 255, 255, 0.04);
+
+            backdrop-filter: blur(14px);
+        }
+
+        /* =====================================================
+           2. 标题与状态
+        ===================================================== */
+        .game-header {
+            margin-bottom: 14px;
+
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .title h1 {
+            font-size: clamp(25px, 6vw, 38px);
+            letter-spacing: 4px;
+            text-shadow: 0 0 22px rgba(112, 255, 198, 0.24);
+        }
+
+        .title p {
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+        .running-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            color: var(--muted);
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .status-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 12px var(--green);
+        }
+
+        /* =====================================================
+           3. 数据栏
+        ===================================================== */
+        .dashboard {
+            margin-bottom: 12px;
+
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.25fr;
+            gap: 8px;
+        }
+
+        .data-card {
+            min-height: 61px;
+            padding: 9px 12px;
+
+            border: 1px solid rgba(255, 255, 255, 0.065);
+            border-radius: 13px;
+            background: rgba(255, 255, 255, 0.027);
+        }
+
+        .data-card span {
+            display: block;
+            margin-bottom: 3px;
+            color: var(--muted);
+            font-size: 10px;
+            letter-spacing: 2px;
+        }
+
+        .data-card strong {
+            display: block;
+            font-size: 22px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        #coreStatus {
+            color: #77817d;
+            font-size: 14px;
+            line-height: 30px;
+            white-space: nowrap;
+        }
+
+        #coreStatus.ready {
+            color: #e2caff;
+            text-shadow: 0 0 12px rgba(189, 136, 255, 0.75);
+        }
+
+        /* =====================================================
+           4. 游戏画布
+        ===================================================== */
+        .board-wrap {
+            position: relative;
+            width: min(100%, 480px);
+            aspect-ratio: 1 / 1;
+            margin: 0 auto;
+
+            border: 1px solid rgba(112, 255, 198, 0.19);
+            border-radius: 17px;
+            overflow: hidden;
+
+            background: #06090b;
+            box-shadow:
+                inset 0 0 36px rgba(0, 0, 0, 0.84),
+                0 0 24px rgba(30, 150, 110, 0.06);
+
+            touch-action: none;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 开始、失败提示层 */
+        .overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+
+            padding: 24px;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            text-align: center;
+            background: rgba(2, 4, 6, 0.68);
+            backdrop-filter: blur(3px);
+
+            transition: opacity 0.22s ease, visibility 0.22s ease;
+        }
+
+        .overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .overlay-small {
+            margin-bottom: 7px;
+            color: var(--green);
+            font-size: 11px;
+            letter-spacing: 4px;
+        }
+
+        .overlay h2 {
+            margin-bottom: 9px;
+            font-size: clamp(26px, 7vw, 42px);
+            letter-spacing: 3px;
+        }
+
+        .overlay p {
+            max-width: 390px;
+            color: #acbbb5;
+            font-size: 13px;
+            line-height: 1.75;
+        }
+
+        /* 游戏过程中的短提示 */
+        .notice {
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            z-index: 4;
+
+            max-width: calc(100% - 30px);
+            padding: 8px 14px;
+
+            border: 1px solid rgba(189, 136, 255, 0.42);
+            border-radius: 999px;
+
+            color: #e5d1ff;
+            background: rgba(29, 13, 45, 0.92);
+
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            white-space: nowrap;
+
+            opacity: 0;
+            transform: translate(-50%, -12px);
+            pointer-events: none;
+
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .notice.show {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
+        .notice.danger {
+            color: #ffd0ca;
+            border-color: rgba(255, 77, 97, 0.48);
+            background: rgba(49, 10, 16, 0.93);
+        }
+
+        /* =====================================================
+           5. 按钮与说明
+        ===================================================== */
+        button {
+            color: var(--text);
+            font: inherit;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .main-actions {
+            margin-top: 12px;
+
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .action-button {
+            min-height: 45px;
+            padding: 10px 14px;
+
+            border: 1px solid rgba(112, 255, 198, 0.32);
+            border-radius: 12px;
+
+            background: rgba(112, 255, 198, 0.1);
+            font-weight: 700;
+
+            transition: transform 0.12s ease, background 0.12s ease;
+        }
+
+        .action-button.secondary {
+            border-color: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.045);
+        }
+
+        .action-button:hover {
+            background: rgba(112, 255, 198, 0.16);
+        }
+
+        .action-button:active {
+            transform: scale(0.97);
+        }
+
+        .instructions {
+            margin-top: 11px;
+            padding: 10px 12px;
+
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.025);
+
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.55;
+            text-align: center;
+        }
+
+        .instructions strong {
+            display: block;
+            color: #bed0c9;
+            font-weight: 700;
+        }
+
+        /* 手机方向键 */
+        .mobile-controls {
+            width: 190px;
+            margin: 13px auto 0;
+
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 49px);
+            gap: 7px;
+        }
+
+        .direction-button {
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 13px;
+
+            color: #c0ddd3;
+            background: rgba(255, 255, 255, 0.045);
+
+            font-size: 20px;
+            user-select: none;
+
+            transition: transform 0.08s ease, background 0.08s ease;
+        }
+
+        .direction-button:active {
+            transform: scale(0.91);
+            background: rgba(112, 255, 198, 0.17);
+        }
+
+        .up-button {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        .left-button {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        .down-button {
+            grid-column: 2;
+            grid-row: 2;
+        }
+
+        .right-button {
+            grid-column: 3;
+            grid-row: 2;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 8px;
+                align-items: flex-start;
+            }
+
+            .game-shell {
+                padding: 12px;
+                border-radius: 17px;
+            }
+
+            .running-status {
+                display: none;
+            }
+
+            .instructions {
+                grid-template-columns: 1fr;
+                gap: 4px;
+            }
+        }
+
+        @media (max-height: 760px) and (max-width: 600px) {
+            .mobile-controls {
+                width: 174px;
+                grid-template-rows: repeat(2, 43px);
+                margin-top: 9px;
+            }
+
+            .instructions {
+                margin-top: 8px;
+                padding: 7px;
+            }
+        }
+    </style>
+
+<style id="portfolio-back-style">
+  .portfolio-back-link {
+    position: fixed;
+    z-index: 2147483647;
+    top: max(10px, env(safe-area-inset-top));
+    left: max(10px, env(safe-area-inset-left));
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid rgba(25, 52, 85, .18);
+    border-radius: 999px;
+    color: #173b68;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 8px 24px rgba(25, 52, 85, .16);
+    font: 800 14px/1 "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    text-decoration: none;
+    backdrop-filter: blur(12px);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .portfolio-back-link:active { transform: scale(.97); }
+</style>
+<style id="ai-lab-responsive-v2">
+  /* 全站响应式增强：宽屏保持网页版，移动设备自动切换 H5。 */
+  html, body { max-width: 100%; }
+  body { overflow-x: clip; }
+  img, video, svg { max-width: 100%; height: auto; }
+  canvas { max-width: 100%; }
+  table { max-width: 100%; }
+  .table-wrap, .table-responsive, .report-table, .admin-table-section { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  html.ai-lab-h5 { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  html.ai-lab-h5, html.ai-lab-h5 body { width: 100%; min-width: 0 !important; overflow-x: hidden !important; }
+  html.ai-lab-h5 body { overscroll-behavior-x: none; }
+  html.ai-lab-h5 .app-shell,
+  html.ai-lab-h5 .game-shell,
+  html.ai-lab-h5 .game-app,
+  html.ai-lab-h5 .shell,
+  html.ai-lab-h5 .container,
+  html.ai-lab-h5 .wrapper,
+  html.ai-lab-h5 .content,
+  html.ai-lab-h5 .main,
+  html.ai-lab-h5 main { width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin-right: auto !important; margin-left: auto !important; }
+
+  html.ai-lab-h5 .home-layout,
+  html.ai-lab-h5 .calendar-layout,
+  html.ai-lab-h5 .dashboard-grid,
+  html.ai-lab-h5 .manager-grid,
+  html.ai-lab-h5 .map-grid,
+  html.ai-lab-h5 .report-layout,
+  html.ai-lab-h5 .report-grid,
+  html.ai-lab-h5 .profile-grid,
+  html.ai-lab-h5 .content-grid,
+  html.ai-lab-h5 .detail-grid,
+  html.ai-lab-h5 .library-grid,
+  html.ai-lab-h5 .test-reader-grid,
+  html.ai-lab-h5 .tech-grid,
+  html.ai-lab-h5 .controls-guide-grid,
+  html.ai-lab-h5 .shop-layout,
+  html.ai-lab-h5 .login,
+  html.ai-lab-h5 .hero { grid-template-columns: minmax(0, 1fr) !important; }
+
+  html.ai-lab-h5 .form-grid,
+  html.ai-lab-h5 .admin-form,
+  html.ai-lab-h5 .stats-grid,
+  html.ai-lab-h5 .quick-grid,
+  html.ai-lab-h5 .book-grid,
+  html.ai-lab-h5 .person-grid,
+  html.ai-lab-h5 .region-grid,
+  html.ai-lab-h5 .rules-grid,
+  html.ai-lab-h5 .identity-role-grid,
+  html.ai-lab-h5 .grid-3,
+  html.ai-lab-h5 .rewards-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)) !important; }
+
+  html.ai-lab-h5 .header-actions,
+  html.ai-lab-h5 .hero-actions,
+  html.ai-lab-h5 .main-actions,
+  html.ai-lab-h5 .top-controls,
+  html.ai-lab-h5 .action-row,
+  html.ai-lab-h5 .modal-actions,
+  html.ai-lab-h5 .toolbar,
+  html.ai-lab-h5 .controls { max-width: 100%; flex-wrap: wrap !important; }
+
+  html.ai-lab-h5 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  html.ai-lab-h5 select,
+  html.ai-lab-h5 textarea { width: 100%; max-width: 100%; min-width: 0; font-size: 16px !important; }
+  html.ai-lab-h5 button,
+  html.ai-lab-h5 .btn,
+  html.ai-lab-h5 [role="button"] { min-height: 44px; touch-action: manipulation; }
+  html.ai-lab-h5 textarea { resize: vertical; }
+
+  html.ai-lab-h5 canvas { display: block; width: auto; height: auto; max-width: 100% !important; max-height: min(68vh, 680px); margin-right: auto; margin-left: auto; touch-action: none; }
+  html.ai-lab-h5 .canvas-container,
+  html.ai-lab-h5 .canvas-wrapper,
+  html.ai-lab-h5 .canvas-wrap,
+  html.ai-lab-h5 .canvas-box,
+  html.ai-lab-h5 .board-shell,
+  html.ai-lab-h5 .board-wrapper,
+  html.ai-lab-h5 .gamewrap { width: 100% !important; max-width: 100% !important; min-width: 0 !important; overflow: hidden; }
+
+  html.ai-lab-h5 .modal-backdrop { padding: 12px !important; }
+  html.ai-lab-h5 .modal,
+  html.ai-lab-h5 .modal-card,
+  html.ai-lab-h5 .redeem-panel { width: min(100%, calc(100vw - 24px)) !important; max-width: calc(100vw - 24px) !important; max-height: 88dvh; overflow-y: auto; }
+  html.ai-lab-h5 .bottom-nav { padding-bottom: max(7px, env(safe-area-inset-bottom)); }
+  html.ai-lab-h5 .portfolio-return-bar { min-height: 54px; padding-right: 10px; padding-left: 10px; }
+  html.ai-lab-h5 .portfolio-back { max-width: calc(100vw - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  @media (max-width: 520px) {
+    html.ai-lab-h5 .stats-grid,
+    html.ai-lab-h5 .quick-grid,
+    html.ai-lab-h5 .form-grid,
+    html.ai-lab-h5 .admin-form,
+    html.ai-lab-h5 .identity-role-grid { grid-template-columns: minmax(0, 1fr) !important; }
+    html.ai-lab-h5 .card-footer { align-items: flex-start; flex-direction: column; }
+  }
+</style>
+<script id="ai-lab-responsive-runtime">
+(() => {
+  const root = document.documentElement;
+  const mobileUa = /Android|webOS|iPhone|iPad|iPod|Mobile|IEMobile|Opera Mini/i.test(navigator.userAgent || "");
+  const coarsePointer = window.matchMedia?.("(hover: none) and (pointer: coarse)")?.matches || false;
+  const updateLayoutMode = () => {
+    const narrowScreen = window.innerWidth <= 768;
+    const touchTablet = coarsePointer && window.innerWidth <= 1024;
+    const mobileDevice = mobileUa && window.innerWidth <= 1180;
+    const useH5 = narrowScreen || touchTablet || mobileDevice;
+    root.classList.toggle("ai-lab-h5", useH5);
+    root.classList.toggle("ai-lab-web", !useH5);
+    root.dataset.layoutMode = useH5 ? "h5" : "web";
+  };
+  updateLayoutMode();
+  window.addEventListener("resize", updateLayoutMode, { passive: true });
+  window.addEventListener("orientationchange", updateLayoutMode, { passive: true });
+})();
+</script>
+</head>
+
+<body>
+<a class="portfolio-back-link" href="../snake-games.html" data-portfolio-back>← 返回贪吃蛇合集</a>
+    <main class="game-shell">
+        <header class="game-header">
+            <div class="title">
+                <h1>暗域贪吃蛇</h1>
+                <p>DARK ZONE SNAKE</p>
+            </div>
+
+            <div class="running-status">
+                <span class="status-dot"></span>
+                <span id="runningStatus">等待开始</span>
+            </div>
+        </header>
+
+        <section class="dashboard">
+            <div class="data-card">
+                <span>当前分数</span>
+                <strong id="score">0</strong>
+            </div>
+
+            <div class="data-card">
+                <span>最高分数</span>
+                <strong id="bestScore">0</strong>
+            </div>
+
+            <div class="data-card">
+                <span>断尾核心</span>
+                <strong id="coreStatus">未充能</strong>
+            </div>
+        </section>
+
+        <section class="board-wrap" id="boardWrap">
+            <!-- 20 × 20格，每格24像素 -->
+            <canvas
+                id="gameCanvas"
+                width="480"
+                height="480"
+                aria-label="暗域贪吃蛇游戏区域"
+            ></canvas>
+
+            <div class="notice" id="notice" aria-live="polite">
+                断尾核心已充能
+            </div>
+
+            <div class="overlay" id="overlay">
+                <span class="overlay-small" id="overlaySmall">SYSTEM READY</span>
+                <h2 id="overlayTitle">准备进入暗域</h2>
+                <p id="overlayMessage">
+                    开局只出现普通食物。断尾核心和危险食物会在游戏过程中随机出现，并在未被吃掉时自动消失。
+                </p>
+            </div>
+        </section>
+
+        <section class="main-actions">
+            <button class="action-button" id="restartButton" type="button">
+                开始游戏
+            </button>
+
+            <button class="action-button secondary" id="soundButton" type="button">
+                开启声音
+            </button>
+        </section>
+
+        <section class="instructions">
+            <div>
+                <strong>移动方式</strong>
+                方向键 / WASD / 滑动
+            </div>
+
+            <div>
+                <strong>地图边界</strong>
+                穿墙后从另一侧出现
+            </div>
+
+            <div>
+                <strong>特殊食物</strong>
+                紫色断尾，快闪红球危险
+            </div>
+        </section>
+
+        <section class="mobile-controls" aria-label="方向控制">
+            <button class="direction-button up-button" data-direction="up" type="button" aria-label="向上">▲</button>
+            <button class="direction-button left-button" data-direction="left" type="button" aria-label="向左">◀</button>
+            <button class="direction-button down-button" data-direction="down" type="button" aria-label="向下">▼</button>
+            <button class="direction-button right-button" data-direction="right" type="button" aria-label="向右">▶</button>
+        </section>
+    </main>
+
+    <script>
+        "use strict";
+
+        /* =====================================================
+           1. 页面元素
+        ===================================================== */
+        const canvas = document.getElementById("gameCanvas");
+        const context = canvas.getContext("2d");
+
+        const scoreElement = document.getElementById("score");
+        const bestScoreElement = document.getElementById("bestScore");
+        const coreStatusElement = document.getElementById("coreStatus");
+        const runningStatusElement = document.getElementById("runningStatus");
+
+        const overlay = document.getElementById("overlay");
+        const overlaySmall = document.getElementById("overlaySmall");
+        const overlayTitle = document.getElementById("overlayTitle");
+        const overlayMessage = document.getElementById("overlayMessage");
+
+        const notice = document.getElementById("notice");
+        const restartButton = document.getElementById("restartButton");
+        const soundButton = document.getElementById("soundButton");
+        const boardWrap = document.getElementById("boardWrap");
+        const directionButtons = document.querySelectorAll(".direction-button");
+
+        /* =====================================================
+           2. 游戏配置
+        ===================================================== */
+
+        // 游戏区域为20 × 20格
+        const GRID_COLUMNS = 20;
+        const GRID_ROWS = 20;
+        const CELL_SIZE = canvas.width / GRID_COLUMNS;
+
+        // 移动速度：数字越小，蛇移动越快
+        const INITIAL_MOVE_INTERVAL = 126;
+        const MINIMUM_MOVE_INTERVAL = 62;
+        const SPEED_INCREASE = 2.4;
+
+        /*
+            特殊食物重复出现概率。
+            每局第一次出现由时间系统强制保证，后续才使用概率。
+        */
+        const CORE_REPEAT_CHANCE = 0.12;
+        const DANGER_REPEAT_CHANCE = 0.15;
+
+        // 断尾核心存在6—10秒，未吃到会消失
+        const CORE_MIN_LIFETIME = 6000;
+        const CORE_MAX_LIFETIME = 10000;
+
+        // 断尾核心消失或使用后，4—8秒再次尝试生成
+        const CORE_MIN_RESPAWN_DELAY = 4000;
+        const CORE_MAX_RESPAWN_DELAY = 8000;
+
+        // 危险食物存在5—8秒，未吃到会消失
+        const DANGER_MIN_LIFETIME = 5000;
+        const DANGER_MAX_LIFETIME = 8000;
+
+        // 危险食物消失后，3—6秒再次尝试生成
+        const DANGER_MIN_RESPAWN_DELAY = 3000;
+        const DANGER_MAX_RESPAWN_DELAY = 6000;
+
+        /* =====================================================
+           3. 游戏状态
+        ===================================================== */
+        let snake = [];
+
+        let normalFood = null;
+        let coreFood = null;
+        let dangerFood = null;
+
+        let direction = { x: 1, y: 0 };
+        let nextDirection = { x: 1, y: 0 };
+
+        let score = 0;
+        let bestScore = Number(localStorage.getItem("darkSnakeBestScore")) || 0;
+        let coreCharge = 0;
+
+        let gameState = "ready"; // ready、playing、over
+        let deathReason = "self";
+
+        let moveInterval = INITIAL_MOVE_INTERVAL;
+        let lastMoveTime = 0;
+        let previousFrameTime = 0;
+
+        let coreHasAppeared = false;
+        let dangerHasAppeared = false;
+
+        let coreDueAt = 0;
+        let dangerDueAt = 0;
+        let coreExpiresAt = 0;
+        let dangerExpiresAt = 0;
+
+        let particles = [];
+        let noticeTimer = null;
+        let overlayTimer = null;
+
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        bestScoreElement.textContent = bestScore;
+
+        /* =====================================================
+           4. 音效系统
+           使用浏览器Web Audio API，不需要音频文件
+        ===================================================== */
+        let audioContext = null;
+        let soundEnabled = false;
+
+        async function enableAudio() {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+
+            if (!AudioContextClass) {
+                soundButton.textContent = "浏览器不支持声音";
+                soundButton.disabled = true;
+                return false;
+            }
+
+            if (!audioContext) {
+                audioContext = new AudioContextClass();
+            }
+
+            try {
+                if (audioContext.state === "suspended") {
+                    await audioContext.resume();
+                }
+            } catch (error) {
+                console.warn("音频启动失败：", error);
+            }
+
+            soundEnabled = audioContext.state === "running";
+            soundButton.textContent = soundEnabled ? "声音：开启" : "再次点击开启声音";
+
+            // 播放一个几乎听不到的短音，完成手机浏览器音频解锁
+            if (soundEnabled) {
+                const oscillator = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+
+                gain.gain.value = 0.00001;
+                oscillator.connect(gain);
+                gain.connect(audioContext.destination);
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.02);
+            }
+
+            return soundEnabled;
+        }
+
+        function playTone({
+            frequency = 440,
+            endFrequency = frequency,
+            duration = 0.12,
+            volume = 0.06,
+            type = "sine",
+            delay = 0
+        }) {
+            if (!soundEnabled || !audioContext || audioContext.state !== "running") {
+                return;
+            }
+
+            const startTime = audioContext.currentTime + delay;
+            const oscillator = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+
+            oscillator.type = type;
+            oscillator.frequency.setValueAtTime(frequency, startTime);
+            oscillator.frequency.exponentialRampToValueAtTime(
+                Math.max(25, endFrequency),
+                startTime + duration
+            );
+
+            gain.gain.setValueAtTime(0.0001, startTime);
+            gain.gain.exponentialRampToValueAtTime(volume, startTime + 0.012);
+            gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+            oscillator.connect(gain);
+            gain.connect(audioContext.destination);
+
+            oscillator.start(startTime);
+            oscillator.stop(startTime + duration + 0.03);
+        }
+
+        function playNoiseBurst(duration = 0.42, volume = 0.14) {
+            if (!soundEnabled || !audioContext || audioContext.state !== "running") {
+                return;
+            }
+
+            const sampleCount = Math.floor(audioContext.sampleRate * duration);
+            const buffer = audioContext.createBuffer(1, sampleCount, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+
+            for (let index = 0; index < sampleCount; index++) {
+                const progress = index / sampleCount;
+                data[index] = (Math.random() * 2 - 1) * (1 - progress);
+            }
+
+            const source = audioContext.createBufferSource();
+            const filter = audioContext.createBiquadFilter();
+            const gain = audioContext.createGain();
+
+            source.buffer = buffer;
+            filter.type = "lowpass";
+            filter.frequency.value = 1200;
+
+            gain.gain.setValueAtTime(volume, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(
+                0.0001,
+                audioContext.currentTime + duration
+            );
+
+            source.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioContext.destination);
+            source.start();
+        }
+
+        function playNormalFoodSound() {
+            playTone({ frequency: 520, endFrequency: 780, duration: 0.1, volume: 0.065 });
+            playTone({
+                frequency: 760,
+                endFrequency: 980,
+                duration: 0.08,
+                volume: 0.035,
+                type: "triangle",
+                delay: 0.05
+            });
+        }
+
+        function playCoreFoodSound() {
+            playTone({
+                frequency: 310,
+                endFrequency: 460,
+                duration: 0.14,
+                volume: 0.06,
+                type: "triangle"
+            });
+            playTone({
+                frequency: 500,
+                endFrequency: 820,
+                duration: 0.2,
+                volume: 0.06,
+                delay: 0.1
+            });
+        }
+
+        function playTailRevivalSound() {
+            playTone({
+                frequency: 900,
+                endFrequency: 170,
+                duration: 0.16,
+                volume: 0.075,
+                type: "sawtooth"
+            });
+            playTone({
+                frequency: 270,
+                endFrequency: 720,
+                duration: 0.26,
+                volume: 0.055,
+                type: "triangle",
+                delay: 0.12
+            });
+        }
+
+        function playDeathSound() {
+            playTone({
+                frequency: 240,
+                endFrequency: 45,
+                duration: 0.62,
+                volume: 0.09,
+                type: "sawtooth"
+            });
+            playTone({
+                frequency: 125,
+                endFrequency: 30,
+                duration: 0.7,
+                volume: 0.05,
+                type: "square",
+                delay: 0.05
+            });
+        }
+
+        function playDangerFoodSound() {
+            playNoiseBurst(0.45, 0.15);
+            playTone({
+                frequency: 400,
+                endFrequency: 45,
+                duration: 0.55,
+                volume: 0.11,
+                type: "sawtooth"
+            });
+            playTone({
+                frequency: 120,
+                endFrequency: 28,
+                duration: 0.7,
+                volume: 0.07,
+                type: "square"
+            });
+        }
+
+        /* =====================================================
+           5. 通用工具函数
+        ===================================================== */
+        function randomBetween(minimum, maximum) {
+            return minimum + Math.random() * (maximum - minimum);
+        }
+
+        function isSameCell(first, second) {
+            return Boolean(
+                first &&
+                second &&
+                first.x === second.x &&
+                first.y === second.y
+            );
+        }
+
+        function isCellOnSnake(x, y) {
+            return snake.some((segment) => segment.x === x && segment.y === y);
+        }
+
+        function isCellOccupied(x, y, ignoredFood = null) {
+            if (isCellOnSnake(x, y)) {
+                return true;
+            }
+
+            return [normalFood, coreFood, dangerFood].some((foodItem) => {
+                return (
+                    foodItem &&
+                    foodItem !== ignoredFood &&
+                    foodItem.x === x &&
+                    foodItem.y === y
+                );
+            });
+        }
+
+        function getRandomFreeCell(ignoredFood = null) {
+            const freeCells = [];
+
+            for (let y = 0; y < GRID_ROWS; y++) {
+                for (let x = 0; x < GRID_COLUMNS; x++) {
+                    if (!isCellOccupied(x, y, ignoredFood)) {
+                        freeCells.push({ x, y });
+                    }
+                }
+            }
+
+            if (freeCells.length === 0) {
+                return null;
+            }
+
+            return freeCells[Math.floor(Math.random() * freeCells.length)];
+        }
+
+        // 计算环形地图中两个坐标之间的最短距离
+        function getWrappedDelta(from, to, size) {
+            let delta = to - from;
+
+            if (delta > size / 2) {
+                delta -= size;
+            }
+
+            if (delta < -size / 2) {
+                delta += size;
+            }
+
+            return delta;
+        }
+
+        /* =====================================================
+           6. 游戏初始化
+        ===================================================== */
+        function resetGame(startImmediately = true) {
+            clearTimeout(noticeTimer);
+            clearTimeout(overlayTimer);
+
+            notice.classList.remove("show", "danger");
+
+            snake = [
+                { x: 10, y: 10 },
+                { x: 9, y: 10 },
+                { x: 8, y: 10 },
+                { x: 7, y: 10 },
+                { x: 6, y: 10 },
+                { x: 5, y: 10 },
+                { x: 4, y: 10 },
+                { x: 3, y: 10 }
+            ];
+
+            direction = { x: 1, y: 0 };
+            nextDirection = { x: 1, y: 0 };
+
+            score = 0;
+            coreCharge = 0;
+            moveInterval = INITIAL_MOVE_INTERVAL;
+
+            normalFood = null;
+            coreFood = null;
+            dangerFood = null;
+
+            coreHasAppeared = false;
+            dangerHasAppeared = false;
+
+            coreExpiresAt = 0;
+            dangerExpiresAt = 0;
+
+            particles = [];
+            deathReason = "self";
+
+            createNormalFood();
+
+            const currentTime = performance.now();
+
+            /*
+                开局不出现特殊食物。
+                每局第一次核心会在3—6秒后出现，
+                第一次危险食物会在5—9秒后出现。
+            */
+            coreDueAt = currentTime + randomBetween(3000, 6000);
+            dangerDueAt = currentTime + randomBetween(5000, 9000);
+
+            updateDashboard();
+
+            if (startImmediately) {
+                gameState = "playing";
+                lastMoveTime = currentTime;
+
+                restartButton.textContent = "重新开始";
+                runningStatusElement.textContent = "20 × 20 · 边界循环";
+                hideOverlay();
+            } else {
+                gameState = "ready";
+
+                restartButton.textContent = "开始游戏";
+                runningStatusElement.textContent = "等待开始";
+                showReadyOverlay();
+            }
+        }
+
+        /* =====================================================
+           7. 食物生成与限时消失
+        ===================================================== */
+        function createNormalFood() {
+            normalFood = getRandomFreeCell(normalFood);
+        }
+
+        function scheduleCoreRespawn(currentTime) {
+            coreDueAt = currentTime + randomBetween(
+                CORE_MIN_RESPAWN_DELAY,
+                CORE_MAX_RESPAWN_DELAY
+            );
+        }
+
+        function scheduleDangerRespawn(currentTime) {
+            dangerDueAt = currentTime + randomBetween(
+                DANGER_MIN_RESPAWN_DELAY,
+                DANGER_MAX_RESPAWN_DELAY
+            );
+        }
+
+        function createCoreFood(force = false, currentTime = performance.now()) {
+            if (coreFood || coreCharge > 0) {
+                return false;
+            }
+
+            if (!force && Math.random() >= CORE_REPEAT_CHANCE) {
+                return false;
+            }
+
+            coreFood = getRandomFreeCell(coreFood);
+
+            if (!coreFood) {
+                return false;
+            }
+
+            coreHasAppeared = true;
+            coreExpiresAt = currentTime + randomBetween(
+                CORE_MIN_LIFETIME,
+                CORE_MAX_LIFETIME
+            );
+
+            return true;
+        }
+
+        /*
+            危险食物会优先生成在蛇头前方、当前路线附近或地图中央，
+            但不会直接出现在蛇头下一格，确保玩家仍有躲避机会。
+        */
+        function getDangerSpawnCell() {
+            const head = snake[0];
+            const candidates = [];
+
+            for (let y = 0; y < GRID_ROWS; y++) {
+                for (let x = 0; x < GRID_COLUMNS; x++) {
+                    if (isCellOccupied(x, y)) {
+                        continue;
+                    }
+
+                    const deltaX = getWrappedDelta(head.x, x, GRID_COLUMNS);
+                    const deltaY = getWrappedDelta(head.y, y, GRID_ROWS);
+
+                    const forwardDistance =
+                        deltaX * direction.x + deltaY * direction.y;
+
+                    const sideDistance = Math.abs(
+                        deltaX * direction.y - deltaY * direction.x
+                    );
+
+                    const totalDistance = Math.abs(deltaX) + Math.abs(deltaY);
+
+                    // 不生成在蛇头下一格或紧贴蛇头的位置
+                    if (totalDistance < 3) {
+                        continue;
+                    }
+
+                    let weight = Math.random() * 3;
+
+                    if (forwardDistance >= 3 && forwardDistance <= 7) {
+                        weight += 18 - forwardDistance;
+                    } else if (forwardDistance > 0) {
+                        weight += 3;
+                    }
+
+                    if (sideDistance === 0) {
+                        weight += 9;
+                    } else if (sideDistance === 1) {
+                        weight += 6;
+                    } else if (sideDistance === 2) {
+                        weight += 2;
+                    }
+
+                    const centerDistance =
+                        Math.abs(x - (GRID_COLUMNS - 1) / 2) +
+                        Math.abs(y - (GRID_ROWS - 1) / 2);
+
+                    weight += Math.max(0, 4 - centerDistance * 0.24);
+
+                    // 普通食物附近也更容易生成危险食物
+                    if (normalFood) {
+                        const foodDeltaX = getWrappedDelta(
+                            normalFood.x,
+                            x,
+                            GRID_COLUMNS
+                        );
+                        const foodDeltaY = getWrappedDelta(
+                            normalFood.y,
+                            y,
+                            GRID_ROWS
+                        );
+                        const foodDistance = Math.abs(foodDeltaX) + Math.abs(foodDeltaY);
+
+                        if (foodDistance >= 2 && foodDistance <= 4) {
+                            weight += 4;
+                        }
+                    }
+
+                    candidates.push({ x, y, weight });
+                }
+            }
+
+            if (candidates.length === 0) {
+                return getRandomFreeCell();
+            }
+
+            candidates.sort((first, second) => second.weight - first.weight);
+
+            const bestCandidates = candidates.slice(0, Math.min(6, candidates.length));
+            return bestCandidates[Math.floor(Math.random() * bestCandidates.length)];
+        }
+
+        function createDangerFood(force = false, currentTime = performance.now()) {
+            if (dangerFood) {
+                return false;
+            }
+
+            if (!force && Math.random() >= DANGER_REPEAT_CHANCE) {
+                return false;
+            }
+
+            dangerFood = getDangerSpawnCell();
+
+            if (!dangerFood) {
+                return false;
+            }
+
+            dangerHasAppeared = true;
+            dangerExpiresAt = currentTime + randomBetween(
+                DANGER_MIN_LIFETIME,
+                DANGER_MAX_LIFETIME
+            );
+
+            return true;
+        }
+
+        function updateSpecialFoodTimers(currentTime) {
+            // 断尾核心超时后自动消失
+            if (coreFood && coreExpiresAt > 0 && currentTime >= coreExpiresAt) {
+                coreFood = null;
+                coreExpiresAt = 0;
+                scheduleCoreRespawn(currentTime);
+            }
+
+            // 没有核心、也没有储存能力时，到时间后尝试生成
+            if (!coreFood && coreCharge === 0 && currentTime >= coreDueAt) {
+                const created = createCoreFood(!coreHasAppeared, currentTime);
+
+                if (!created) {
+                    scheduleCoreRespawn(currentTime);
+                }
+            }
+
+            // 危险食物超时后自动消失
+            if (
+                dangerFood &&
+                dangerExpiresAt > 0 &&
+                currentTime >= dangerExpiresAt
+            ) {
+                dangerFood = null;
+                dangerExpiresAt = 0;
+                scheduleDangerRespawn(currentTime);
+            }
+
+            // 到时间后尝试生成危险食物
+            if (!dangerFood && currentTime >= dangerDueAt) {
+                const created = createDangerFood(!dangerHasAppeared, currentTime);
+
+                if (!created) {
+                    scheduleDangerRespawn(currentTime);
+                }
+            }
+        }
+
+        /* =====================================================
+           8. 游戏移动与碰撞
+        ===================================================== */
+        function updateGame(currentTime) {
+            if (gameState !== "playing") {
+                return;
+            }
+
+            direction = { ...nextDirection };
+
+            const currentHead = snake[0];
+
+            // 使用取模实现穿墙循环
+            const newHead = {
+                x: (
+                    currentHead.x + direction.x + GRID_COLUMNS
+                ) % GRID_COLUMNS,
+
+                y: (
+                    currentHead.y + direction.y + GRID_ROWS
+                ) % GRID_ROWS
+            };
+
+            const ateNormalFood = isSameCell(newHead, normalFood);
+            const ateCoreFood = isSameCell(newHead, coreFood);
+            const ateDangerFood = isSameCell(newHead, dangerFood);
+
+            /*
+                危险食物优先判定。
+                即使拥有断尾核心，吃到危险食物也会立即失败。
+            */
+            if (ateDangerFood) {
+                snake.unshift(newHead);
+                snake.pop();
+
+                const impactPosition = { ...dangerFood };
+                dangerFood = null;
+                dangerExpiresAt = 0;
+
+                endGame("danger", impactPosition);
+                return;
+            }
+
+            const willGrow = ateNormalFood || ateCoreFood;
+
+            // 本次不增长时，蛇尾会移动，所以自撞检测可忽略最后一节
+            const bodyToCheck = willGrow ? snake : snake.slice(0, -1);
+
+            const collisionIndex = bodyToCheck.findIndex((segment) => {
+                return segment.x === newHead.x && segment.y === newHead.y;
+            });
+
+            if (collisionIndex !== -1) {
+                if (coreCharge > 0) {
+                    activateTailRevival(newHead, collisionIndex, currentTime);
+                } else {
+                    endGame("self", newHead);
+                }
+
+                return;
+            }
+
+            snake.unshift(newHead);
+
+            if (ateNormalFood) {
+                score += 1;
+                playNormalFoodSound();
+                createNormalFood();
+            }
+
+            if (ateCoreFood) {
+                coreCharge = 1;
+                coreFood = null;
+                coreExpiresAt = 0;
+                score += 2;
+
+                playCoreFoodSound();
+                showNotice("断尾核心已充能");
+            }
+
+            if (!willGrow) {
+                snake.pop();
+            }
+
+            moveInterval = Math.max(
+                MINIMUM_MOVE_INTERVAL,
+                INITIAL_MOVE_INTERVAL - score * SPEED_INCREASE
+            );
+
+            updateDashboard();
+        }
+
+        /* =====================================================
+           9. 断尾重生
+        ===================================================== */
+        function activateTailRevival(newHead, collisionIndex, currentTime) {
+            /*
+                snake顺序：蛇头 → 身体 → 蛇尾。
+                撞到某一节时，从碰撞位置到尾巴的部分全部消失。
+            */
+            const removedSegments = snake.slice(collisionIndex);
+            const survivingBody = snake.slice(0, collisionIndex);
+
+            snake = [newHead, ...survivingBody];
+            coreCharge = 0;
+
+            // 保证重生后至少保留两节
+            if (snake.length < 2) {
+                snake.push({
+                    x: (
+                        newHead.x - direction.x + GRID_COLUMNS
+                    ) % GRID_COLUMNS,
+                    y: (
+                        newHead.y - direction.y + GRID_ROWS
+                    ) % GRID_ROWS
+                });
+            }
+
+            createSegmentParticles(removedSegments, 275, 6);
+            playTailRevivalSound();
+
+            showNotice(`断尾重生 · 切除 ${removedSegments.length} 节`);
+            runningStatusElement.textContent = "断尾核心已消耗";
+
+            scheduleCoreRespawn(currentTime);
+            updateDashboard();
+        }
+
+        /* =====================================================
+           10. 游戏失败
+        ===================================================== */
+        function endGame(reason = "self", impactPosition = null) {
+            gameState = "over";
+            deathReason = reason;
+
+            if (score > bestScore) {
+                bestScore = score;
+                localStorage.setItem("darkSnakeBestScore", String(bestScore));
+            }
+
+            updateDashboard();
+
+            if (reason === "danger") {
+                runningStatusElement.textContent = "危险信号引爆";
+
+                createSegmentParticles(snake, 5, 8);
+
+                if (impactPosition) {
+                    createCellBurst(impactPosition, 12, 35);
+                }
+
+                playDangerFoodSound();
+                showNotice("危险食物已引爆", true);
+            } else {
+                runningStatusElement.textContent = "连接中断";
+                createSegmentParticles(snake, 155, 7);
+                playDeathSound();
+            }
+
+            restartButton.textContent = "重新开始";
+            hideOverlay();
+
+            overlayTimer = setTimeout(() => {
+                if (gameState === "over") {
+                    showGameOverOverlay();
+                }
+            }, 520);
+        }
+
+        /* =====================================================
+           11. 粒子效果
+        ===================================================== */
+        function createParticle(x, y, hue, brightness = 1) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 75 + Math.random() * 235;
+
+            particles.push({
+                x,
+                y,
+                velocityX: Math.cos(angle) * speed,
+                velocityY: Math.sin(angle) * speed,
+                size: 3 + Math.random() * 8,
+                life: 1,
+                decay: 0.65 + Math.random() * 0.7,
+                rotation: Math.random() * Math.PI,
+                rotationSpeed: -6 + Math.random() * 12,
+                hue,
+                brightness
+            });
+        }
+
+        function createSegmentParticles(segments, hue, amount) {
+            segments.forEach((segment, segmentIndex) => {
+                const centerX = segment.x * CELL_SIZE + CELL_SIZE / 2;
+                const centerY = segment.y * CELL_SIZE + CELL_SIZE / 2;
+
+                for (let index = 0; index < amount; index++) {
+                    createParticle(
+                        centerX,
+                        centerY,
+                        hue + Math.random() * 15,
+                        segmentIndex === 0 ? 1.1 : 0.7
+                    );
+                }
+            });
+        }
+
+        function createCellBurst(cell, hue, amount) {
+            const centerX = cell.x * CELL_SIZE + CELL_SIZE / 2;
+            const centerY = cell.y * CELL_SIZE + CELL_SIZE / 2;
+
+            for (let index = 0; index < amount; index++) {
+                createParticle(centerX, centerY, hue + Math.random() * 22, 1.2);
+            }
+        }
+
+        function updateParticles(deltaTime) {
+            particles.forEach((particle) => {
+                particle.x += particle.velocityX * deltaTime;
+                particle.y += particle.velocityY * deltaTime;
+
+                particle.velocityY += 225 * deltaTime;
+                particle.velocityX *= 0.984;
+                particle.velocityY *= 0.984;
+
+                particle.rotation += particle.rotationSpeed * deltaTime;
+                particle.life -= particle.decay * deltaTime;
+            });
+
+            particles = particles.filter((particle) => particle.life > 0);
+        }
+
+        /* =====================================================
+           12. 玩家控制
+        ===================================================== */
+        function changeDirection(directionName) {
+            if (gameState !== "playing") {
+                return;
+            }
+
+            const directionMap = {
+                up: { x: 0, y: -1 },
+                down: { x: 0, y: 1 },
+                left: { x: -1, y: 0 },
+                right: { x: 1, y: 0 }
+            };
+
+            const selectedDirection = directionMap[directionName];
+
+            if (!selectedDirection) {
+                return;
+            }
+
+            // 禁止直接反方向移动
+            const isOpposite =
+                selectedDirection.x === -direction.x &&
+                selectedDirection.y === -direction.y;
+
+            if (!isOpposite) {
+                nextDirection = selectedDirection;
+            }
+        }
+
+        document.addEventListener("keydown", (event) => {
+            const key = event.key.toLowerCase();
+
+            const keyboardDirectionMap = {
+                arrowup: "up",
+                w: "up",
+                arrowdown: "down",
+                s: "down",
+                arrowleft: "left",
+                a: "left",
+                arrowright: "right",
+                d: "right"
+            };
+
+            if (keyboardDirectionMap[key]) {
+                event.preventDefault();
+                changeDirection(keyboardDirectionMap[key]);
+            }
+
+            if (event.code === "Space" && gameState !== "playing") {
+                event.preventDefault();
+                enableAudio().then(() => resetGame(true));
+            }
+        });
+
+        directionButtons.forEach((button) => {
+            button.addEventListener("pointerdown", (event) => {
+                event.preventDefault();
+                changeDirection(button.dataset.direction);
+            });
+        });
+
+        boardWrap.addEventListener(
+            "touchstart",
+            (event) => {
+                const touch = event.changedTouches[0];
+                touchStartX = touch.clientX;
+                touchStartY = touch.clientY;
+            },
+            { passive: true }
+        );
+
+        boardWrap.addEventListener(
+            "touchend",
+            (event) => {
+                const touch = event.changedTouches[0];
+                const deltaX = touch.clientX - touchStartX;
+                const deltaY = touch.clientY - touchStartY;
+
+                if (Math.max(Math.abs(deltaX), Math.abs(deltaY)) < 16) {
+                    return;
+                }
+
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                    changeDirection(deltaX > 0 ? "right" : "left");
+                } else {
+                    changeDirection(deltaY > 0 ? "down" : "up");
+                }
+            },
+            { passive: true }
+        );
+
+        restartButton.addEventListener("click", async () => {
+            await enableAudio();
+            resetGame(true);
+        });
+
+        soundButton.addEventListener("click", async () => {
+            if (!soundEnabled) {
+                const enabled = await enableAudio();
+
+                if (enabled) {
+                    playTone({
+                        frequency: 440,
+                        endFrequency: 720,
+                        duration: 0.16,
+                        volume: 0.07
+                    });
+                    playTone({
+                        frequency: 700,
+                        endFrequency: 920,
+                        duration: 0.1,
+                        volume: 0.04,
+                        type: "triangle",
+                        delay: 0.1
+                    });
+                }
+            } else {
+                soundEnabled = false;
+                soundButton.textContent = "声音：关闭";
+            }
+        });
+
+        /* =====================================================
+           13. 绘制背景
+        ===================================================== */
+        function drawBackground() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            const backgroundGradient = context.createRadialGradient(
+                canvas.width / 2,
+                canvas.height / 2,
+                40,
+                canvas.width / 2,
+                canvas.height / 2,
+                canvas.width * 0.7
+            );
+
+            backgroundGradient.addColorStop(0, "#0d1816");
+            backgroundGradient.addColorStop(1, "#040607");
+
+            context.fillStyle = backgroundGradient;
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 20 × 20网格
+            context.strokeStyle = "rgba(117, 255, 204, 0.045)";
+            context.lineWidth = 1;
+            context.beginPath();
+
+            for (let index = 0; index <= GRID_COLUMNS; index++) {
+                const position = index * CELL_SIZE;
+
+                context.moveTo(position, 0);
+                context.lineTo(position, canvas.height);
+
+                context.moveTo(0, position);
+                context.lineTo(canvas.width, position);
+            }
+
+            context.stroke();
+
+            // 暗角
+            const vignette = context.createRadialGradient(
+                canvas.width / 2,
+                canvas.height / 2,
+                canvas.width * 0.24,
+                canvas.width / 2,
+                canvas.height / 2,
+                canvas.width * 0.72
+            );
+
+            vignette.addColorStop(0, "rgba(0, 0, 0, 0)");
+            vignette.addColorStop(1, "rgba(0, 0, 0, 0.68)");
+
+            context.fillStyle = vignette;
+            context.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        /* =====================================================
+           14. 绘制蛇
+        ===================================================== */
+        function drawRoundedRectangle(x, y, width, height, radius) {
+            context.beginPath();
+            context.roundRect(x, y, width, height, radius);
+            context.fill();
+        }
+
+        function drawSnake() {
+            snake.forEach((segment, index) => {
+                const isHead = index === 0;
+                const padding = isHead ? 2.5 : 3.2;
+
+                const x = segment.x * CELL_SIZE + padding;
+                const y = segment.y * CELL_SIZE + padding;
+                const size = CELL_SIZE - padding * 2;
+
+                const bodyBrightness = Math.max(38, 79 - index * 1.45);
+
+                context.save();
+                context.shadowBlur = isHead ? 21 : 9;
+                context.shadowColor = "rgba(117, 255, 204, 0.75)";
+
+                context.fillStyle = isHead
+                    ? "#8affd4"
+                    : `hsl(157, 60%, ${bodyBrightness}%)`;
+
+                drawRoundedRectangle(x, y, size, size, isHead ? 7 : 5);
+                context.restore();
+
+                if (isHead) {
+                    drawSnakeEyes(segment);
+                }
+            });
+        }
+
+        function drawSnakeEyes(head) {
+            const baseX = head.x * CELL_SIZE;
+            const baseY = head.y * CELL_SIZE;
+
+            const near = CELL_SIZE * 0.34;
+            const far = CELL_SIZE * 0.7;
+
+            let firstEye;
+            let secondEye;
+
+            if (direction.x === 1) {
+                firstEye = { x: baseX + far, y: baseY + near };
+                secondEye = { x: baseX + far, y: baseY + far };
+            } else if (direction.x === -1) {
+                firstEye = { x: baseX + near, y: baseY + near };
+                secondEye = { x: baseX + near, y: baseY + far };
+            } else if (direction.y === -1) {
+                firstEye = { x: baseX + near, y: baseY + near };
+                secondEye = { x: baseX + far, y: baseY + near };
+            } else {
+                firstEye = { x: baseX + near, y: baseY + far };
+                secondEye = { x: baseX + far, y: baseY + far };
+            }
+
+            context.fillStyle = "#07100d";
+            context.beginPath();
+            context.arc(firstEye.x, firstEye.y, 2, 0, Math.PI * 2);
+            context.arc(secondEye.x, secondEye.y, 2, 0, Math.PI * 2);
+            context.fill();
+        }
+
+        /* =====================================================
+           15. 绘制普通食物
+           保持之前的大号红色发光圆球图标
+        ===================================================== */
+        function drawNormalFood(currentTime) {
+            if (!normalFood) {
+                return;
+            }
+
+            const centerX = normalFood.x * CELL_SIZE + CELL_SIZE / 2;
+            const centerY = normalFood.y * CELL_SIZE + CELL_SIZE / 2;
+
+            const pulse = 1 + Math.sin(currentTime / 155) * 0.11;
+            const radius = 7.3 * pulse;
+
+            context.save();
+            context.shadowBlur = 25;
+            context.shadowColor = "rgba(255, 75, 105, 0.95)";
+
+            const gradient = context.createRadialGradient(
+                centerX - 2.5,
+                centerY - 2.5,
+                1,
+                centerX,
+                centerY,
+                radius * 1.55
+            );
+
+            gradient.addColorStop(0, "#ffffff");
+            gradient.addColorStop(0.22, "#ff9aac");
+            gradient.addColorStop(1, "#ff365b");
+
+            context.fillStyle = gradient;
+            context.beginPath();
+            context.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            context.fill();
+
+            context.strokeStyle = "rgba(255, 100, 125, 0.3)";
+            context.lineWidth = 1.4;
+            context.beginPath();
+            context.arc(centerX, centerY, radius + 5, 0, Math.PI * 2);
+            context.stroke();
+
+            context.restore();
+        }
+
+        /* =====================================================
+           16. 绘制断尾核心
+        ===================================================== */
+        function drawCoreFood(currentTime) {
+            if (!coreFood) {
+                return;
+            }
+
+            const centerX = coreFood.x * CELL_SIZE + CELL_SIZE / 2;
+            const centerY = coreFood.y * CELL_SIZE + CELL_SIZE / 2;
+            const size = 8 * (1 + Math.sin(currentTime / 110) * 0.14);
+
+            context.save();
+            context.translate(centerX, centerY);
+            context.rotate(currentTime / 650);
+
+            context.shadowBlur = 25;
+            context.shadowColor = "rgba(189, 136, 255, 1)";
+
+            const gradient = context.createLinearGradient(-size, -size, size, size);
+            gradient.addColorStop(0, "#ffffff");
+            gradient.addColorStop(0.3, "#e4cbff");
+            gradient.addColorStop(1, "#8b42e8");
+
+            context.fillStyle = gradient;
+            context.beginPath();
+            context.moveTo(0, -size);
+            context.lineTo(size, 0);
+            context.lineTo(0, size);
+            context.lineTo(-size, 0);
+            context.closePath();
+            context.fill();
+
+            context.strokeStyle = "rgba(224, 194, 255, 0.65)";
+            context.lineWidth = 1.2;
+            context.strokeRect(
+                -size - 4,
+                -size - 4,
+                (size + 4) * 2,
+                (size + 4) * 2
+            );
+
+            context.restore();
+        }
+
+        /* =====================================================
+           17. 绘制危险伪装食物
+           看起来仍像食物，只通过快速闪烁和暗色中心留下线索
+        ===================================================== */
+        function drawDangerFood(currentTime) {
+            if (!dangerFood) {
+                return;
+            }
+
+            const centerX = dangerFood.x * CELL_SIZE + CELL_SIZE / 2;
+            const centerY = dangerFood.y * CELL_SIZE + CELL_SIZE / 2;
+
+            const fastPulse = 1 + Math.sin(currentTime / 72) * 0.13;
+            const irregularPulse = Math.sin(currentTime / 31) > 0.78 ? 1.08 : 1;
+            const radius = 7.3 * fastPulse * irregularPulse;
+
+            context.save();
+            context.shadowBlur = 29 * fastPulse;
+            context.shadowColor = "rgba(255, 80, 95, 0.98)";
+
+            const gradient = context.createRadialGradient(
+                centerX - 2,
+                centerY - 2,
+                1,
+                centerX,
+                centerY,
+                radius * 1.55
+            );
+
+            gradient.addColorStop(0, "#ffe1dc");
+            gradient.addColorStop(0.22, "#ff887f");
+            gradient.addColorStop(0.72, "#f83e55");
+            gradient.addColorStop(1, "#651824");
+
+            context.fillStyle = gradient;
+            context.beginPath();
+            context.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            context.fill();
+
+            context.strokeStyle = `rgba(255, 104, 110, ${0.42 + fastPulse * 0.1})`;
+            context.lineWidth = 1.6;
+            context.beginPath();
+            context.arc(centerX, centerY, radius + 5.5, 0, Math.PI * 2);
+            context.stroke();
+
+            // 很小的暗色中心，作为可识别线索
+            context.fillStyle = "rgba(45, 4, 10, 0.5)";
+            context.beginPath();
+            context.arc(centerX, centerY, 1.7, 0, Math.PI * 2);
+            context.fill();
+
+            context.restore();
+        }
+
+        /* =====================================================
+           18. 绘制粒子
+        ===================================================== */
+        function drawParticles() {
+            particles.forEach((particle) => {
+                context.save();
+                context.globalAlpha = Math.max(0, particle.life);
+                context.translate(particle.x, particle.y);
+                context.rotate(particle.rotation);
+
+                context.shadowBlur = 14;
+                context.shadowColor = `hsla(${particle.hue}, 90%, 70%, 0.8)`;
+
+                const lightness = 45 + particle.brightness * 30;
+                context.fillStyle = `hsl(${particle.hue}, 85%, ${lightness}%)`;
+
+                context.fillRect(
+                    -particle.size / 2,
+                    -particle.size / 2,
+                    particle.size,
+                    particle.size
+                );
+
+                context.restore();
+            });
+        }
+
+        /* =====================================================
+           19. 页面状态与提示
+        ===================================================== */
+        function updateDashboard() {
+            scoreElement.textContent = score;
+            bestScoreElement.textContent = bestScore;
+
+            if (coreCharge > 0) {
+                coreStatusElement.textContent = "可用 ×1";
+                coreStatusElement.classList.add("ready");
+            } else {
+                coreStatusElement.textContent = "未充能";
+                coreStatusElement.classList.remove("ready");
+            }
+        }
+
+        function showNotice(message, isDanger = false) {
+            clearTimeout(noticeTimer);
+
+            notice.textContent = message;
+            notice.classList.toggle("danger", isDanger);
+            notice.classList.add("show");
+
+            noticeTimer = setTimeout(() => {
+                notice.classList.remove("show");
+            }, 1800);
+        }
+
+        function hideOverlay() {
+            overlay.classList.add("hidden");
+        }
+
+        function showReadyOverlay() {
+            overlaySmall.textContent = "SYSTEM READY";
+            overlayTitle.textContent = "准备进入暗域";
+            overlayMessage.textContent =
+                "开局只出现普通食物。断尾核心和危险食物会随机出现，并在未被吃掉时自动消失。";
+            overlay.classList.remove("hidden");
+        }
+
+        function showGameOverOverlay() {
+            if (deathReason === "danger") {
+                overlaySmall.textContent = "FALSE SIGNAL";
+                overlayTitle.textContent = "摄入错误信号";
+                overlayMessage.textContent =
+                    `本局获得 ${score} 分。你吃到了快速闪烁的危险食物，断尾核心无法抵消它。`;
+            } else {
+                overlaySmall.textContent = "CONNECTION LOST";
+                overlayTitle.textContent = "信号已中断";
+                overlayMessage.textContent =
+                    `本局获得 ${score} 分。你撞到了自己的身体。`;
+            }
+
+            overlay.classList.remove("hidden");
+        }
+
+        /* =====================================================
+           20. 游戏主循环
+        ===================================================== */
+        function gameLoop(currentTime) {
+            const deltaTime = Math.min(
+                (currentTime - previousFrameTime) / 1000,
+                0.05
+            );
+
+            previousFrameTime = currentTime;
+
+            if (gameState === "playing") {
+                // 每帧检查特殊食物是否该出现或消失
+                updateSpecialFoodTimers(currentTime);
+
+                if (currentTime - lastMoveTime >= moveInterval) {
+                    updateGame(currentTime);
+                    lastMoveTime = currentTime;
+                }
+            }
+
+            updateParticles(deltaTime);
+
+            drawBackground();
+            drawNormalFood(currentTime);
+            drawCoreFood(currentTime);
+            drawDangerFood(currentTime);
+
+            if (gameState !== "over") {
+                drawSnake();
+            }
+
+            drawParticles();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        /* =====================================================
+           21. 启动页面
+        ===================================================== */
+        resetGame(false);
+        requestAnimationFrame(gameLoop);
+    </script>
+
+<script id="portfolio-back-bridge">
+  document.querySelector('[data-portfolio-back]').addEventListener('click', function (event) {
+    if (window.parent === window) return;
+    event.preventDefault();
+    window.parent.postMessage({ type: 'ai-lab-full-preview-nav', href: './snake-games.html' }, '*');
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+.portfolio-back {
+  position: fixed;
+  z-index: 999999;
+  top: max(12px, env(safe-area-inset-top));
+  left: max(12px, env(safe-area-inset-left));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 15px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  background: rgba(22, 22, 28, 0.82);
+  color: #fff;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.2);
+  font: 700 13px/1 "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+  text-decoration: none;
+  backdrop-filter: blur(12px);
+}
+
+.portfolio-back:hover,
+.portfolio-back:focus-visible { background: rgba(22, 22, 28, 0.96); }
+
+@media (max-width: 640px) {
+  .portfolio-back { min-height: 40px; padding: 0 12px; font-size: 12px; }
+}

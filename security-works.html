@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="2位小小创造者带来的物业保安数字作品合集">
+  <title>AI实验室-物业保安作品集</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .security-mark {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      flex: 0 0 44px;
+      place-items: center;
+      border: 3px solid #173b68;
+      border-radius: 15px 15px 19px 19px;
+      color: #fff;
+      background: linear-gradient(145deg, #4f8cff, #20b889);
+      box-shadow: 0 7px 0 #173b68;
+      font-size: 22px;
+      line-height: 1;
+    }
+    .work-note {
+      margin: -2px 0 22px;
+      padding: 13px 16px;
+      border: 2px dashed rgba(23, 59, 104, .18);
+      border-radius: 16px;
+      color: #58708e;
+      background: rgba(255, 255, 255, .68);
+      font-size: 13px;
+      line-height: 1.75;
+    }
+    .work-note strong { color: #173b68; }
+  </style>
+<style id="ai-lab-responsive-v2">
+  /* 全站响应式增强：宽屏保持网页版，移动设备自动切换 H5。 */
+  html, body { max-width: 100%; }
+  body { overflow-x: clip; }
+  img, video, svg { max-width: 100%; height: auto; }
+  canvas { max-width: 100%; }
+  table { max-width: 100%; }
+  .table-wrap, .table-responsive, .report-table, .admin-table-section { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  html.ai-lab-h5 { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  html.ai-lab-h5, html.ai-lab-h5 body { width: 100%; min-width: 0 !important; overflow-x: hidden !important; }
+  html.ai-lab-h5 body { overscroll-behavior-x: none; }
+  html.ai-lab-h5 .app-shell,
+  html.ai-lab-h5 .game-shell,
+  html.ai-lab-h5 .game-app,
+  html.ai-lab-h5 .shell,
+  html.ai-lab-h5 .container,
+  html.ai-lab-h5 .wrapper,
+  html.ai-lab-h5 .content,
+  html.ai-lab-h5 .main,
+  html.ai-lab-h5 main { width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin-right: auto !important; margin-left: auto !important; }
+
+  html.ai-lab-h5 .home-layout,
+  html.ai-lab-h5 .calendar-layout,
+  html.ai-lab-h5 .dashboard-grid,
+  html.ai-lab-h5 .manager-grid,
+  html.ai-lab-h5 .map-grid,
+  html.ai-lab-h5 .report-layout,
+  html.ai-lab-h5 .report-grid,
+  html.ai-lab-h5 .profile-grid,
+  html.ai-lab-h5 .content-grid,
+  html.ai-lab-h5 .detail-grid,
+  html.ai-lab-h5 .library-grid,
+  html.ai-lab-h5 .test-reader-grid,
+  html.ai-lab-h5 .tech-grid,
+  html.ai-lab-h5 .controls-guide-grid,
+  html.ai-lab-h5 .shop-layout,
+  html.ai-lab-h5 .login,
+  html.ai-lab-h5 .hero { grid-template-columns: minmax(0, 1fr) !important; }
+
+  html.ai-lab-h5 .form-grid,
+  html.ai-lab-h5 .admin-form,
+  html.ai-lab-h5 .stats-grid,
+  html.ai-lab-h5 .quick-grid,
+  html.ai-lab-h5 .book-grid,
+  html.ai-lab-h5 .person-grid,
+  html.ai-lab-h5 .region-grid,
+  html.ai-lab-h5 .rules-grid,
+  html.ai-lab-h5 .identity-role-grid,
+  html.ai-lab-h5 .grid-3,
+  html.ai-lab-h5 .rewards-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)) !important; }
+
+  html.ai-lab-h5 .header-actions,
+  html.ai-lab-h5 .hero-actions,
+  html.ai-lab-h5 .main-actions,
+  html.ai-lab-h5 .top-controls,
+  html.ai-lab-h5 .action-row,
+  html.ai-lab-h5 .modal-actions,
+  html.ai-lab-h5 .toolbar,
+  html.ai-lab-h5 .controls { max-width: 100%; flex-wrap: wrap !important; }
+
+  html.ai-lab-h5 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  html.ai-lab-h5 select,
+  html.ai-lab-h5 textarea { width: 100%; max-width: 100%; min-width: 0; font-size: 16px !important; }
+  html.ai-lab-h5 button,
+  html.ai-lab-h5 .btn,
+  html.ai-lab-h5 [role="button"] { min-height: 44px; touch-action: manipulation; }
+  html.ai-lab-h5 textarea { resize: vertical; }
+
+  html.ai-lab-h5 canvas { display: block; width: auto; height: auto; max-width: 100% !important; max-height: min(68vh, 680px); margin-right: auto; margin-left: auto; touch-action: none; }
+  html.ai-lab-h5 .canvas-container,
+  html.ai-lab-h5 .canvas-wrapper,
+  html.ai-lab-h5 .canvas-wrap,
+  html.ai-lab-h5 .canvas-box,
+  html.ai-lab-h5 .board-shell,
+  html.ai-lab-h5 .board-wrapper,
+  html.ai-lab-h5 .gamewrap { width: 100% !important; max-width: 100% !important; min-width: 0 !important; overflow: hidden; }
+
+  html.ai-lab-h5 .modal-backdrop { padding: 12px !important; }
+  html.ai-lab-h5 .modal,
+  html.ai-lab-h5 .modal-card,
+  html.ai-lab-h5 .redeem-panel { width: min(100%, calc(100vw - 24px)) !important; max-width: calc(100vw - 24px) !important; max-height: 88dvh; overflow-y: auto; }
+  html.ai-lab-h5 .bottom-nav { padding-bottom: max(7px, env(safe-area-inset-bottom)); }
+  html.ai-lab-h5 .portfolio-return-bar { min-height: 54px; padding-right: 10px; padding-left: 10px; }
+  html.ai-lab-h5 .portfolio-back { max-width: calc(100vw - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  @media (max-width: 520px) {
+    html.ai-lab-h5 .stats-grid,
+    html.ai-lab-h5 .quick-grid,
+    html.ai-lab-h5 .form-grid,
+    html.ai-lab-h5 .admin-form,
+    html.ai-lab-h5 .identity-role-grid { grid-template-columns: minmax(0, 1fr) !important; }
+    html.ai-lab-h5 .card-footer { align-items: flex-start; flex-direction: column; }
+  }
+</style>
+<script id="ai-lab-responsive-runtime">
+(() => {
+  const root = document.documentElement;
+  const mobileUa = /Android|webOS|iPhone|iPad|iPod|Mobile|IEMobile|Opera Mini/i.test(navigator.userAgent || "");
+  const coarsePointer = window.matchMedia?.("(hover: none) and (pointer: coarse)")?.matches || false;
+  const updateLayoutMode = () => {
+    const narrowScreen = window.innerWidth <= 768;
+    const touchTablet = coarsePointer && window.innerWidth <= 1024;
+    const mobileDevice = mobileUa && window.innerWidth <= 1180;
+    const useH5 = narrowScreen || touchTablet || mobileDevice;
+    root.classList.toggle("ai-lab-h5", useH5);
+    root.classList.toggle("ai-lab-web", !useH5);
+    root.dataset.layoutMode = useH5 ? "h5" : "web";
+  };
+  updateLayoutMode();
+  window.addEventListener("resize", updateLayoutMode, { passive: true });
+  window.addEventListener("orientationchange", updateLayoutMode, { passive: true });
+})();
+</script>
+</head>
+<body>
+  <main>
+    <header class="site-header">
+      <a class="back-home" href="./index.html" aria-label="返回数字作品展">← <span>作品展首页</span></a>
+      <a class="brand" href="#works" aria-label="返回作品列表顶部">
+        <span class="security-mark" aria-hidden="true">🛡️</span>
+        <span>AI实验室-物业保安作品集</span>
+      </a>
+      <nav aria-label="主导航">
+        <a class="active" href="#works">全部作品</a>
+        <a href="#creators">小小创造者</a>
+      </nav>
+    </header>
+
+    <section class="games-section" id="works">
+      <div class="section-heading">
+        <div><p class="eyebrow"><span>2 SMART SECURITY WORKS</span></p><h2>把物业保安的工作流程做得更聪明</h2></div>
+        <p>预览真实作品画面，点击任意作品即可进入完整体验。</p>
+      </div>
+
+      <div class="work-note"><strong>体验提示：</strong>两个作品都会在浏览器中保存演示进度。陈艺泽作品的保安账号可用“王师傅 / 李师傅”，初始密码为 123456；管理端密码为 594188。</div>
+
+      <div class="game-grid">
+        <a class="game-card blue" href="security/project01.html" aria-label="进入陈艺泽的保安小管家">
+          <div class="preview-wrap"><iframe src="security/project01.html" title="陈艺泽-保安小管家预览" tabindex="-1" aria-hidden="true"></iframe><div class="preview-shade"></div><span class="preview-badge">程序页面</span><span class="play-bubble">▶</span></div>
+          <div class="card-content"><div class="creator-row"><span class="creator-avatar">🧑‍✈️</span><div><h3>陈艺泽</h3><p>保安小管家</p></div></div><p class="highlight">管理端安排每日与特殊任务，保安端登录后按人查看任务、拍照验证并上报异常。</p><div class="card-footer"><div class="tags"><span>任务管理</span><span>拍照验证</span><span>双端模式</span></div><span class="enter">进入作品 <b>→</b></span></div></div>
+        </a>
+
+        <a class="game-card green" href="security/project02.html" aria-label="进入小北的保安巡逻助手">
+          <div class="preview-wrap"><iframe src="security/project02.html" title="小北-保安巡逻助手预览" tabindex="-1" aria-hidden="true"></iframe><div class="preview-shade"></div><span class="preview-badge">程序页面</span><span class="play-bubble">▶</span></div>
+          <div class="card-content"><div class="creator-row"><span class="creator-avatar">📍</span><div><h3>小北</h3><p>保安巡逻助手</p></div></div><p class="highlight">用任务清单、蓝牙点位、现场上传、进度看板和下班打卡串联完整巡逻流程。</p><div class="card-footer"><div class="tags"><span>蓝牙打卡</span><span>现场上报</span><span>进度管理</span></div><span class="enter">进入作品 <b>→</b></span></div></div>
+        </a>
+      </div>
+    </section>
+
+    <section class="creators" id="creators">
+      <div class="creator-art" aria-hidden="true">🛡️</div>
+      <div><p class="eyebrow"><span>MADE BY YOUNG CREATORS</span></p><h2>从观察日常工作，到设计真实工具</h2><p>陈艺泽和小北从物业保安的巡逻场景出发，用AI辅助编程，把任务、打卡、上报和管理流程变成真正可以操作的网页作品。</p></div>
+      <a class="secondary-button" href="#works">看看他们的作品 →</a>
+    </section>
+
+    <footer>
+      <div class="footer-brand"><span class="security-mark" aria-hidden="true">🛡️</span><span>AI实验室</span></div>
+      <p>物业保安作品集 · 让每个创意都能被看见</p>
+      <a href="#works">回到顶部 ↑</a>
+    </footer>
+  </main>
+  <script>
+    function fitProgramPreviews() {
+      document.querySelectorAll('.preview-wrap iframe').forEach(function (frame) {
+        const wrap = frame.closest('.preview-wrap');
+        if (wrap) frame.style.transform = 'scale(' + (wrap.clientWidth / 1180) + ')';
+      });
+    }
+    fitProgramPreviews();
+    window.addEventListener('resize', fitProgramPreviews);
+    if (typeof ResizeObserver === 'function') {
+      const previewObserver = new ResizeObserver(fitProgramPreviews);
+      document.querySelectorAll('.preview-wrap').forEach(function (wrap) { previewObserver.observe(wrap); });
+    }
+    document.addEventListener('click', function (event) {
+      const link = event.target.closest('a[href^="#"]');
+      if (!link) return;
+      const targetId = link.getAttribute('href').slice(1);
+      const target = targetId ? document.getElementById(targetId) : document.documentElement;
+      if (!target) return;
+      event.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="3位小小创造者带来的图书馆借阅数字作品合集">
+  <title>AI实验室-图书馆借阅作品集</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .library-mark{display:grid;width:44px;height:44px;flex:0 0 44px;place-items:center;border:3px solid #173b68;border-radius:17px;color:#fff;background:linear-gradient(145deg,#f6b94f,#55b899);box-shadow:0 7px 0 #173b68;font-size:22px;line-height:1}
+    .work-note{margin:-2px 0 22px;padding:13px 16px;border:2px dashed rgba(23,59,104,.18);border-radius:16px;color:#58708e;background:rgba(255,255,255,.68);font-size:13px;line-height:1.75}.work-note strong{color:#173b68}
+    .program-preview{height:280px;background:#f3f7f5}
+    .program-preview iframe{position:absolute;top:0;left:0;width:1180px;height:820px;max-width:none;transform-origin:0 0;background:#fff}
+    @media(max-width:760px){.program-preview{height:235px}}
+  </style>
+<style id="ai-lab-responsive-v2">
+  /* 全站响应式增强：宽屏保持网页版，移动设备自动切换 H5。 */
+  html, body { max-width: 100%; }
+  body { overflow-x: clip; }
+  img, video, svg { max-width: 100%; height: auto; }
+  canvas { max-width: 100%; }
+  table { max-width: 100%; }
+  .table-wrap, .table-responsive, .report-table, .admin-table-section { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  html.ai-lab-h5 { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  html.ai-lab-h5, html.ai-lab-h5 body { width: 100%; min-width: 0 !important; overflow-x: hidden !important; }
+  html.ai-lab-h5 body { overscroll-behavior-x: none; }
+  html.ai-lab-h5 .app-shell,
+  html.ai-lab-h5 .game-shell,
+  html.ai-lab-h5 .game-app,
+  html.ai-lab-h5 .shell,
+  html.ai-lab-h5 .container,
+  html.ai-lab-h5 .wrapper,
+  html.ai-lab-h5 .content,
+  html.ai-lab-h5 .main,
+  html.ai-lab-h5 main { width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin-right: auto !important; margin-left: auto !important; }
+
+  html.ai-lab-h5 .home-layout,
+  html.ai-lab-h5 .calendar-layout,
+  html.ai-lab-h5 .dashboard-grid,
+  html.ai-lab-h5 .manager-grid,
+  html.ai-lab-h5 .map-grid,
+  html.ai-lab-h5 .report-layout,
+  html.ai-lab-h5 .report-grid,
+  html.ai-lab-h5 .profile-grid,
+  html.ai-lab-h5 .content-grid,
+  html.ai-lab-h5 .detail-grid,
+  html.ai-lab-h5 .library-grid,
+  html.ai-lab-h5 .test-reader-grid,
+  html.ai-lab-h5 .tech-grid,
+  html.ai-lab-h5 .controls-guide-grid,
+  html.ai-lab-h5 .shop-layout,
+  html.ai-lab-h5 .login,
+  html.ai-lab-h5 .hero { grid-template-columns: minmax(0, 1fr) !important; }
+
+  html.ai-lab-h5 .form-grid,
+  html.ai-lab-h5 .admin-form,
+  html.ai-lab-h5 .stats-grid,
+  html.ai-lab-h5 .quick-grid,
+  html.ai-lab-h5 .book-grid,
+  html.ai-lab-h5 .person-grid,
+  html.ai-lab-h5 .region-grid,
+  html.ai-lab-h5 .rules-grid,
+  html.ai-lab-h5 .identity-role-grid,
+  html.ai-lab-h5 .grid-3,
+  html.ai-lab-h5 .rewards-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)) !important; }
+
+  html.ai-lab-h5 .header-actions,
+  html.ai-lab-h5 .hero-actions,
+  html.ai-lab-h5 .main-actions,
+  html.ai-lab-h5 .top-controls,
+  html.ai-lab-h5 .action-row,
+  html.ai-lab-h5 .modal-actions,
+  html.ai-lab-h5 .toolbar,
+  html.ai-lab-h5 .controls { max-width: 100%; flex-wrap: wrap !important; }
+
+  html.ai-lab-h5 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  html.ai-lab-h5 select,
+  html.ai-lab-h5 textarea { width: 100%; max-width: 100%; min-width: 0; font-size: 16px !important; }
+  html.ai-lab-h5 button,
+  html.ai-lab-h5 .btn,
+  html.ai-lab-h5 [role="button"] { min-height: 44px; touch-action: manipulation; }
+  html.ai-lab-h5 textarea { resize: vertical; }
+
+  html.ai-lab-h5 canvas { display: block; width: auto; height: auto; max-width: 100% !important; max-height: min(68vh, 680px); margin-right: auto; margin-left: auto; touch-action: none; }
+  html.ai-lab-h5 .canvas-container,
+  html.ai-lab-h5 .canvas-wrapper,
+  html.ai-lab-h5 .canvas-wrap,
+  html.ai-lab-h5 .canvas-box,
+  html.ai-lab-h5 .board-shell,
+  html.ai-lab-h5 .board-wrapper,
+  html.ai-lab-h5 .gamewrap { width: 100% !important; max-width: 100% !important; min-width: 0 !important; overflow: hidden; }
+
+  html.ai-lab-h5 .modal-backdrop { padding: 12px !important; }
+  html.ai-lab-h5 .modal,
+  html.ai-lab-h5 .modal-card,
+  html.ai-lab-h5 .redeem-panel { width: min(100%, calc(100vw - 24px)) !important; max-width: calc(100vw - 24px) !important; max-height: 88dvh; overflow-y: auto; }
+  html.ai-lab-h5 .bottom-nav { padding-bottom: max(7px, env(safe-area-inset-bottom)); }
+  html.ai-lab-h5 .portfolio-return-bar { min-height: 54px; padding-right: 10px; padding-left: 10px; }
+  html.ai-lab-h5 .portfolio-back { max-width: calc(100vw - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  @media (max-width: 520px) {
+    html.ai-lab-h5 .stats-grid,
+    html.ai-lab-h5 .quick-grid,
+    html.ai-lab-h5 .form-grid,
+    html.ai-lab-h5 .admin-form,
+    html.ai-lab-h5 .identity-role-grid { grid-template-columns: minmax(0, 1fr) !important; }
+    html.ai-lab-h5 .card-footer { align-items: flex-start; flex-direction: column; }
+  }
+</style>
+<script id="ai-lab-responsive-runtime">
+(() => {
+  const root = document.documentElement;
+  const mobileUa = /Android|webOS|iPhone|iPad|iPod|Mobile|IEMobile|Opera Mini/i.test(navigator.userAgent || "");
+  const coarsePointer = window.matchMedia?.("(hover: none) and (pointer: coarse)")?.matches || false;
+  const updateLayoutMode = () => {
+    const narrowScreen = window.innerWidth <= 768;
+    const touchTablet = coarsePointer && window.innerWidth <= 1024;
+    const mobileDevice = mobileUa && window.innerWidth <= 1180;
+    const useH5 = narrowScreen || touchTablet || mobileDevice;
+    root.classList.toggle("ai-lab-h5", useH5);
+    root.classList.toggle("ai-lab-web", !useH5);
+    root.dataset.layoutMode = useH5 ? "h5" : "web";
+  };
+  updateLayoutMode();
+  window.addEventListener("resize", updateLayoutMode, { passive: true });
+  window.addEventListener("orientationchange", updateLayoutMode, { passive: true });
+})();
+</script>
+</head>
+<body>
+  <main>
+    <header class="site-header">
+      <a class="back-home" href="./index.html" aria-label="返回数字作品展">← <span>作品展首页</span></a>
+      <a class="brand" href="#works" aria-label="返回作品列表顶部"><span class="library-mark" aria-hidden="true">📚</span><span>AI实验室-图书馆借阅作品集</span></a>
+      <nav aria-label="主导航"><a class="active" href="#works">全部作品</a><a href="#creators">小小创造者</a></nav>
+    </header>
+
+    <section class="games-section" id="works">
+      <div class="section-heading">
+        <div><p class="eyebrow"><span>3 SMART LIBRARY WORKS</span></p><h2>让每一本书，都陪伴一次真实成长</h2></div>
+        <p>预览真实作品画面，点击任意作品即可进入完整体验。</p>
+      </div>
+
+      <div class="work-note"><strong>体验提示：</strong>晓然的《阅伴》可使用会员账号 <b>DEMO001 / 123456</b>，或管理员账号 <b>admin01 / admin123</b> 登录；三件作品的数据都保存在当前浏览器中。</div>
+
+      <div class="game-grid">
+        <a class="game-card green" href="library/project01.html" aria-label="进入晓然的阅伴">
+          <div class="preview-wrap program-preview"><iframe src="library/project01.html" title="晓然-阅伴程序页面预览" tabindex="-1" aria-hidden="true" data-program-preview></iframe><div class="preview-shade"></div><span class="preview-badge">程序页面</span><span class="play-bubble">▶</span></div>
+          <div class="card-content"><div class="creator-row"><span class="creator-avatar">🌿</span><div><h3>晓然</h3><p>阅伴·社区图书馆</p></div></div><p class="highlight">把借阅提醒、阅读打卡和小书宠奖励连在一起，让按时还书也成为有趣的成长体验。</p><div class="card-footer"><div class="tags"><span>到期提醒</span><span>阅读打卡</span><span>成长奖励</span></div><span class="enter">进入作品 <b>→</b></span></div></div>
+        </a>
+
+        <a class="game-card coral" href="library/project02.html" aria-label="进入仔仔的森林图书馆">
+          <div class="preview-wrap program-preview"><iframe src="library/project02.html" title="仔仔-森林图书馆程序页面预览" tabindex="-1" aria-hidden="true" data-program-preview></iframe><div class="preview-shade"></div><span class="preview-badge">程序页面</span><span class="play-bubble">▶</span></div>
+          <div class="card-content"><div class="creator-row"><span class="creator-avatar">🌲</span><div><h3>仔仔</h3><p>森林图书馆</p></div></div><p class="highlight">为线下图书馆设计借书、还书、提醒和阅读计时流程，用森林积分记录每一次阅读。</p><div class="card-footer"><div class="tags"><span>现场借阅</span><span>归还登记</span><span>森林积分</span></div><span class="enter">进入作品 <b>→</b></span></div></div>
+        </a>
+
+        <a class="game-card purple" href="library/project03.html" aria-label="进入晨晨的小阅阅读智还">
+          <div class="preview-wrap program-preview"><iframe src="library/project03.html" title="晨晨-小阅阅读智还程序页面预览" tabindex="-1" aria-hidden="true" data-program-preview></iframe><div class="preview-shade"></div><span class="preview-badge">程序页面</span><span class="play-bubble">▶</span></div>
+          <div class="card-content"><div class="creator-row"><span class="creator-avatar">✨</span><div><h3>晨晨</h3><p>小阅·阅读智还</p></div></div><p class="highlight">把会员、押金、借阅、续借、购书和积分奖励集中管理，形成一套完整的智慧阅读服务。</p><div class="card-footer"><div class="tags"><span>会员管理</span><span>智能借还</span><span>积分奖励</span></div><span class="enter">进入作品 <b>→</b></span></div></div>
+        </a>
+      </div>
+    </section>
+
+    <section class="creators" id="creators">
+      <div class="creator-art" aria-hidden="true">📖</div>
+      <div><p class="eyebrow"><span>MADE BY YOUNG CREATORS</span></p><h2>从一次借书，到一套完整阅读服务</h2><p>晓然、仔仔和晨晨从借阅、提醒、归还、打卡与奖励出发，用AI辅助编程，把阅读中的真实需要做成可以直接体验的网页作品。</p></div>
+      <a class="secondary-button" href="#works">看看他们的作品 →</a>
+    </section>
+
+    <footer><div class="footer-brand"><span class="library-mark" aria-hidden="true">📚</span><span>AI实验室</span></div><p>图书馆借阅作品集 · 让每个创意都能被看见</p><a href="#works">回到顶部 ↑</a></footer>
+  </main>
+  <script>
+    function fitProgramPreviews() {
+      document.querySelectorAll('.preview-wrap iframe').forEach(function (frame) {
+        const wrap = frame.closest('.preview-wrap');
+        if (!wrap) return;
+        frame.style.transform = 'scale(' + (wrap.clientWidth / 1180) + ')';
+      });
+    }
+    fitProgramPreviews();
+    window.addEventListener('resize', fitProgramPreviews);
+    if (typeof ResizeObserver === 'function') {
+      const previewObserver = new ResizeObserver(fitProgramPreviews);
+      document.querySelectorAll('.preview-wrap').forEach(function (wrap) { previewObserver.observe(wrap); });
+    }
+    document.addEventListener('click', function (event) {
+      const link = event.target.closest('a[href^="#"]');
+      if (!link) return;
+      const targetId = link.getAttribute('href').slice(1);
+      const target = targetId ? document.getElementById(targetId) : document.documentElement;
+      if (!target) return;
+      event.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  </script>
+</body>
+</html>

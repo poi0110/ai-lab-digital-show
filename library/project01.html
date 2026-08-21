@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#245c45">
+  <meta name="description" content="阅伴——让借阅有提醒，让阅读有回应。">
+  <title>阅伴｜悦读书屋借阅管理</title>
+  <style>
+    :root{--ink:#20352c;--muted:#728078;--line:#dfe9e3;--paper:#fff;--page:#f3f7f4;--green:#245c45;--green2:#3f8a69;--mint:#e4f3eb;--cream:#fff5dc;--orange:#e78942;--red:#d65b63;--shadow:0 12px 34px rgba(35,76,57,.12);--safe:env(safe-area-inset-bottom,0px)}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html{background:var(--page);scroll-behavior:smooth}body{margin:0;min-width:280px;min-height:100vh;padding-top:54px;color:var(--ink);background:radial-gradient(circle at 0 0,#dff1e7,transparent 28rem),var(--page);font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif}button,input,select,textarea{font:inherit}button{border:0;cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid rgba(36,92,69,.25);outline-offset:2px}.hidden{display:none!important}
+    .portfolio-return-bar{position:fixed;z-index:1000;top:0;right:0;left:0;display:flex;align-items:center;height:54px;padding:0 14px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.96);backdrop-filter:blur(14px)}.portfolio-back{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:999px;color:var(--green);background:#f6faf7;font-size:14px;font-weight:800;text-decoration:none}
+    .login{min-height:calc(100vh - 54px);display:grid;grid-template-columns:1fr;align-items:center;padding:24px 16px;background:linear-gradient(150deg,#174633,#397d5e 58%,#9fcfba)}.login-card{width:min(100%,440px);margin:auto;padding:28px;border-radius:28px;background:rgba(255,255,255,.97);box-shadow:0 26px 70px rgba(19,56,41,.26)}.logo{display:grid;width:68px;height:68px;place-items:center;margin:0 auto 14px;border-radius:22px;color:white;background:linear-gradient(145deg,var(--green2),var(--green));box-shadow:0 10px 24px rgba(36,92,69,.28);font-size:30px;font-weight:900}.login h1{margin:0;text-align:center;font-size:30px}.login-sub{margin:8px 0 20px;color:var(--muted);text-align:center;line-height:1.6}.role-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:5px;border-radius:15px;background:#edf3ef}.role-tabs button{min-height:42px;border-radius:11px;color:var(--muted);background:transparent;font-weight:800}.role-tabs button.active{color:white;background:var(--green)}.field{display:grid;gap:7px;margin-top:15px}.field label{font-size:13px;font-weight:800}.field input,.field select,.field textarea{width:100%;min-height:48px;padding:10px 13px;border:1px solid var(--line);border-radius:14px;color:var(--ink);background:white}.field textarea{min-height:110px;resize:vertical}.primary,.secondary,.danger{min-height:48px;padding:0 18px;border-radius:14px;font-weight:850}.primary{color:white;background:linear-gradient(135deg,var(--green2),var(--green));box-shadow:0 9px 20px rgba(36,92,69,.22)}.secondary{color:var(--green);background:var(--mint)}.danger{color:#b8424b;background:#ffeaec}.wide{width:100%;margin-top:18px}.demo{margin:16px 0 0;padding:11px 13px;border-radius:13px;color:#6c5934;background:var(--cream);font-size:12px;line-height:1.7}.error{min-height:20px;margin:8px 0 0;color:var(--red);font-size:13px;font-weight:700}
+    .app{width:min(100%,1120px);min-height:calc(100vh - 54px);margin:0 auto;padding-bottom:calc(86px + var(--safe))}.topbar{position:sticky;z-index:30;top:54px;display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:68px;padding:10px 16px;border-bottom:1px solid rgba(223,233,227,.9);background:rgba(255,255,255,.9);backdrop-filter:blur(16px)}.brand{display:flex;align-items:center;gap:10px}.brand-mark{display:grid;width:43px;height:43px;place-items:center;border-radius:14px;color:white;background:var(--green);font-weight:900}.brand b{display:block;font-size:18px}.brand small{color:var(--muted)}.head-actions{display:flex;align-items:center;gap:8px}.role-badge{padding:7px 10px;border-radius:999px;color:var(--green);background:var(--mint);font-size:12px;font-weight:800}.icon-btn{width:42px;height:42px;border-radius:13px;color:var(--green);background:#edf5f0;font-weight:900}
+    .content{padding:18px 16px 30px}.hero{display:grid;gap:18px;padding:24px;border-radius:26px;color:white;background:linear-gradient(135deg,#245c45,#3f8a69);box-shadow:var(--shadow)}.hero .eyebrow{margin:0;color:#d9f4e6;font-size:12px;font-weight:900;letter-spacing:.14em}.hero h2{margin:7px 0 8px;font-size:clamp(24px,6vw,34px)}.hero p{margin:0;color:rgba(255,255,255,.84);line-height:1.7}.alert{display:flex;align-items:center;gap:12px;margin-top:14px;padding:14px;border-radius:18px;background:#fff2e7;box-shadow:0 8px 22px rgba(96,62,32,.08)}.alert.red{background:#ffe8ea}.alert-icon{font-size:29px}.alert h3,.alert p{margin:0}.alert p{margin-top:4px;color:var(--muted);font-size:13px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:24px 0 12px}.section-head h2,.section-head h3{margin:0}.section-head p{margin:4px 0 0;color:var(--muted);font-size:13px}.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat,.card{border:1px solid var(--line);border-radius:19px;background:var(--paper);box-shadow:0 8px 24px rgba(35,76,57,.06)}.stat{padding:16px 10px;text-align:center}.stat strong{display:block;font-size:25px}.stat span{color:var(--muted);font-size:12px}.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.quick{min-height:100px;padding:15px;border:1px solid var(--line);border-radius:18px;color:var(--ink);background:white;text-align:left}.quick i{display:block;font-style:normal;font-size:25px}.quick b{display:block;margin-top:8px}.quick small{display:block;margin-top:3px;color:var(--muted)}
+    .tabs{display:flex;gap:7px;overflow:auto;padding-bottom:4px}.tabs button{min-height:40px;padding:0 14px;border-radius:999px;color:var(--muted);background:#eaf0ec;font-weight:800;white-space:nowrap}.tabs button.active{color:white;background:var(--green)}.list{display:grid;gap:12px}.loan{display:grid;grid-template-columns:66px 1fr;gap:13px;padding:15px}.book-cover{display:grid;width:66px;height:92px;place-items:center;border-radius:10px;color:white;background:linear-gradient(145deg,#6d7dd8,#9968a9);box-shadow:0 8px 16px rgba(60,65,105,.15);font-size:30px}.loan h3{margin:0;font-size:17px}.loan p{margin:6px 0;color:var(--muted);font-size:13px}.status{display:inline-flex;padding:5px 8px;border-radius:999px;color:#247550;background:#e1f5e9;font-size:11px;font-weight:850}.status.warn{color:#a55b1f;background:#fff0dc}.status.danger{color:#b73f49;background:#ffe7e9}.loan-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.small-btn{min-height:38px;padding:0 12px;border-radius:11px;color:var(--green);background:var(--mint);font-weight:800}.small-btn.solid{color:white;background:var(--green)}.empty{padding:34px 20px;text-align:center}.empty span{display:block;font-size:40px}.empty h3{margin:8px 0 5px}.empty p{margin:0;color:var(--muted)}
+    .form-card{padding:18px}.choice-row{display:flex;flex-wrap:wrap;gap:8px}.choice-row button{min-height:40px;padding:0 13px;border-radius:12px;color:var(--muted);background:#eef3f0;font-weight:800}.choice-row button.active{color:white;background:var(--green)}.counter{display:block;margin-top:6px;color:var(--muted);font-size:12px;text-align:right}.note{padding:14px 16px}.note b{display:block}.note p{margin:6px 0 0;color:var(--muted);line-height:1.6}.pet-room{padding:20px;text-align:center;background:linear-gradient(180deg,#fff7df,#fff)}.pet{display:grid;width:180px;height:180px;place-items:center;margin:12px auto;border-radius:50%;background:#fff;box-shadow:inset 0 -18px 0 #f6ead0,0 12px 28px rgba(116,87,42,.12);font-size:92px}.pet.bounce{animation:bounce .55s ease}@keyframes bounce{50%{transform:translateY(-14px) scale(1.04)}}.inventory{display:flex;justify-content:center;gap:12px;margin:12px 0}.inventory span{padding:8px 12px;border-radius:999px;background:white;font-weight:800}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}.day{display:grid;aspect-ratio:1;place-items:center;border-radius:12px;color:#9aa59f;background:#e9efeb;font-size:12px}.day.read{color:white;background:var(--green2)}
+    .admin-form{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:18px}.admin-form .full{grid-column:1/-1}.table-list{display:grid;gap:9px}.admin-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px}.admin-row h3,.admin-row p{margin:0}.admin-row p{margin-top:4px;color:var(--muted);font-size:12px}.admin-row-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}.setting{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px}.setting b{display:block}.setting small{color:var(--muted)}.bottom-nav{position:fixed;z-index:40;right:0;bottom:0;left:0;display:grid;grid-template-columns:repeat(5,1fr);width:min(100%,1120px);margin:auto;padding:7px 8px calc(7px + var(--safe));border-top:1px solid var(--line);background:rgba(255,255,255,.96);backdrop-filter:blur(16px)}.nav-btn{min-height:58px;border-radius:15px;color:var(--muted);background:transparent;font-size:11px;font-weight:800}.nav-btn span{display:block;margin-bottom:3px;font-size:20px}.nav-btn.active{color:var(--green);background:var(--mint)}.toast{position:fixed;z-index:1100;left:50%;bottom:95px;max-width:calc(100% - 32px);padding:12px 16px;border-radius:14px;color:white;background:#263c32;box-shadow:var(--shadow);font-weight:800;transform:translateX(-50%);opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,-8px)}
+    @media(min-width:760px){.login{grid-template-columns:1fr}.content{padding:28px}.hero{grid-template-columns:1.4fr .8fr}.quick-grid{grid-template-columns:repeat(3,1fr)}.list.two{grid-template-columns:repeat(2,1fr)}.app{padding-bottom:30px}.bottom-nav{position:sticky;bottom:0;border-radius:20px 20px 0 0}}
+    @media(max-width:520px){.grid-3,.quick-grid{grid-template-columns:1fr}.quick{min-height:78px}.admin-form{grid-template-columns:1fr}.admin-form .full{grid-column:auto}.admin-row{align-items:flex-start;flex-direction:column}.admin-row-actions{justify-content:flex-start}.role-badge{display:none}.brand small{display:none}.portfolio-back{font-size:13px}.loan{grid-template-columns:54px 1fr}.book-cover{width:54px;height:76px}}
+  </style>
+<style id="ai-lab-responsive-v2">
+  /* 全站响应式增强：宽屏保持网页版，移动设备自动切换 H5。 */
+  html, body { max-width: 100%; }
+  body { overflow-x: clip; }
+  img, video, svg { max-width: 100%; height: auto; }
+  canvas { max-width: 100%; }
+  table { max-width: 100%; }
+  .table-wrap, .table-responsive, .report-table, .admin-table-section { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  html.ai-lab-h5 { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  html.ai-lab-h5, html.ai-lab-h5 body { width: 100%; min-width: 0 !important; overflow-x: hidden !important; }
+  html.ai-lab-h5 body { overscroll-behavior-x: none; }
+  html.ai-lab-h5 .app-shell,
+  html.ai-lab-h5 .game-shell,
+  html.ai-lab-h5 .game-app,
+  html.ai-lab-h5 .shell,
+  html.ai-lab-h5 .container,
+  html.ai-lab-h5 .wrapper,
+  html.ai-lab-h5 .content,
+  html.ai-lab-h5 .main,
+  html.ai-lab-h5 main { width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin-right: auto !important; margin-left: auto !important; }
+
+  html.ai-lab-h5 .home-layout,
+  html.ai-lab-h5 .calendar-layout,
+  html.ai-lab-h5 .dashboard-grid,
+  html.ai-lab-h5 .manager-grid,
+  html.ai-lab-h5 .map-grid,
+  html.ai-lab-h5 .report-layout,
+  html.ai-lab-h5 .report-grid,
+  html.ai-lab-h5 .profile-grid,
+  html.ai-lab-h5 .content-grid,
+  html.ai-lab-h5 .detail-grid,
+  html.ai-lab-h5 .library-grid,
+  html.ai-lab-h5 .test-reader-grid,
+  html.ai-lab-h5 .tech-grid,
+  html.ai-lab-h5 .controls-guide-grid,
+  html.ai-lab-h5 .shop-layout,
+  html.ai-lab-h5 .login,
+  html.ai-lab-h5 .hero { grid-template-columns: minmax(0, 1fr) !important; }
+
+  html.ai-lab-h5 .form-grid,
+  html.ai-lab-h5 .admin-form,
+  html.ai-lab-h5 .stats-grid,
+  html.ai-lab-h5 .quick-grid,
+  html.ai-lab-h5 .book-grid,
+  html.ai-lab-h5 .person-grid,
+  html.ai-lab-h5 .region-grid,
+  html.ai-lab-h5 .rules-grid,
+  html.ai-lab-h5 .identity-role-grid,
+  html.ai-lab-h5 .grid-3,
+  html.ai-lab-h5 .rewards-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)) !important; }
+
+  html.ai-lab-h5 .header-actions,
+  html.ai-lab-h5 .hero-actions,
+  html.ai-lab-h5 .main-actions,
+  html.ai-lab-h5 .top-controls,
+  html.ai-lab-h5 .action-row,
+  html.ai-lab-h5 .modal-actions,
+  html.ai-lab-h5 .toolbar,
+  html.ai-lab-h5 .controls { max-width: 100%; flex-wrap: wrap !important; }
+
+  html.ai-lab-h5 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  html.ai-lab-h5 select,
+  html.ai-lab-h5 textarea { width: 100%; max-width: 100%; min-width: 0; font-size: 16px !important; }
+  html.ai-lab-h5 button,
+  html.ai-lab-h5 .btn,
+  html.ai-lab-h5 [role="button"] { min-height: 44px; touch-action: manipulation; }
+  html.ai-lab-h5 textarea { resize: vertical; }
+
+  html.ai-lab-h5 canvas { display: block; width: auto; height: auto; max-width: 100% !important; max-height: min(68vh, 680px); margin-right: auto; margin-left: auto; touch-action: none; }
+  html.ai-lab-h5 .canvas-container,
+  html.ai-lab-h5 .canvas-wrapper,
+  html.ai-lab-h5 .canvas-wrap,
+  html.ai-lab-h5 .canvas-box,
+  html.ai-lab-h5 .board-shell,
+  html.ai-lab-h5 .board-wrapper,
+  html.ai-lab-h5 .gamewrap { width: 100% !important; max-width: 100% !important; min-width: 0 !important; overflow: hidden; }
+
+  html.ai-lab-h5 .modal-backdrop { padding: 12px !important; }
+  html.ai-lab-h5 .modal,
+  html.ai-lab-h5 .modal-card,
+  html.ai-lab-h5 .redeem-panel { width: min(100%, calc(100vw - 24px)) !important; max-width: calc(100vw - 24px) !important; max-height: 88dvh; overflow-y: auto; }
+  html.ai-lab-h5 .bottom-nav { padding-bottom: max(7px, env(safe-area-inset-bottom)); }
+  html.ai-lab-h5 .portfolio-return-bar { min-height: 54px; padding-right: 10px; padding-left: 10px; }
+  html.ai-lab-h5 .portfolio-back { max-width: calc(100vw - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  @media (max-width: 520px) {
+    html.ai-lab-h5 .stats-grid,
+    html.ai-lab-h5 .quick-grid,
+    html.ai-lab-h5 .form-grid,
+    html.ai-lab-h5 .admin-form,
+    html.ai-lab-h5 .identity-role-grid { grid-template-columns: minmax(0, 1fr) !important; }
+    html.ai-lab-h5 .card-footer { align-items: flex-start; flex-direction: column; }
+  }
+</style>
+<script id="ai-lab-responsive-runtime">
+(() => {
+  const root = document.documentElement;
+  const mobileUa = /Android|webOS|iPhone|iPad|iPod|Mobile|IEMobile|Opera Mini/i.test(navigator.userAgent || "");
+  const coarsePointer = window.matchMedia?.("(hover: none) and (pointer: coarse)")?.matches || false;
+  const updateLayoutMode = () => {
+    const narrowScreen = window.innerWidth <= 768;
+    const touchTablet = coarsePointer && window.innerWidth <= 1024;
+    const mobileDevice = mobileUa && window.innerWidth <= 1180;
+    const useH5 = narrowScreen || touchTablet || mobileDevice;
+    root.classList.toggle("ai-lab-h5", useH5);
+    root.classList.toggle("ai-lab-web", !useH5);
+    root.dataset.layoutMode = useH5 ? "h5" : "web";
+  };
+  updateLayoutMode();
+  window.addEventListener("resize", updateLayoutMode, { passive: true });
+  window.addEventListener("orientationchange", updateLayoutMode, { passive: true });
+})();
+</script>
+</head>
+<body>
+  <div class="portfolio-return-bar"><a class="portfolio-back" href="../library-works.html" data-portfolio-back>← 返回图书馆借阅作品集</a></div>
+
+  <section class="login" id="loginScreen">
+    <div class="login-card">
+      <div class="logo">阅</div><h1>阅伴</h1><p class="login-sub">让借阅有提醒，让阅读有回应</p>
+      <div class="role-tabs"><button class="active" data-login-role="member">会员登录</button><button data-login-role="admin">管理员登录</button></div>
+      <div class="field"><label id="accountLabel">会员号</label><input id="accountInput" autocomplete="username" placeholder="请输入会员号"></div>
+      <div class="field"><label>密码</label><input id="passwordInput" type="password" inputmode="numeric" autocomplete="current-password" placeholder="请输入密码"></div>
+      <p class="error" id="loginError"></p><button class="primary wide" id="loginBtn">登录并查看借阅</button>
+      <div class="demo" id="demoText"><b>会员演示账号</b><br>DEMO001 / 123456</div>
+    </div>
+  </section>
+
+  <div class="app hidden" id="appShell">
+    <header class="topbar"><div class="brand"><span class="brand-mark">阅</span><div><b>阅伴</b><small>让借阅有提醒，让阅读有回应</small></div></div><div class="head-actions"><span class="role-badge" id="roleBadge">会员端</span><button class="icon-btn" id="logoutBtn" aria-label="退出登录">↗</button></div></header>
+    <main class="content" id="content"></main>
+    <nav class="bottom-nav" id="bottomNav"></nav>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY='yueban_standalone_v1';
+    const $=id=>document.getElementById(id);
+    const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    const dateOffset=days=>{const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+days);return d.toISOString().slice(0,10)};
+    const daysLeft=value=>Math.ceil((new Date(value+'T12:00:00')-new Date(dateOffset(0)+'T12:00:00'))/86400000);
+    const fmt=value=>value?new Date(value+'T12:00:00').toLocaleDateString('zh-CN'):'—';
+    const id=prefix=>prefix+'_'+Math.random().toString(36).slice(2)+Date.now().toString(36);
+    function initialState(){
+      const members=[{id:'DEMO001',name:'林小雨',pin:'123456',expiresAt:dateOffset(120)},{id:'A1028',name:'王一诺',pin:'123456',expiresAt:dateOffset(45)}];
+      const loans=[
+        {id:id('loan'),memberId:'DEMO001',title:'窗边的小豆豆',author:'黑柳彻子',bookCode:'TS-018',borrowedAt:dateOffset(-10),dueAt:dateOffset(4),returnedAt:null},
+        {id:id('loan'),memberId:'DEMO001',title:'小王子',author:'圣埃克苏佩里',bookCode:'WX-026',borrowedAt:dateOffset(-20),dueAt:dateOffset(-6),returnedAt:null},
+        {id:id('loan'),memberId:'A1028',title:'昆虫记',author:'法布尔',bookCode:'KP-011',borrowedAt:dateOffset(-8),dueAt:dateOffset(6),returnedAt:null}
+      ];
+      return{members,loans,checkins:[{id:id('check'),memberId:'DEMO001',bookTitle:'窗边的小豆豆',minutes:30,feeling:'我读到小豆豆第一次来到巴学园，觉得校长愿意耐心听她说话特别温暖。',createdAt:new Date(Date.now()-86400000).toISOString(),checkinDay:dateOffset(-1)}],reminders:[{id:id('rem'),memberId:'DEMO001',message:'《小王子》已经逾期，请尽快归还。',sentAt:dateOffset(-2),status:'已送达',channel:'站内提醒'}],activities:[{id:id('act'),title:'暑期阅读七天挑战',detail:'连续记录七天阅读感受，可获得阅读徽章。',date:dateOffset(7)}],settings:{loanLimit:5,loanDays:14,checkinPoints:10},pet:{name:'小阅',stage:'猫崽',food:2,toys:1,energy:72,affection:3,hungry:false},session:null};
+    }
+    function load(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||initialState()}catch{return initialState()}}
+    let state=load(),loginRole='member',tab='首页',minutes=30;
+    const save=()=>localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+    const member=()=>state.members.find(item=>item.id===state.session?.memberId)||state.members[0];
+    const activeLoans=(memberId=member().id)=>state.loans.filter(item=>item.memberId===memberId&&!item.returnedAt);
+    const loanStatus=loan=>{if(loan.returnedAt)return{label:'已归还',cls:''};const left=daysLeft(loan.dueAt);return left<0?{label:'已逾期 '+Math.abs(left)+' 天',cls:'danger'}:left<=3?{label:left===0?'今天到期':'还剩 '+left+' 天',cls:'warn'}:{label:'还剩 '+left+' 天',cls:''}};
+    function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),2200)}
+    function setLoginRole(role){loginRole=role;document.querySelectorAll('[data-login-role]').forEach(btn=>btn.classList.toggle('active',btn.dataset.loginRole===role));$('accountLabel').textContent=role==='member'?'会员号':'管理员账号';$('accountInput').placeholder=role==='member'?'请输入会员号':'请输入管理员账号';$('demoText').innerHTML=role==='member'?'<b>会员演示账号</b><br>DEMO001 / 123456':'<b>管理员演示账号</b><br>admin01 / admin123';$('loginBtn').textContent=role==='member'?'登录并查看借阅':'进入管理员工作台';$('loginError').textContent='';}
+    document.querySelectorAll('[data-login-role]').forEach(btn=>btn.onclick=()=>setLoginRole(btn.dataset.loginRole));
+    $('loginBtn').onclick=()=>{const account=$('accountInput').value.trim(),password=$('passwordInput').value;let valid=false;if(loginRole==='admin')valid=account==='admin01'&&password==='admin123';else valid=state.members.some(item=>item.id===account&&item.pin===password);if(!valid){$('loginError').textContent='账号或密码不正确，请使用演示账号。';return}state.session=loginRole==='admin'?{role:'admin'}:{role:'member',memberId:account};save();tab=loginRole==='admin'?'总览':'首页';openApp();};
+    $('passwordInput').addEventListener('keydown',event=>{if(event.key==='Enter')$('loginBtn').click()});
+    $('logoutBtn').onclick=()=>{state.session=null;save();$('appShell').classList.add('hidden');$('loginScreen').classList.remove('hidden');$('passwordInput').value='';};
+    function openApp(){$('loginScreen').classList.add('hidden');$('appShell').classList.remove('hidden');$('roleBadge').textContent=state.session.role==='admin'?'管理员端':'会员端';render();}
+    function navItems(){return state.session.role==='admin'?[['总览','▥'],['借阅','▤'],['提醒','◉'],['活动','☆'],['管理','⚙']]:[['首页','⌂'],['借阅','▤'],['打卡','✎'],['奖励','🐾'],['我的','○']]}
+    function renderNav(){$('bottomNav').innerHTML=navItems().map(([name,icon])=>`<button class="nav-btn ${tab===name?'active':''}" data-tab="${name}"><span>${icon}</span>${name}</button>`).join('');document.querySelectorAll('[data-tab]').forEach(btn=>btn.onclick=()=>{tab=btn.dataset.tab;render()})}
+    function loanCard(loan,admin=false){const status=loanStatus(loan),owner=state.members.find(item=>item.id===loan.memberId);return`<article class="card loan"><div class="book-cover">📖</div><div><span class="status ${status.cls}">${status.label}</span><h3>《${esc(loan.title)}》</h3><p>${esc(loan.author||'作者未登记')} · ${esc(loan.bookCode)}${admin?'<br>借阅人：'+esc(owner?.name||loan.memberId)+'（'+esc(loan.memberId)+'）':''}</p><p>借阅 ${fmt(loan.borrowedAt)} · 应还 ${fmt(loan.dueAt)}</p><div class="loan-actions">${!loan.returnedAt&&admin?`<button class="small-btn solid" data-return="${loan.id}">登记归还</button><button class="small-btn" data-remind="${loan.id}">发送提醒</button>`:''}</div></div></article>`}
+    function memberHome(){const me=member(),current=activeLoans(me.id),urgent=current.slice().sort((a,b)=>daysLeft(a.dueAt)-daysLeft(b.dueAt))[0],checks=state.checkins.filter(item=>item.memberId===me.id);return`<section class="hero"><div><p class="eyebrow">MEMBER READING SPACE</p><h2>你好，${esc(me.name)}</h2><p>今天也一起读一点。借阅日期、归还提醒和阅读记录都会保存在当前浏览器。</p></div><div class="grid-3"><div class="stat"><strong>${current.length}</strong><span>当前借阅</span></div><div class="stat"><strong>${checks.length}</strong><span>阅读记录</span></div><div class="stat"><strong>${checks.length*state.settings.checkinPoints}</strong><span>阅读阳光</span></div></div></section>${urgent?`<button class="alert ${daysLeft(urgent.dueAt)<0?'red':''}" data-go="借阅"><span class="alert-icon">${daysLeft(urgent.dueAt)<0?'⚠️':'⏰'}</span><div><h3>《${esc(urgent.title)}》${loanStatus(urgent).label}</h3><p>应还日期：${fmt(urgent.dueAt)}，点击查看详情</p></div></button>`:''}<div class="section-head"><h3>常用功能</h3></div><div class="quick-grid"><button class="quick" data-go="借阅"><i>▤</i><b>我的借阅</b><small>${current.length} 本在借</small></button><button class="quick" data-go="打卡"><i>✎</i><b>阅读打卡</b><small>留下今天的想法</small></button><button class="quick" data-go="奖励"><i>🐾</i><b>小猫伙伴</b><small>${state.pet.food} 条小鱼干</small></button></div><div class="section-head"><h3>最近提醒</h3></div>${state.reminders.filter(item=>item.memberId===me.id).slice(0,3).map(item=>`<div class="card note"><b>◉ ${esc(item.message)}</b><p>${fmt(item.sentAt)} · ${item.status}</p></div>`).join('')||'<div class="card empty"><span>✓</span><h3>暂无新提醒</h3><p>归还提醒会显示在这里</p></div>'}`}
+    function memberLoans(){const me=member(),items=state.loans.filter(item=>item.memberId===me.id);return`<div class="section-head"><div><h2>我的借阅</h2><p>每次最多借 ${state.settings.loanLimit} 本，期限 ${state.settings.loanDays} 天</p></div></div><div class="list two">${items.length?items.map(item=>loanCard(item)).join(''):'<div class="card empty"><span>📚</span><h3>还没有借阅记录</h3><p>管理员登记后会显示在这里</p></div>'}</div>`}
+    function memberCheckin(){const me=member(),current=activeLoans(me.id),today=state.checkins.some(item=>item.memberId===me.id&&item.checkinDay===dateOffset(0));return`<section class="hero"><div><p class="eyebrow">TODAY READING</p><h2>${today?'今天的阅读记录已保存':'留下这一页的想法'}</h2><p>每天只能有效打卡一次；写清读到了什么，以及自己的感受。</p></div></section><div class="section-head"><h3>今日阅读</h3></div><div class="card form-card"><div class="field"><label>正在读的书</label><select id="checkBook"><option value="">请选择一本书</option>${current.map(item=>`<option>${esc(item.title)}</option>`).join('')}<option>自由阅读</option></select></div><div class="field"><label>阅读时长</label><div class="choice-row">${[15,30,45,60].map(value=>`<button class="${minutes===value?'active':''}" data-minutes="${value}">${value} 分钟</button>`).join('')}</div></div><div class="field"><label>阅读感受</label><textarea id="feeling" maxlength="200" placeholder="例如：我读到主角帮助朋友的这一段，觉得他虽然害怕但很勇敢。"></textarea><span class="counter">至少12个字</span></div><button class="primary wide" id="checkinBtn" ${today?'disabled':''}>${today?'今天已完成，明天再来':'完成今日打卡，获得小鱼干 🐟'}</button></div><div class="section-head"><h3>最近阅读</h3></div><div class="list">${state.checkins.filter(item=>item.memberId===me.id).slice(0,5).map(item=>`<div class="card note"><b>《${esc(item.bookTitle)}》 · ${item.minutes}分钟</b><p>${esc(item.feeling)}<br>${fmt(item.checkinDay)}</p></div>`).join('')}</div>`}
+    function memberRewards(){const me=member(),checks=state.checkins.filter(item=>item.memberId===me.id),days=new Set(checks.map(item=>item.checkinDay));return`<div class="grid-3"><div class="stat"><strong>${checks.length*state.settings.checkinPoints}</strong><span>阅读阳光</span></div><div class="stat"><strong>${checks.length}</strong><span>阅读记录</span></div><div class="stat"><strong>${state.pet.energy}</strong><span>小阅精神值</span></div></div><div class="section-head"><h3>我的阅读伙伴</h3></div><section class="card pet-room"><h2>${esc(state.pet.name)} · ${esc(state.pet.stage)}</h2><p id="petSpeech">${state.pet.hungry?'我有点饿啦！':'陪我一起读书吧！'}</p><div class="pet" id="pet">🐱</div><div class="inventory"><span>🐟 ${state.pet.food}</span><span>🧶 ${state.pet.toys}</span></div><div class="choice-row" style="justify-content:center"><button data-pet="feed">🐟 喂食</button><button data-pet="pet">♡ 摸摸</button><button data-pet="play">🧶 玩耍</button></div></section><div class="section-head"><h3>七日阅读轨迹</h3></div><div class="calendar">${Array.from({length:28},(_,index)=>{const day=dateOffset(index-27);return`<span class="day ${days.has(day)?'read':''}">${new Date(day+'T12:00:00').getDate()}</span>`}).join('')}</div>`}
+    function memberProfile(){const me=member();return`<div class="card note"><b style="font-size:22px">${esc(me.name)}</b><p>会员号 ${esc(me.id)} · 有效期至 ${fmt(me.expiresAt)}</p></div><div class="section-head"><h3>我的设置</h3></div><div class="list"><div class="card setting"><div><b>归还提醒</b><small>到期前和逾期后醒目提示</small></div><span class="status">已开启</span></div><div class="card setting"><div><b>隐私保护</b><small>不设置公开儿童排行榜</small></div><span class="status">本机保存</span></div></div><button class="danger wide" id="resetBtn">重新开始演示</button>`}
+    function adminOverview(){const active=state.loans.filter(item=>!item.returnedAt),overdue=active.filter(item=>daysLeft(item.dueAt)<0),soon=active.filter(item=>daysLeft(item.dueAt)>=0&&daysLeft(item.dueAt)<=3);return`<section class="hero"><div><p class="eyebrow">LIBRARIAN PORTAL</p><h2>管理员总览</h2><p>维护借阅记录，及时发送归还提醒。</p></div><div class="grid-3"><div class="stat"><strong>${active.length}</strong><span>当前借阅</span></div><div class="stat"><strong>${overdue.length}</strong><span>逾期</span></div><div class="stat"><strong>${soon.length}</strong><span>即将到期</span></div></div></section><div class="section-head"><h3>需要关注</h3></div><div class="list">${[...overdue,...soon].map(item=>loanCard(item,true)).join('')||'<div class="card empty"><span>✓</span><h3>当前没有紧急提醒</h3><p>借阅情况正常</p></div>'}</div>`}
+    function adminLoans(){return`<div class="section-head"><div><h2>借阅登记</h2><p>为会员新增真实借阅记录</p></div></div><form class="card admin-form" id="loanForm"><div class="field"><label>借阅会员</label><select name="memberId">${state.members.map(item=>`<option value="${item.id}">${esc(item.name)}（${item.id}）</option>`).join('')}</select></div><div class="field"><label>借阅天数</label><input name="days" type="number" min="1" max="90" value="${state.settings.loanDays}"></div><div class="field"><label>书名</label><input name="title" required placeholder="请输入书名"></div><div class="field"><label>作者</label><input name="author" placeholder="作者"></div><div class="field full"><label>图书编号</label><input name="bookCode" required placeholder="例如 TS-108"></div><button class="primary full" type="submit">登记借阅</button></form><div class="section-head"><h3>全部借阅记录</h3></div><div class="list">${state.loans.map(item=>loanCard(item,true)).join('')}</div>`}
+    function adminReminders(){const active=state.loans.filter(item=>!item.returnedAt).sort((a,b)=>daysLeft(a.dueAt)-daysLeft(b.dueAt));return`<div class="section-head"><div><h2>归还提醒</h2><p>优先处理逾期和三天内到期图书</p></div></div><div class="list">${active.map(item=>loanCard(item,true)).join('')}</div><div class="section-head"><h3>提醒记录</h3></div><div class="list">${state.reminders.slice(0,10).map(item=>`<div class="card note"><b>${esc(item.message)}</b><p>${fmt(item.sentAt)} · ${item.channel} · ${item.status}</p></div>`).join('')}</div>`}
+    function adminActivities(){return`<div class="section-head"><div><h2>阅读活动</h2><p>用轻量活动鼓励持续阅读</p></div></div><form class="card admin-form" id="activityForm"><div class="field full"><label>活动名称</label><input name="title" required placeholder="例如：七日阅读挑战"></div><div class="field full"><label>活动说明</label><textarea name="detail" required placeholder="写清活动目标和规则"></textarea></div><button class="primary full">发布活动</button></form><div class="section-head"><h3>已发布活动</h3></div><div class="list">${state.activities.map(item=>`<div class="card note"><b>☆ ${esc(item.title)}</b><p>${esc(item.detail)}<br>日期：${fmt(item.date)}</p></div>`).join('')}</div>`}
+    function adminManage(){return`<div class="section-head"><div><h2>会员与规则</h2><p>演示数据只保存在当前浏览器</p></div></div><div class="list">${state.members.map(item=>`<div class="card admin-row"><div><h3>${esc(item.name)}</h3><p>${item.id} · 有效期至 ${fmt(item.expiresAt)}</p></div><span class="status">会员</span></div>`).join('')}</div><div class="section-head"><h3>借阅规则</h3></div><div class="list"><div class="card setting"><div><b>最多借阅</b><small>单个会员同时借阅上限</small></div><strong>${state.settings.loanLimit} 本</strong></div><div class="card setting"><div><b>默认借期</b><small>登记后自动计算应还日期</small></div><strong>${state.settings.loanDays} 天</strong></div></div><button class="danger wide" id="resetBtn">重置全部演示数据</button>`}
+    function render(){if(!state.session)return;const memberPages={首页:memberHome,借阅:memberLoans,打卡:memberCheckin,奖励:memberRewards,我的:memberProfile};const adminPages={总览:adminOverview,借阅:adminLoans,提醒:adminReminders,活动:adminActivities,管理:adminManage};$('content').innerHTML=(state.session.role==='admin'?adminPages:memberPages)[tab]();renderNav();bindPage();}
+    function sendReminder(loanId){const loan=state.loans.find(item=>item.id===loanId),owner=state.members.find(item=>item.id===loan.memberId);state.reminders.unshift({id:id('rem'),memberId:loan.memberId,message:`《${loan.title}》${daysLeft(loan.dueAt)<0?'已经逾期':'即将到期'}，请及时归还。`,sentAt:dateOffset(0),status:'已送达',channel:'站内提醒'});save();toast('已向 '+owner.name+' 发送提醒');render();}
+    function bindPage(){document.querySelectorAll('[data-go]').forEach(btn=>btn.onclick=()=>{tab=btn.dataset.go;render()});document.querySelectorAll('[data-minutes]').forEach(btn=>btn.onclick=()=>{minutes=Number(btn.dataset.minutes);render()});const checkBtn=$('checkinBtn');if(checkBtn)checkBtn.onclick=()=>{const book=$('checkBook').value,feeling=$('feeling').value.trim(),me=member();if(!book)return toast('请选择正在读的书');if(feeling.length<12||!/(读到|看到|书里|故事|主角|人物|觉得|喜欢|让我|想到|学到|明白)/.test(feeling))return toast('请写至少12个字，并说清读到了什么和自己的想法');state.checkins.unshift({id:id('check'),memberId:me.id,bookTitle:book,minutes,feeling,createdAt:new Date().toISOString(),checkinDay:dateOffset(0)});state.pet.food+=1;state.pet.energy=Math.min(100,state.pet.energy+6);save();toast('打卡成功，小阅收到了小鱼干！');tab='奖励';render();};document.querySelectorAll('[data-pet]').forEach(btn=>btn.onclick=()=>{const action=btn.dataset.pet;if(action==='feed'){if(state.pet.food<1)return toast('小鱼干不够，完成阅读打卡可以获得');state.pet.food-=1;state.pet.energy=Math.min(100,state.pet.energy+10);$('petSpeech').textContent='吃到啦！今天的小鱼干特别香。'}else if(action==='play'){$('petSpeech').textContent='毛线球滚起来啦！'}else $('petSpeech').textContent='呼噜呼噜，谢谢你陪我。';save();$('pet').classList.add('bounce');setTimeout(()=>$('pet')?.classList.remove('bounce'),600)});document.querySelectorAll('[data-return]').forEach(btn=>btn.onclick=()=>{const loan=state.loans.find(item=>item.id===btn.dataset.return);if(!loan||loan.returnedAt)return;loan.returnedAt=dateOffset(0);state.reminders.unshift({id:id('rem'),memberId:loan.memberId,message:`《${loan.title}》已完成归还登记。`,sentAt:dateOffset(0),status:'已送达',channel:'站内提醒'});save();toast('归还登记成功');render()});document.querySelectorAll('[data-remind]').forEach(btn=>btn.onclick=()=>sendReminder(btn.dataset.remind));const loanForm=$('loanForm');if(loanForm)loanForm.onsubmit=event=>{event.preventDefault();const form=new FormData(loanForm),days=Math.max(1,Math.min(90,Number(form.get('days'))||14));state.loans.unshift({id:id('loan'),memberId:form.get('memberId'),title:String(form.get('title')).trim(),author:String(form.get('author')).trim(),bookCode:String(form.get('bookCode')).trim(),borrowedAt:dateOffset(0),dueAt:dateOffset(days),returnedAt:null});save();toast('借阅登记成功');render()};const activityForm=$('activityForm');if(activityForm)activityForm.onsubmit=event=>{event.preventDefault();const form=new FormData(activityForm);state.activities.unshift({id:id('act'),title:String(form.get('title')).trim(),detail:String(form.get('detail')).trim(),date:dateOffset(0)});save();toast('活动已发布');render()};const resetBtn=$('resetBtn');if(resetBtn)resetBtn.onclick=()=>{if(!confirm('确定恢复初始演示数据吗？'))return;state=initialState();state.session={role:loginRole==='admin'?'admin':'member',memberId:'DEMO001'};save();tab=state.session.role==='admin'?'总览':'首页';render();toast('演示数据已重置')};}
+    document.querySelector('[data-portfolio-back]').addEventListener('click',event=>{if(window.parent===window)return;event.preventDefault();window.parent.postMessage({type:'ai-lab-full-preview-nav',href:'./library-works.html'},'*')});
+    if(state.session){loginRole=state.session.role;tab=state.session.role==='admin'?'总览':'首页';openApp();}
+  </script>
+</body>
+</html>

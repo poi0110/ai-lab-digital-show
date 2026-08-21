@@ -1,0 +1,3476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+    <title>冷月水果蛇·双生神迹</title>
+
+    <style>
+        /* ==============================
+           1. 全局样式
+           ============================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --background-dark: #050d18;
+            --background-blue: #0a1b30;
+            --panel-dark: rgba(13, 29, 49, 0.9);
+            --bright-blue: #d9f7ff;
+            --light-blue: #7ddfff;
+            --soft-text: #96afc2;
+            --danger: #ff9bad;
+            --gold: #ffe2a3;
+        }
+
+        html,
+        body {
+            margin: 0;
+            min-height: 100%;
+            overscroll-behavior: none;
+        }
+
+        body {
+            min-height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            padding: 18px;
+
+            font-family:
+                "PingFang SC",
+                "Microsoft YaHei",
+                Arial,
+                sans-serif;
+
+            color: #eaf8ff;
+
+            background:
+                radial-gradient(
+                    circle at 17% 18%,
+                    rgba(62, 139, 192, 0.2),
+                    transparent 34%
+                ),
+                radial-gradient(
+                    circle at 83% 76%,
+                    rgba(108, 89, 189, 0.2),
+                    transparent 37%
+                ),
+                linear-gradient(
+                    145deg,
+                    var(--background-dark),
+                    var(--background-blue) 58%,
+                    #08111f
+                );
+
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+
+            border-radius: 50%;
+            filter: blur(80px);
+
+            pointer-events: none;
+        }
+
+        body::before {
+            width: 270px;
+            height: 270px;
+
+            left: -100px;
+            top: 10%;
+
+            background: rgba(67, 177, 231, 0.13);
+        }
+
+        body::after {
+            width: 330px;
+            height: 330px;
+
+            right: -130px;
+            bottom: 2%;
+
+            background: rgba(128, 102, 218, 0.14);
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+        /* ==============================
+           2. 游戏主面板
+           ============================== */
+
+        .game-card {
+            position: relative;
+            z-index: 1;
+
+            width: min(96vw, 650px);
+            padding: 22px;
+
+            border: 1px solid rgba(154, 224, 255, 0.22);
+            border-radius: 28px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(20, 42, 65, 0.91),
+                    rgba(8, 22, 39, 0.95)
+                );
+
+            box-shadow:
+                0 30px 75px rgba(0, 0, 0, 0.46),
+                0 0 45px rgba(86, 188, 235, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.07);
+
+            backdrop-filter: blur(18px);
+        }
+
+        /* ==============================
+           3. 标题
+           ============================== */
+
+        .title-area {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .title-area h1 {
+            margin: 0;
+
+            font-size: clamp(28px, 6vw, 42px);
+            letter-spacing: 2px;
+
+            color: var(--bright-blue);
+
+            text-shadow:
+                0 0 15px rgba(125, 223, 255, 0.42),
+                0 0 30px rgba(125, 223, 255, 0.13);
+        }
+
+        .title-area p {
+            margin: 8px 0 0;
+
+            font-size: 13px;
+            letter-spacing: 2px;
+
+            color: var(--soft-text);
+        }
+
+        /* ==============================
+           4. 总分信息
+           ============================== */
+
+        .information-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 9px;
+
+            margin-bottom: 10px;
+        }
+
+        .information-box {
+            min-width: 0;
+            padding: 10px 6px;
+
+            border: 1px solid rgba(136, 216, 255, 0.14);
+            border-radius: 15px;
+
+            text-align: center;
+
+            background: rgba(24, 49, 72, 0.7);
+
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                0 8px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .information-label {
+            display: block;
+
+            margin-bottom: 4px;
+
+            font-size: 11px;
+            color: var(--soft-text);
+        }
+
+        .information-value {
+            display: block;
+
+            min-height: 27px;
+
+            font-size: 20px;
+            font-weight: bold;
+            line-height: 27px;
+
+            color: var(--bright-blue);
+        }
+
+        /* ==============================
+           5. 每条蛇的独立状态
+           ============================== */
+
+        .snake-status-panel {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 9px;
+
+            margin-bottom: 10px;
+        }
+
+        .snake-status-card {
+            min-width: 0;
+            padding: 10px 12px;
+
+            border: 1px solid rgba(139, 220, 255, 0.15);
+            border-radius: 15px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(24, 54, 78, 0.75),
+                    rgba(15, 36, 57, 0.78)
+                );
+
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .snake-status-card.hidden {
+            display: none;
+        }
+
+        .snake-status-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 7px;
+
+            font-size: 13px;
+            font-weight: bold;
+
+            color: #d9f6ff;
+        }
+
+        .snake-status-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+
+            font-size: 12px;
+            color: var(--soft-text);
+        }
+
+        .snake-fruit {
+            overflow: hidden;
+
+            font-size: 14px;
+            font-weight: bold;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        /* ==============================
+           6. 水果图例
+           ============================== */
+
+        .fruit-legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 7px;
+
+            margin-bottom: 13px;
+        }
+
+        .fruit-legend-item {
+            padding: 6px 9px;
+
+            border: 1px solid rgba(150, 222, 255, 0.13);
+            border-radius: 999px;
+
+            font-size: 12px;
+            color: #b9ccda;
+
+            background: rgba(10, 29, 48, 0.68);
+        }
+
+        /* ==============================
+           7. 游戏区域
+           ============================== */
+
+        .board-wrapper {
+            position: relative;
+
+            width: 100%;
+            aspect-ratio: 1 / 1;
+
+            overflow: hidden;
+
+            border: 2px solid rgba(116, 213, 255, 0.35);
+            border-radius: 22px;
+
+            background: #081624;
+
+            box-shadow:
+                0 0 0 5px rgba(46, 127, 166, 0.06),
+                0 18px 35px rgba(0, 0, 0, 0.32),
+                inset 0 0 40px rgba(54, 156, 208, 0.08);
+        }
+
+        canvas {
+            display: block;
+
+            width: 100%;
+            height: 100%;
+
+            touch-action: none;
+        }
+
+        /* ==============================
+           8. 普通游戏提示
+           ============================== */
+
+        .game-toast {
+            position: absolute;
+            left: 50%;
+            top: 15px;
+            z-index: 5;
+
+            max-width: 90%;
+            padding: 8px 14px;
+
+            border: 1px solid rgba(160, 231, 255, 0.22);
+            border-radius: 999px;
+
+            text-align: center;
+            font-size: 13px;
+            font-weight: bold;
+
+            color: #dff8ff;
+            background: rgba(8, 25, 42, 0.93);
+
+            box-shadow:
+                0 10px 25px rgba(0, 0, 0, 0.3),
+                0 0 18px rgba(83, 190, 239, 0.14);
+
+            opacity: 0;
+            pointer-events: none;
+
+            transform: translate(-50%, -10px);
+
+            transition:
+                opacity 0.2s,
+                transform 0.2s;
+        }
+
+        .game-toast.show {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
+        .game-toast.wrong {
+            color: #ffd7df;
+            border-color: rgba(255, 143, 163, 0.35);
+        }
+
+        /* ==============================
+           9. 神明降临特效
+           ============================== */
+
+        .divine-event {
+            position: absolute;
+            inset: 0;
+            z-index: 8;
+
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+
+            padding: 25px;
+
+            text-align: center;
+
+            background:
+                radial-gradient(
+                    circle at center,
+                    rgba(255, 228, 169, 0.23),
+                    rgba(85, 108, 172, 0.36) 34%,
+                    rgba(4, 13, 25, 0.92) 76%
+                );
+
+            backdrop-filter: blur(5px);
+        }
+
+        .divine-event.show {
+            display: flex;
+
+            animation:
+                divineBackground 2.4s ease-in-out both;
+        }
+
+        .divine-light {
+            position: absolute;
+            left: 50%;
+            top: -25%;
+
+            width: 180px;
+            height: 130%;
+
+            background:
+                linear-gradient(
+                    to bottom,
+                    rgba(255, 248, 205, 0.85),
+                    rgba(183, 221, 255, 0.15),
+                    transparent
+                );
+
+            clip-path:
+                polygon(
+                    42% 0,
+                    58% 0,
+                    100% 100%,
+                    0 100%
+                );
+
+            filter: blur(7px);
+
+            transform: translateX(-50%);
+
+            animation:
+                divineBeam 2.4s ease-in-out both;
+        }
+
+        .divine-symbol {
+            position: relative;
+            z-index: 2;
+
+            font-size: 72px;
+
+            filter:
+                drop-shadow(
+                    0 0 14px rgba(255, 239, 180, 0.9)
+                )
+                drop-shadow(
+                    0 0 35px rgba(132, 207, 255, 0.65)
+                );
+
+            animation:
+                divineSymbol 2.4s ease-in-out both;
+        }
+
+        .divine-title {
+            position: relative;
+            z-index: 2;
+
+            margin-top: 5px;
+
+            font-size: 25px;
+            font-weight: bold;
+            letter-spacing: 5px;
+
+            color: #fff3c7;
+
+            text-shadow:
+                0 0 12px rgba(255, 230, 157, 0.8),
+                0 0 30px rgba(132, 207, 255, 0.4);
+
+            animation:
+                divineText 2.4s ease-in-out both;
+        }
+
+        .divine-words {
+            position: relative;
+            z-index: 2;
+
+            margin-top: 16px;
+
+            font-family:
+                "STKaiti",
+                "KaiTi",
+                serif;
+
+            font-size: clamp(20px, 5vw, 30px);
+            font-weight: bold;
+
+            color: #fff8dc;
+
+            text-shadow:
+                0 0 12px rgba(255, 228, 153, 0.75),
+                0 0 28px rgba(119, 201, 255, 0.55);
+
+            animation:
+                divineWords 2.4s ease-in-out both;
+        }
+
+        .divine-stars {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .divine-star {
+            position: absolute;
+
+            width: 6px;
+            height: 6px;
+
+            border-radius: 50%;
+
+            background: #fff2bd;
+
+            box-shadow:
+                0 0 8px #fff2bd,
+                0 0 18px #90dcff;
+
+            animation:
+                divineStar 2.1s ease-in-out infinite;
+        }
+
+        .divine-star:nth-child(1) {
+            left: 16%;
+            top: 23%;
+            animation-delay: 0.1s;
+        }
+
+        .divine-star:nth-child(2) {
+            left: 80%;
+            top: 19%;
+            animation-delay: 0.45s;
+        }
+
+        .divine-star:nth-child(3) {
+            left: 25%;
+            top: 70%;
+            animation-delay: 0.8s;
+        }
+
+        .divine-star:nth-child(4) {
+            left: 72%;
+            top: 72%;
+            animation-delay: 0.25s;
+        }
+
+        .divine-star:nth-child(5) {
+            left: 10%;
+            top: 51%;
+            animation-delay: 0.65s;
+        }
+
+        .divine-star:nth-child(6) {
+            left: 88%;
+            top: 48%;
+            animation-delay: 1s;
+        }
+
+        @keyframes divineBackground {
+            0% {
+                opacity: 0;
+            }
+
+            20%,
+            78% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+        @keyframes divineBeam {
+            0% {
+                opacity: 0;
+                transform:
+                    translateX(-50%)
+                    scaleX(0.2);
+            }
+
+            30%,
+            72% {
+                opacity: 0.95;
+                transform:
+                    translateX(-50%)
+                    scaleX(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform:
+                    translateX(-50%)
+                    scaleX(1.4);
+            }
+        }
+
+        @keyframes divineSymbol {
+            0% {
+                opacity: 0;
+                transform:
+                    translateY(-35px)
+                    scale(0.45)
+                    rotate(-20deg);
+            }
+
+            35%,
+            75% {
+                opacity: 1;
+                transform:
+                    translateY(0)
+                    scale(1)
+                    rotate(0);
+            }
+
+            100% {
+                opacity: 0;
+                transform:
+                    translateY(15px)
+                    scale(1.15);
+            }
+        }
+
+        @keyframes divineText {
+            0%,
+            15% {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            40%,
+            78% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+        @keyframes divineWords {
+            0%,
+            30% {
+                opacity: 0;
+                transform:
+                    translateY(20px)
+                    scale(0.85);
+            }
+
+            52%,
+            82% {
+                opacity: 1;
+                transform:
+                    translateY(0)
+                    scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform:
+                    translateY(-10px)
+                    scale(1.08);
+            }
+        }
+
+        @keyframes divineStar {
+            0%,
+            100% {
+                opacity: 0.25;
+                transform: scale(0.5);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.7);
+            }
+        }
+
+        /* ==============================
+           10. 游戏结束提示
+           ============================== */
+
+        .game-message {
+            position: absolute;
+            inset: 0;
+            z-index: 9;
+
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+
+            padding: 24px;
+
+            text-align: center;
+
+            background:
+                linear-gradient(
+                    rgba(6, 19, 33, 0.85),
+                    rgba(9, 22, 38, 0.95)
+                );
+
+            backdrop-filter: blur(8px);
+        }
+
+        .game-message.show {
+            display: flex;
+        }
+
+        .message-icon {
+            margin-bottom: 8px;
+
+            font-size: 58px;
+
+            filter:
+                drop-shadow(
+                    0 0 16px rgba(125, 223, 255, 0.35)
+                );
+        }
+
+        .game-message h2 {
+            margin: 0;
+
+            font-size: 32px;
+            color: #dff8ff;
+
+            text-shadow:
+                0 0 16px rgba(125, 223, 255, 0.25);
+        }
+
+        .game-message p {
+            margin: 12px 0 0;
+
+            line-height: 1.7;
+            font-size: 14px;
+
+            color: #a9c0d0;
+        }
+
+        /* ==============================
+           11. 操作区域
+           ============================== */
+
+        .tip {
+            margin: 14px 0 11px;
+
+            text-align: center;
+            font-size: 12px;
+            line-height: 1.75;
+
+            color: #8faabd;
+        }
+
+        .rule-highlight {
+            color: var(--bright-blue);
+            font-weight: bold;
+        }
+
+        .direction-controls {
+            width: min(290px, 90%);
+            margin: 0 auto;
+
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 58px);
+            gap: 9px;
+        }
+
+        .direction-button {
+            border: 1px solid rgba(165, 229, 255, 0.2);
+            border-radius: 17px;
+
+            font-size: 25px;
+            font-weight: bold;
+
+            color: #dff8ff;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(40, 86, 119, 0.95),
+                    rgba(21, 56, 83, 0.95)
+                );
+
+            box-shadow:
+                0 6px 0 #0b263d,
+                0 10px 19px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+
+            transition:
+                transform 0.08s,
+                box-shadow 0.08s;
+        }
+
+        .direction-button:active {
+            transform: translateY(5px);
+
+            box-shadow:
+                0 1px 0 #0b263d,
+                0 5px 10px rgba(0, 0, 0, 0.24);
+        }
+
+        .up-button {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        .left-button {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        .down-button {
+            grid-column: 2;
+            grid-row: 2;
+        }
+
+        .right-button {
+            grid-column: 3;
+            grid-row: 2;
+        }
+
+        .restart-button {
+            display: block;
+
+            width: min(290px, 90%);
+            margin: 15px auto 0;
+            padding: 13px 18px;
+
+            border: 1px solid rgba(178, 231, 255, 0.25);
+            border-radius: 16px;
+
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 1px;
+
+            color: #e9faff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #285d80,
+                    #3e568e
+                );
+
+            box-shadow:
+                0 8px 20px rgba(0, 0, 0, 0.27),
+                0 0 18px rgba(84, 174, 222, 0.1);
+
+            cursor: pointer;
+        }
+
+        /* ==============================
+           12. 手机适配
+           ============================== */
+
+        @media (max-width: 520px) {
+            body {
+                align-items: flex-start;
+                padding: 8px;
+            }
+
+            .game-card {
+                padding: 13px;
+                border-radius: 21px;
+            }
+
+            .information-board {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .snake-status-panel {
+                grid-template-columns: 1fr;
+            }
+
+            .direction-controls {
+                grid-template-rows: repeat(2, 52px);
+            }
+
+            .title-area h1 {
+                letter-spacing: 1px;
+            }
+
+            .title-area p {
+                font-size: 12px;
+                letter-spacing: 1px;
+            }
+        }
+    </style>
+
+<style id="portfolio-back-style">
+  .portfolio-back-link {
+    position: fixed;
+    z-index: 2147483647;
+    top: max(10px, env(safe-area-inset-top));
+    left: max(10px, env(safe-area-inset-left));
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid rgba(25, 52, 85, .18);
+    border-radius: 999px;
+    color: #173b68;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 8px 24px rgba(25, 52, 85, .16);
+    font: 800 14px/1 "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    text-decoration: none;
+    backdrop-filter: blur(12px);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .portfolio-back-link:active { transform: scale(.97); }
+</style>
+<style id="ai-lab-responsive-v2">
+  /* 全站响应式增强：宽屏保持网页版，移动设备自动切换 H5。 */
+  html, body { max-width: 100%; }
+  body { overflow-x: clip; }
+  img, video, svg { max-width: 100%; height: auto; }
+  canvas { max-width: 100%; }
+  table { max-width: 100%; }
+  .table-wrap, .table-responsive, .report-table, .admin-table-section { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  html.ai-lab-h5 { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  html.ai-lab-h5, html.ai-lab-h5 body { width: 100%; min-width: 0 !important; overflow-x: hidden !important; }
+  html.ai-lab-h5 body { overscroll-behavior-x: none; }
+  html.ai-lab-h5 .app-shell,
+  html.ai-lab-h5 .game-shell,
+  html.ai-lab-h5 .game-app,
+  html.ai-lab-h5 .shell,
+  html.ai-lab-h5 .container,
+  html.ai-lab-h5 .wrapper,
+  html.ai-lab-h5 .content,
+  html.ai-lab-h5 .main,
+  html.ai-lab-h5 main { width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin-right: auto !important; margin-left: auto !important; }
+
+  html.ai-lab-h5 .home-layout,
+  html.ai-lab-h5 .calendar-layout,
+  html.ai-lab-h5 .dashboard-grid,
+  html.ai-lab-h5 .manager-grid,
+  html.ai-lab-h5 .map-grid,
+  html.ai-lab-h5 .report-layout,
+  html.ai-lab-h5 .report-grid,
+  html.ai-lab-h5 .profile-grid,
+  html.ai-lab-h5 .content-grid,
+  html.ai-lab-h5 .detail-grid,
+  html.ai-lab-h5 .library-grid,
+  html.ai-lab-h5 .test-reader-grid,
+  html.ai-lab-h5 .tech-grid,
+  html.ai-lab-h5 .controls-guide-grid,
+  html.ai-lab-h5 .shop-layout,
+  html.ai-lab-h5 .login,
+  html.ai-lab-h5 .hero { grid-template-columns: minmax(0, 1fr) !important; }
+
+  html.ai-lab-h5 .form-grid,
+  html.ai-lab-h5 .admin-form,
+  html.ai-lab-h5 .stats-grid,
+  html.ai-lab-h5 .quick-grid,
+  html.ai-lab-h5 .book-grid,
+  html.ai-lab-h5 .person-grid,
+  html.ai-lab-h5 .region-grid,
+  html.ai-lab-h5 .rules-grid,
+  html.ai-lab-h5 .identity-role-grid,
+  html.ai-lab-h5 .grid-3,
+  html.ai-lab-h5 .rewards-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)) !important; }
+
+  html.ai-lab-h5 .header-actions,
+  html.ai-lab-h5 .hero-actions,
+  html.ai-lab-h5 .main-actions,
+  html.ai-lab-h5 .top-controls,
+  html.ai-lab-h5 .action-row,
+  html.ai-lab-h5 .modal-actions,
+  html.ai-lab-h5 .toolbar,
+  html.ai-lab-h5 .controls { max-width: 100%; flex-wrap: wrap !important; }
+
+  html.ai-lab-h5 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  html.ai-lab-h5 select,
+  html.ai-lab-h5 textarea { width: 100%; max-width: 100%; min-width: 0; font-size: 16px !important; }
+  html.ai-lab-h5 button,
+  html.ai-lab-h5 .btn,
+  html.ai-lab-h5 [role="button"] { min-height: 44px; touch-action: manipulation; }
+  html.ai-lab-h5 textarea { resize: vertical; }
+
+  html.ai-lab-h5 canvas { display: block; width: auto; height: auto; max-width: 100% !important; max-height: min(68vh, 680px); margin-right: auto; margin-left: auto; touch-action: none; }
+  html.ai-lab-h5 .canvas-container,
+  html.ai-lab-h5 .canvas-wrapper,
+  html.ai-lab-h5 .canvas-wrap,
+  html.ai-lab-h5 .canvas-box,
+  html.ai-lab-h5 .board-shell,
+  html.ai-lab-h5 .board-wrapper,
+  html.ai-lab-h5 .gamewrap { width: 100% !important; max-width: 100% !important; min-width: 0 !important; overflow: hidden; }
+
+  html.ai-lab-h5 .modal-backdrop { padding: 12px !important; }
+  html.ai-lab-h5 .modal,
+  html.ai-lab-h5 .modal-card,
+  html.ai-lab-h5 .redeem-panel { width: min(100%, calc(100vw - 24px)) !important; max-width: calc(100vw - 24px) !important; max-height: 88dvh; overflow-y: auto; }
+  html.ai-lab-h5 .bottom-nav { padding-bottom: max(7px, env(safe-area-inset-bottom)); }
+  html.ai-lab-h5 .portfolio-return-bar { min-height: 54px; padding-right: 10px; padding-left: 10px; }
+  html.ai-lab-h5 .portfolio-back { max-width: calc(100vw - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  @media (max-width: 520px) {
+    html.ai-lab-h5 .stats-grid,
+    html.ai-lab-h5 .quick-grid,
+    html.ai-lab-h5 .form-grid,
+    html.ai-lab-h5 .admin-form,
+    html.ai-lab-h5 .identity-role-grid { grid-template-columns: minmax(0, 1fr) !important; }
+    html.ai-lab-h5 .card-footer { align-items: flex-start; flex-direction: column; }
+  }
+</style>
+<script id="ai-lab-responsive-runtime">
+(() => {
+  const root = document.documentElement;
+  const mobileUa = /Android|webOS|iPhone|iPad|iPod|Mobile|IEMobile|Opera Mini/i.test(navigator.userAgent || "");
+  const coarsePointer = window.matchMedia?.("(hover: none) and (pointer: coarse)")?.matches || false;
+  const updateLayoutMode = () => {
+    const narrowScreen = window.innerWidth <= 768;
+    const touchTablet = coarsePointer && window.innerWidth <= 1024;
+    const mobileDevice = mobileUa && window.innerWidth <= 1180;
+    const useH5 = narrowScreen || touchTablet || mobileDevice;
+    root.classList.toggle("ai-lab-h5", useH5);
+    root.classList.toggle("ai-lab-web", !useH5);
+    root.dataset.layoutMode = useH5 ? "h5" : "web";
+  };
+  updateLayoutMode();
+  window.addEventListener("resize", updateLayoutMode, { passive: true });
+  window.addEventListener("orientationchange", updateLayoutMode, { passive: true });
+})();
+</script>
+</head>
+
+<body>
+<a class="portfolio-back-link" href="../snake-games.html" data-portfolio-back>← 返回贪吃蛇合集</a>
+
+    <main class="game-card">
+
+        <header class="title-area">
+            <h1>冷月水果蛇</h1>
+            <p>双生神迹 · 命运复苏</p>
+        </header>
+
+        <!-- 总体信息 -->
+        <section class="information-board">
+
+            <div class="information-box">
+                <span class="information-label">当前得分</span>
+                <span class="information-value" id="score">0</span>
+            </div>
+
+            <div class="information-box">
+                <span class="information-label">最高得分</span>
+                <span class="information-value" id="bestScore">0</span>
+            </div>
+
+            <div class="information-box">
+                <span class="information-label">存活蛇数</span>
+                <span class="information-value" id="snakeCount">1</span>
+            </div>
+
+        </section>
+
+        <!-- 两条蛇分别显示状态 -->
+        <section
+            class="snake-status-panel"
+            id="snakeStatusPanel"
+        ></section>
+
+        <!-- 水果图例 -->
+        <section
+            class="fruit-legend"
+            id="fruitLegend"
+        ></section>
+
+        <!-- 游戏区域 -->
+        <section class="board-wrapper">
+
+            <canvas
+                id="gameCanvas"
+                width="480"
+                height="480"
+                aria-label="双蛇水果贪吃蛇游戏区域"
+            ></canvas>
+
+            <!-- 普通提示 -->
+            <div
+                class="game-toast"
+                id="gameToast"
+            ></div>
+
+            <!-- 神明降临特效 -->
+            <div
+                class="divine-event"
+                id="divineEvent"
+            >
+                <div class="divine-light"></div>
+
+                <div class="divine-stars">
+                    <span class="divine-star"></span>
+                    <span class="divine-star"></span>
+                    <span class="divine-star"></span>
+                    <span class="divine-star"></span>
+                    <span class="divine-star"></span>
+                    <span class="divine-star"></span>
+                </div>
+
+                <div class="divine-symbol">✦</div>
+                <div class="divine-title">神明降临</div>
+                <div class="divine-words">
+                    “复活吧，我的爱人。”
+                </div>
+            </div>
+
+            <!-- 游戏结束 -->
+            <div
+                class="game-message"
+                id="gameMessage"
+            >
+                <div
+                    class="message-icon"
+                    id="messageIcon"
+                >
+                    🌙
+                </div>
+
+                <h2 id="messageTitle">
+                    游戏结束
+                </h2>
+
+                <p id="messageText"></p>
+            </div>
+
+        </section>
+
+        <p class="tip">
+            两条蛇使用相同方向，但分别计算长度和目标水果。<br>
+
+            <span class="rule-highlight">
+                场上只剩一条蛇时，撞墙有20%概率触发神迹。
+            </span>
+        </p>
+
+        <!-- 方向按钮 -->
+        <section
+            class="direction-controls"
+            aria-label="方向控制按钮"
+        >
+
+            <button
+                class="direction-button up-button"
+                data-direction="up"
+                aria-label="向上移动"
+            >
+                ▲
+            </button>
+
+            <button
+                class="direction-button left-button"
+                data-direction="left"
+                aria-label="向左移动"
+            >
+                ◀
+            </button>
+
+            <button
+                class="direction-button down-button"
+                data-direction="down"
+                aria-label="向下移动"
+            >
+                ▼
+            </button>
+
+            <button
+                class="direction-button right-button"
+                data-direction="right"
+                aria-label="向右移动"
+            >
+                ▶
+            </button>
+
+        </section>
+
+        <button
+            class="restart-button"
+            id="restartButton"
+        >
+            重新开始
+        </button>
+
+    </main>
+
+    <script>
+        /* =========================================
+           1. 获取网页元素
+           ========================================= */
+
+        const canvas =
+            document.getElementById("gameCanvas");
+
+        const ctx =
+            canvas.getContext("2d");
+
+        const scoreElement =
+            document.getElementById("score");
+
+        const bestScoreElement =
+            document.getElementById("bestScore");
+
+        const snakeCountElement =
+            document.getElementById("snakeCount");
+
+        const snakeStatusPanel =
+            document.getElementById("snakeStatusPanel");
+
+        const fruitLegend =
+            document.getElementById("fruitLegend");
+
+        const gameToast =
+            document.getElementById("gameToast");
+
+        const divineEvent =
+            document.getElementById("divineEvent");
+
+        const gameMessage =
+            document.getElementById("gameMessage");
+
+        const messageIcon =
+            document.getElementById("messageIcon");
+
+        const messageTitle =
+            document.getElementById("messageTitle");
+
+        const messageText =
+            document.getElementById("messageText");
+
+        const restartButton =
+            document.getElementById("restartButton");
+
+        const directionButtons =
+            document.querySelectorAll(
+                ".direction-button"
+            );
+
+
+        /* =========================================
+           2. 游戏基础设置
+           ========================================= */
+
+        // 地图大小为20×20格
+        const GRID_COUNT = 20;
+
+        // 每个格子的大小
+        const CELL_SIZE =
+            canvas.width / GRID_COUNT;
+
+        // 蛇的移动速度，数值越大越慢
+        const MOVE_INTERVAL = 220;
+
+        // 撞墙复活概率：20%
+        const REVIVE_CHANCE = 0.2;
+
+        // 神明特效显示时间
+        const DIVINE_EVENT_TIME = 2400;
+
+        // 所有水果
+        const FRUIT_TYPES = [
+            {
+                id: "apple",
+                name: "苹果",
+                icon: "🍎",
+                mainColor: "#d96a83",
+                lightColor: "#ffb0bd"
+            },
+            {
+                id: "pear",
+                name: "梨",
+                icon: "🍐",
+                mainColor: "#a9c875",
+                lightColor: "#e0efaa"
+            },
+            {
+                id: "orange",
+                name: "橙子",
+                icon: "🍊",
+                mainColor: "#dc9365",
+                lightColor: "#ffc69f"
+            },
+            {
+                id: "grape",
+                name: "葡萄",
+                icon: "🍇",
+                mainColor: "#8c82ca",
+                lightColor: "#c3baf5"
+            },
+            {
+                id: "blueberry",
+                name: "蓝莓",
+                icon: "🫐",
+                mainColor: "#6589c5",
+                lightColor: "#a9c9ff"
+            }
+        ];
+
+
+        /* =========================================
+           3. 游戏状态变量
+           ========================================= */
+
+        let gameTimer = null;
+        let toastTimer = null;
+        let divineTimer = null;
+
+        // 所有存活的蛇，最多两条
+        let snakes = [];
+
+        // 场上的水果
+        let foods = [];
+
+        // 两条蛇共用的当前方向
+        let direction = {
+            x: 1,
+            y: 0
+        };
+
+        // 下一步准备使用的方向
+        let nextDirection = {
+            x: 1,
+            y: 0
+        };
+
+        // 防止一次移动间隔内连续转向
+        let directionChangedThisStep = false;
+
+        // 总分
+        let score = 0;
+
+        // 游戏是否结束
+        let isGameOver = false;
+
+        // 是否正在播放神明特效
+        let isDivineEventPlaying = false;
+
+        // 蛇的唯一编号
+        let nextSnakeId = 1;
+
+        // 手机滑动开始位置
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+
+        /* =========================================
+           4. 最高分
+           ========================================= */
+
+        let bestScore = 0;
+
+        try {
+            bestScore =
+                Number(
+                    localStorage.getItem(
+                        "divineFruitSnakeBestScore"
+                    )
+                ) || 0;
+        } catch (error) {
+            bestScore = 0;
+        }
+
+        bestScoreElement.textContent =
+            bestScore;
+
+
+        /* =========================================
+           5. 创建初始蛇
+           ========================================= */
+
+        function createStartingSnake() {
+            return {
+                id: nextSnakeId++,
+                name: "月蛇",
+                fruitType: getRandomFruitType(),
+
+                body: [
+                    { x: 10, y: 10 },
+                    { x: 9, y: 10 },
+                    { x: 8, y: 10 },
+                    { x: 7, y: 10 }
+                ]
+            };
+        }
+
+
+        /* =========================================
+           6. 开始游戏
+           ========================================= */
+
+        function startGame() {
+            clearInterval(gameTimer);
+            clearTimeout(toastTimer);
+            clearTimeout(divineTimer);
+
+            nextSnakeId = 1;
+
+            snakes = [
+                createStartingSnake()
+            ];
+
+            foods = [];
+
+            direction = {
+                x: 1,
+                y: 0
+            };
+
+            nextDirection = {
+                x: 1,
+                y: 0
+            };
+
+            directionChangedThisStep = false;
+
+            score = 0;
+
+            isGameOver = false;
+            isDivineEventPlaying = false;
+
+            gameMessage.classList.remove("show");
+            divineEvent.classList.remove("show");
+
+            gameToast.classList.remove(
+                "show",
+                "wrong"
+            );
+
+            createAllFoods();
+
+            updateInformation();
+            drawGame();
+
+            gameTimer = setInterval(
+                gameStep,
+                MOVE_INTERVAL
+            );
+        }
+
+
+        /* =========================================
+           7. 游戏每一步
+           ========================================= */
+
+        function gameStep() {
+            if (
+                isGameOver ||
+                isDivineEventPlaying
+            ) {
+                return;
+            }
+
+            direction = nextDirection;
+            directionChangedThisStep = false;
+
+            // 记录本轮开始时有几条蛇
+            const snakeCountAtStepStart =
+                snakes.length;
+
+            const survivingSnakes = [];
+
+            // 记录需要重新生成的水果类型
+            const fruitsToRespawn = [];
+
+            for (
+                let index = 0;
+                index < snakes.length;
+                index++
+            ) {
+                const snake = snakes[index];
+
+                const oldHead =
+                    snake.body[0];
+
+                const newHead = {
+                    x:
+                        oldHead.x +
+                        direction.x,
+
+                    y:
+                        oldHead.y +
+                        direction.y
+                };
+
+                // 判断是否撞墙
+                const hitWall =
+                    newHead.x < 0 ||
+                    newHead.x >= GRID_COUNT ||
+                    newHead.y < 0 ||
+                    newHead.y >= GRID_COUNT;
+
+                /*
+                 * 只有本轮开始时场上仅有一条蛇，
+                 * 才能触发20%的神明复活。
+                 */
+                if (hitWall) {
+                    const canTriggerRevival =
+                        snakeCountAtStepStart === 1;
+
+                    const revivalSucceeded =
+                        canTriggerRevival &&
+                        Math.random() < REVIVE_CHANCE;
+
+                    if (revivalSucceeded) {
+                        triggerDivineRevival(
+                            snake
+                        );
+
+                        return;
+                    }
+
+                    showToast(
+                        snake.name +
+                        " 撞到边界，已经消失。",
+                        true
+                    );
+
+                    // 该蛇死亡，不加入存活列表
+                    continue;
+                }
+
+                // 检查新位置上的水果
+                const foodIndex =
+                    foods.findIndex(
+                        function (food) {
+                            return (
+                                food.x ===
+                                    newHead.x &&
+                                food.y ===
+                                    newHead.y
+                            );
+                        }
+                    );
+
+                const eatenFood =
+                    foodIndex >= 0
+                        ? foods[foodIndex]
+                        : null;
+
+                // 是否吃对水果
+                const ateCorrectFruit =
+                    eatenFood !== null &&
+                    eatenFood.type ===
+                        snake.fruitType;
+
+                // 是否吃错水果
+                const ateWrongFruit =
+                    eatenFood !== null &&
+                    eatenFood.type !==
+                        snake.fruitType;
+
+                /*
+                 * 正常移动删除一节尾巴。
+                 * 吃对水果不删除尾巴，长度加一。
+                 * 吃错水果删除两节尾巴，长度减一。
+                 */
+                let tailRemoveCount = 1;
+
+                if (ateCorrectFruit) {
+                    tailRemoveCount = 0;
+                } else if (ateWrongFruit) {
+                    tailRemoveCount = 2;
+                }
+
+                /*
+                 * 两条蛇是独立个体。
+                 * 每条蛇只检查是否撞到自己的身体，
+                 * 不会因为碰到另一条蛇而死亡。
+                 */
+                const bodyRemainCount =
+                    Math.max(
+                        0,
+                        snake.body.length -
+                            tailRemoveCount
+                    );
+
+                const bodyToCheck =
+                    snake.body.slice(
+                        0,
+                        bodyRemainCount
+                    );
+
+                const hitSelf =
+                    bodyToCheck.some(
+                        function (part) {
+                            return (
+                                part.x ===
+                                    newHead.x &&
+                                part.y ===
+                                    newHead.y
+                            );
+                        }
+                    );
+
+                if (hitSelf) {
+                    showToast(
+                        snake.name +
+                        " 撞到了自己，已经消失。",
+                        true
+                    );
+
+                    continue;
+                }
+
+                // 创建移动后的新身体
+                const newBody = [
+                    newHead,
+                    ...snake.body
+                ];
+
+                for (
+                    let removeIndex = 0;
+                    removeIndex <
+                        tailRemoveCount;
+                    removeIndex++
+                ) {
+                    if (
+                        newBody.length > 0
+                    ) {
+                        newBody.pop();
+                    }
+                }
+
+                let newFruitType =
+                    snake.fruitType;
+
+                // 处理吃水果
+                if (eatenFood !== null) {
+                    // 立刻移除被吃掉的水果
+                    foods.splice(
+                        foodIndex,
+                        1
+                    );
+
+                    fruitsToRespawn.push(
+                        eatenFood.type
+                    );
+
+                    if (ateCorrectFruit) {
+                        score += 1;
+
+                        const oldFruit =
+                            getFruitById(
+                                snake.fruitType
+                            );
+
+                        /*
+                         * 只有吃到水果的蛇会增加长度，
+                         * 并独立随机切换水果属性。
+                         */
+                        newFruitType =
+                            getRandomFruitType(
+                                snake.fruitType
+                            );
+
+                        const newFruit =
+                            getFruitById(
+                                newFruitType
+                            );
+
+                        showToast(
+                            snake.name +
+                            " 吃到了 " +
+                            oldFruit.icon +
+                            "，变成 " +
+                            newFruit.icon +
+                            newFruit.name +
+                            "！",
+                            false
+                        );
+
+                        updateBestScore();
+                    } else {
+                        score -= 1;
+
+                        const wrongFruit =
+                            getFruitById(
+                                eatenFood.type
+                            );
+
+                        const correctFruit =
+                            getFruitById(
+                                snake.fruitType
+                            );
+
+                        showToast(
+                            snake.name +
+                            " 吃错了 " +
+                            wrongFruit.icon +
+                            "，应吃 " +
+                            correctFruit.icon +
+                            "，长度 -1。",
+                            true
+                        );
+                    }
+                }
+
+                // 长度为0，该蛇死亡
+                if (newBody.length <= 0) {
+                    showToast(
+                        snake.name +
+                        " 的身体已经全部消失。",
+                        true
+                    );
+
+                    continue;
+                }
+
+                // 该蛇存活，保存独立状态
+                survivingSnakes.push({
+                    ...snake,
+                    body: newBody,
+                    fruitType:
+                        newFruitType
+                });
+            }
+
+            // 更新存活蛇
+            snakes = survivingSnakes;
+
+            /*
+             * 重新生成本轮被吃掉的水果，
+             * 保证场上始终包含全部水果种类。
+             */
+            fruitsToRespawn.forEach(
+                function (fruitType) {
+                    createOneFood(
+                        fruitType
+                    );
+                }
+            );
+
+            updateInformation();
+            drawGame();
+
+            // 所有蛇都死亡才真正结束游戏
+            if (snakes.length === 0) {
+                endGame(
+                    "两条蛇都已经消失。"
+                );
+            }
+        }
+
+
+        /* =========================================
+           8. 神明降临与分裂复活
+           ========================================= */
+
+        function triggerDivineRevival(
+            originalSnake
+        ) {
+            isDivineEventPlaying = true;
+
+            clearInterval(gameTimer);
+            clearTimeout(toastTimer);
+
+            gameToast.classList.remove(
+                "show"
+            );
+
+            /*
+             * 原长度除以2。
+             * 如果是单数，使用Math.ceil向上取整。
+             */
+            const revivedLength =
+                Math.ceil(
+                    originalSnake.body.length /
+                        2
+                );
+
+            /*
+             * 生成两条独立的蛇。
+             * 两条蛇长度相同，但水果属性分别随机。
+             */
+            snakes = [
+                {
+                    id: nextSnakeId++,
+                    name: "月蛇一",
+                    fruitType:
+                        getRandomFruitType(),
+
+                    body:
+                        createRevivedSnakeBody(
+                            revivedLength,
+                            2,
+                            9
+                        )
+                },
+                {
+                    id: nextSnakeId++,
+                    name: "月蛇二",
+                    fruitType:
+                        getRandomFruitType(),
+
+                    body:
+                        createRevivedSnakeBody(
+                            revivedLength,
+                            11,
+                            18
+                        )
+                }
+            ];
+
+            /*
+             * 复活后统一向右移动。
+             * 两条蛇仍然共用相同控制方向。
+             */
+            direction = {
+                x: 1,
+                y: 0
+            };
+
+            nextDirection = {
+                x: 1,
+                y: 0
+            };
+
+            directionChangedThisStep = false;
+
+            /*
+             * 重新放置全部水果，
+             * 避免水果和复活后的蛇重叠。
+             */
+            foods = [];
+            createAllFoods();
+
+            updateInformation();
+            drawGame();
+
+            // 播放神明降临动画
+            divineEvent.classList.remove(
+                "show"
+            );
+
+            void divineEvent.offsetWidth;
+
+            divineEvent.classList.add(
+                "show"
+            );
+
+            divineTimer = setTimeout(
+                function () {
+                    divineEvent.classList.remove(
+                        "show"
+                    );
+
+                    isDivineEventPlaying =
+                        false;
+
+                    gameTimer = setInterval(
+                        gameStep,
+                        MOVE_INTERVAL
+                    );
+                },
+                DIVINE_EVENT_TIME
+            );
+        }
+
+
+        /* =========================================
+           9. 创建复活后的蛇身
+           ========================================= */
+
+        function createRevivedSnakeBody(
+            requestedLength,
+            startRow,
+            endRow
+        ) {
+            /*
+             * 在指定区域内生成连续的蛇形路线。
+             * 这样长度较长时也可以安全放置。
+             */
+
+            const path = [];
+
+            const minimumX = 2;
+            const maximumX = 16;
+
+            for (
+                let y = startRow;
+                y <= endRow;
+                y++
+            ) {
+                const rowNumber =
+                    y - startRow;
+
+                if (rowNumber % 2 === 0) {
+                    // 偶数行从右向左
+                    for (
+                        let x = maximumX;
+                        x >= minimumX;
+                        x--
+                    ) {
+                        path.push({
+                            x: x,
+                            y: y
+                        });
+                    }
+                } else {
+                    // 奇数行从左向右
+                    for (
+                        let x = minimumX;
+                        x <= maximumX;
+                        x++
+                    ) {
+                        path.push({
+                            x: x,
+                            y: y
+                        });
+                    }
+                }
+            }
+
+            /*
+             * 一般情况下不会超过该区域容量。
+             * 即使原蛇非常长，也不会让身体越出地图。
+             */
+            const safeLength =
+                Math.min(
+                    requestedLength,
+                    path.length
+                );
+
+            return path.slice(
+                0,
+                safeLength
+            );
+        }
+
+
+        /* =========================================
+           10. 创建水果
+           ========================================= */
+
+        function createAllFoods() {
+            FRUIT_TYPES.forEach(
+                function (fruit) {
+                    createOneFood(
+                        fruit.id
+                    );
+                }
+            );
+        }
+
+        function createOneFood(type) {
+            const emptyCells =
+                getEmptyCells();
+
+            if (
+                emptyCells.length === 0
+            ) {
+                return false;
+            }
+
+            const randomIndex =
+                Math.floor(
+                    Math.random() *
+                    emptyCells.length
+                );
+
+            const position =
+                emptyCells[randomIndex];
+
+            foods.push({
+                type: type,
+                x: position.x,
+                y: position.y
+            });
+
+            return true;
+        }
+
+        function getEmptyCells() {
+            const emptyCells = [];
+
+            for (
+                let y = 0;
+                y < GRID_COUNT;
+                y++
+            ) {
+                for (
+                    let x = 0;
+                    x < GRID_COUNT;
+                    x++
+                ) {
+                    const occupiedBySnake =
+                        snakes.some(
+                            function (snake) {
+                                return snake.body.some(
+                                    function (part) {
+                                        return (
+                                            part.x === x &&
+                                            part.y === y
+                                        );
+                                    }
+                                );
+                            }
+                        );
+
+                    const occupiedByFood =
+                        foods.some(
+                            function (food) {
+                                return (
+                                    food.x === x &&
+                                    food.y === y
+                                );
+                            }
+                        );
+
+                    if (
+                        !occupiedBySnake &&
+                        !occupiedByFood
+                    ) {
+                        emptyCells.push({
+                            x: x,
+                            y: y
+                        });
+                    }
+                }
+            }
+
+            return emptyCells;
+        }
+
+
+        /* =========================================
+           11. 水果工具函数
+           ========================================= */
+
+        function getRandomFruitType(
+            excludedType = null
+        ) {
+            let availableFruits =
+                FRUIT_TYPES;
+
+            // 吃对后尽量切换成另一种水果
+            if (
+                excludedType !== null &&
+                FRUIT_TYPES.length > 1
+            ) {
+                availableFruits =
+                    FRUIT_TYPES.filter(
+                        function (fruit) {
+                            return (
+                                fruit.id !==
+                                excludedType
+                            );
+                        }
+                    );
+            }
+
+            const randomIndex =
+                Math.floor(
+                    Math.random() *
+                    availableFruits.length
+                );
+
+            return availableFruits[
+                randomIndex
+            ].id;
+        }
+
+        function getFruitById(id) {
+            return FRUIT_TYPES.find(
+                function (fruit) {
+                    return fruit.id === id;
+                }
+            );
+        }
+
+
+        /* =========================================
+           12. 更新页面信息
+           ========================================= */
+
+        function updateInformation() {
+            scoreElement.textContent =
+                score;
+
+            bestScoreElement.textContent =
+                bestScore;
+
+            snakeCountElement.textContent =
+                snakes.length;
+
+            snakeStatusPanel.innerHTML = "";
+
+            snakes.forEach(
+                function (snake, index) {
+                    const fruit =
+                        getFruitById(
+                            snake.fruitType
+                        );
+
+                    const card =
+                        document.createElement(
+                            "div"
+                        );
+
+                    card.className =
+                        "snake-status-card";
+
+                    card.innerHTML = `
+                        <div class="snake-status-title">
+                            <span>
+                                ${index === 0 ? "❄️" : "🌙"}
+                                ${snake.name}
+                            </span>
+
+                            <span>
+                                ${snake.body.length} 格
+                            </span>
+                        </div>
+
+                        <div class="snake-status-content">
+                            <span>当前目标</span>
+
+                            <span
+                                class="snake-fruit"
+                                style="
+                                    color:${fruit.lightColor};
+                                    text-shadow:0 0 10px ${fruit.mainColor};
+                                "
+                            >
+                                ${fruit.icon} ${fruit.name}
+                            </span>
+                        </div>
+                    `;
+
+                    snakeStatusPanel.appendChild(
+                        card
+                    );
+                }
+            );
+        }
+
+
+        /* =========================================
+           13. 最高分
+           ========================================= */
+
+        function updateBestScore() {
+            if (score <= bestScore) {
+                return;
+            }
+
+            bestScore = score;
+
+            bestScoreElement.textContent =
+                bestScore;
+
+            try {
+                localStorage.setItem(
+                    "divineFruitSnakeBestScore",
+                    String(bestScore)
+                );
+            } catch (error) {
+                // 无法保存时不影响游戏
+            }
+        }
+
+
+        /* =========================================
+           14. 普通提示
+           ========================================= */
+
+        function showToast(
+            text,
+            isWrong
+        ) {
+            clearTimeout(toastTimer);
+
+            gameToast.textContent = text;
+
+            gameToast.classList.remove(
+                "show",
+                "wrong"
+            );
+
+            if (isWrong) {
+                gameToast.classList.add(
+                    "wrong"
+                );
+            }
+
+            void gameToast.offsetWidth;
+
+            gameToast.classList.add(
+                "show"
+            );
+
+            toastTimer = setTimeout(
+                function () {
+                    gameToast.classList.remove(
+                        "show"
+                    );
+                },
+                1700
+            );
+        }
+
+
+        /* =========================================
+           15. 游戏结束
+           ========================================= */
+
+        function endGame(reason) {
+            if (isGameOver) {
+                return;
+            }
+
+            isGameOver = true;
+
+            clearInterval(gameTimer);
+            clearTimeout(toastTimer);
+            clearTimeout(divineTimer);
+
+            gameToast.classList.remove(
+                "show"
+            );
+
+            divineEvent.classList.remove(
+                "show"
+            );
+
+            messageIcon.textContent = "🌑";
+            messageTitle.textContent = "命运终结";
+
+            messageText.innerHTML =
+                reason +
+                "<br>最终得分：" +
+                score +
+                " 分。";
+
+            gameMessage.classList.add(
+                "show"
+            );
+        }
+
+
+        /* =========================================
+           16. 方向控制
+           ========================================= */
+
+        function changeDirection(
+            newDirection
+        ) {
+            if (
+                isGameOver ||
+                isDivineEventPlaying ||
+                directionChangedThisStep
+            ) {
+                return;
+            }
+
+            const isOpposite =
+                newDirection.x ===
+                    -direction.x &&
+                newDirection.y ===
+                    -direction.y;
+
+            if (isOpposite) {
+                return;
+            }
+
+            nextDirection =
+                newDirection;
+
+            directionChangedThisStep =
+                true;
+        }
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
+                const key =
+                    event.key.toLowerCase();
+
+                const keyDirections = {
+                    arrowup: {
+                        x: 0,
+                        y: -1
+                    },
+
+                    w: {
+                        x: 0,
+                        y: -1
+                    },
+
+                    arrowdown: {
+                        x: 0,
+                        y: 1
+                    },
+
+                    s: {
+                        x: 0,
+                        y: 1
+                    },
+
+                    arrowleft: {
+                        x: -1,
+                        y: 0
+                    },
+
+                    a: {
+                        x: -1,
+                        y: 0
+                    },
+
+                    arrowright: {
+                        x: 1,
+                        y: 0
+                    },
+
+                    d: {
+                        x: 1,
+                        y: 0
+                    }
+                };
+
+                if (keyDirections[key]) {
+                    event.preventDefault();
+
+                    changeDirection(
+                        keyDirections[key]
+                    );
+                }
+
+                if (
+                    isGameOver &&
+                    event.code === "Space"
+                ) {
+                    event.preventDefault();
+                    startGame();
+                }
+            }
+        );
+
+        directionButtons.forEach(
+            function (button) {
+                button.addEventListener(
+                    "pointerdown",
+                    function (event) {
+                        event.preventDefault();
+
+                        const name =
+                            button.dataset.direction;
+
+                        const directions = {
+                            up: {
+                                x: 0,
+                                y: -1
+                            },
+
+                            down: {
+                                x: 0,
+                                y: 1
+                            },
+
+                            left: {
+                                x: -1,
+                                y: 0
+                            },
+
+                            right: {
+                                x: 1,
+                                y: 0
+                            }
+                        };
+
+                        changeDirection(
+                            directions[name]
+                        );
+                    }
+                );
+            }
+        );
+
+
+        /* =========================================
+           17. 手机滑动
+           ========================================= */
+
+        canvas.addEventListener(
+            "touchstart",
+            function (event) {
+                const touch =
+                    event.touches[0];
+
+                touchStartX =
+                    touch.clientX;
+
+                touchStartY =
+                    touch.clientY;
+            },
+            {
+                passive: true
+            }
+        );
+
+        canvas.addEventListener(
+            "touchend",
+            function (event) {
+                const touch =
+                    event.changedTouches[0];
+
+                const differenceX =
+                    touch.clientX -
+                    touchStartX;
+
+                const differenceY =
+                    touch.clientY -
+                    touchStartY;
+
+                const minimumDistance =
+                    24;
+
+                if (
+                    Math.abs(differenceX) <
+                        minimumDistance &&
+                    Math.abs(differenceY) <
+                        minimumDistance
+                ) {
+                    return;
+                }
+
+                if (
+                    Math.abs(differenceX) >
+                    Math.abs(differenceY)
+                ) {
+                    changeDirection(
+                        differenceX > 0
+                            ? {
+                                x: 1,
+                                y: 0
+                            }
+                            : {
+                                x: -1,
+                                y: 0
+                            }
+                    );
+                } else {
+                    changeDirection(
+                        differenceY > 0
+                            ? {
+                                x: 0,
+                                y: 1
+                            }
+                            : {
+                                x: 0,
+                                y: -1
+                            }
+                    );
+                }
+            },
+            {
+                passive: true
+            }
+        );
+
+
+        /* =========================================
+           18. 绘制完整画面
+           ========================================= */
+
+        function drawGame() {
+            ctx.clearRect(
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+
+            drawBackground();
+            drawFoods();
+            drawSnakes();
+        }
+
+
+        /* =========================================
+           19. 绘制背景
+           ========================================= */
+
+        function drawBackground() {
+            const gradient =
+                ctx.createLinearGradient(
+                    0,
+                    0,
+                    canvas.width,
+                    canvas.height
+                );
+
+            gradient.addColorStop(
+                0,
+                "#061321"
+            );
+
+            gradient.addColorStop(
+                0.55,
+                "#0a1c2d"
+            );
+
+            gradient.addColorStop(
+                1,
+                "#10182c"
+            );
+
+            ctx.fillStyle = gradient;
+
+            ctx.fillRect(
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+
+            ctx.strokeStyle =
+                "rgba(105, 195, 235, 0.075)";
+
+            ctx.lineWidth = 1;
+
+            for (
+                let index = 0;
+                index <= GRID_COUNT;
+                index++
+            ) {
+                const position =
+                    index * CELL_SIZE;
+
+                ctx.beginPath();
+                ctx.moveTo(position, 0);
+                ctx.lineTo(
+                    position,
+                    canvas.height
+                );
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(0, position);
+                ctx.lineTo(
+                    canvas.width,
+                    position
+                );
+                ctx.stroke();
+            }
+
+            // 微光星点
+            const stars = [
+                [42, 68],
+                [411, 81],
+                [366, 373],
+                [94, 405],
+                [250, 47],
+                [443, 234],
+                [170, 320],
+                [319, 181]
+            ];
+
+            ctx.fillStyle =
+                "rgba(172, 230, 255, 0.16)";
+
+            stars.forEach(
+                function (star) {
+                    ctx.beginPath();
+
+                    ctx.arc(
+                        star[0],
+                        star[1],
+                        1.5,
+                        0,
+                        Math.PI * 2
+                    );
+
+                    ctx.fill();
+                }
+            );
+        }
+
+
+        /* =========================================
+           20. 绘制场上水果
+           ========================================= */
+
+        function drawFoods() {
+            foods.forEach(
+                function (food) {
+                    const centerX =
+                        food.x *
+                            CELL_SIZE +
+                        CELL_SIZE / 2;
+
+                    const centerY =
+                        food.y *
+                            CELL_SIZE +
+                        CELL_SIZE / 2;
+
+                    drawFruit(
+                        food.type,
+                        centerX,
+                        centerY,
+                        CELL_SIZE * 0.38,
+                        true,
+                        false
+                    );
+                }
+            );
+        }
+
+
+        /* =========================================
+           21. 绘制全部蛇
+           ========================================= */
+
+        function drawSnakes() {
+            snakes.forEach(
+                function (snake, snakeIndex) {
+                    for (
+                        let bodyIndex =
+                            snake.body.length -
+                            1;
+                        bodyIndex >= 0;
+                        bodyIndex--
+                    ) {
+                        const part =
+                            snake.body[
+                                bodyIndex
+                            ];
+
+                        const centerX =
+                            part.x *
+                                CELL_SIZE +
+                            CELL_SIZE / 2;
+
+                        const centerY =
+                            part.y *
+                                CELL_SIZE +
+                            CELL_SIZE / 2;
+
+                        const isHead =
+                            bodyIndex === 0;
+
+                        drawFruit(
+                            snake.fruitType,
+                            centerX,
+                            centerY,
+                            isHead
+                                ? CELL_SIZE *
+                                    0.42
+                                : CELL_SIZE *
+                                    0.36,
+                            false,
+                            true
+                        );
+
+                        if (isHead) {
+                            drawSnakeEyes(
+                                centerX,
+                                centerY
+                            );
+
+                            drawSnakeLabel(
+                                centerX,
+                                centerY,
+                                snakeIndex
+                            );
+                        }
+                    }
+                }
+            );
+        }
+
+
+        /* =========================================
+           22. 绘制蛇头编号
+           ========================================= */
+
+        function drawSnakeLabel(
+            centerX,
+            centerY,
+            snakeIndex
+        ) {
+            ctx.save();
+
+            ctx.font =
+                "bold 8px Arial";
+
+            ctx.textAlign =
+                "center";
+
+            ctx.textBaseline =
+                "middle";
+
+            ctx.fillStyle =
+                snakeIndex === 0
+                    ? "#dff8ff"
+                    : "#fff0be";
+
+            ctx.shadowColor =
+                snakeIndex === 0
+                    ? "#65cfff"
+                    : "#ffd56d";
+
+            ctx.shadowBlur = 4;
+
+            ctx.fillText(
+                snakeIndex === 0
+                    ? "1"
+                    : "2",
+                centerX,
+                centerY + 8
+            );
+
+            ctx.restore();
+        }
+
+
+        /* =========================================
+           23. 水果统一绘制
+           ========================================= */
+
+        function drawFruit(
+            type,
+            centerX,
+            centerY,
+            size,
+            hasStrongGlow,
+            isSnakePart
+        ) {
+            const fruit =
+                getFruitById(type);
+
+            ctx.save();
+
+            if (hasStrongGlow) {
+                ctx.shadowColor =
+                    fruit.mainColor;
+
+                ctx.shadowBlur = 14;
+            } else if (isSnakePart) {
+                ctx.shadowColor =
+                    "rgba(109, 217, 255, 0.4)";
+
+                ctx.shadowBlur = 8;
+            }
+
+            if (isSnakePart) {
+                ctx.fillStyle =
+                    "rgba(135, 224, 255, 0.21)";
+
+                ctx.beginPath();
+
+                ctx.arc(
+                    centerX,
+                    centerY,
+                    size + 2.3,
+                    0,
+                    Math.PI * 2
+                );
+
+                ctx.fill();
+            }
+
+            if (type === "apple") {
+                drawApple(
+                    centerX,
+                    centerY,
+                    size,
+                    fruit
+                );
+            } else if (
+                type === "pear"
+            ) {
+                drawPear(
+                    centerX,
+                    centerY,
+                    size,
+                    fruit
+                );
+            } else if (
+                type === "orange"
+            ) {
+                drawOrange(
+                    centerX,
+                    centerY,
+                    size,
+                    fruit
+                );
+            } else if (
+                type === "grape"
+            ) {
+                drawGrape(
+                    centerX,
+                    centerY,
+                    size,
+                    fruit
+                );
+            } else {
+                drawBlueberry(
+                    centerX,
+                    centerY,
+                    size,
+                    fruit
+                );
+            }
+
+            ctx.restore();
+        }
+
+
+        /* =========================================
+           24. 绘制苹果
+           ========================================= */
+
+        function drawApple(
+            centerX,
+            centerY,
+            size,
+            fruit
+        ) {
+            ctx.fillStyle =
+                fruit.mainColor;
+
+            ctx.beginPath();
+
+            ctx.arc(
+                centerX -
+                    size * 0.32,
+                centerY,
+                size * 0.62,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.arc(
+                centerX +
+                    size * 0.32,
+                centerY,
+                size * 0.62,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+            ctx.strokeStyle =
+                "#726857";
+
+            ctx.lineWidth =
+                Math.max(
+                    1.5,
+                    size * 0.13
+                );
+
+            ctx.lineCap = "round";
+
+            ctx.beginPath();
+
+            ctx.moveTo(
+                centerX,
+                centerY -
+                    size * 0.45
+            );
+
+            ctx.lineTo(
+                centerX +
+                    size * 0.08,
+                centerY -
+                    size * 0.95
+            );
+
+            ctx.stroke();
+
+            ctx.fillStyle =
+                "#78a99b";
+
+            ctx.beginPath();
+
+            ctx.ellipse(
+                centerX +
+                    size * 0.35,
+                centerY -
+                    size * 0.68,
+                size * 0.36,
+                size * 0.16,
+                -0.45,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+            drawFruitHighlight(
+                centerX -
+                    size * 0.32,
+                centerY -
+                    size * 0.2,
+                size
+            );
+        }
+
+
+        /* =========================================
+           25. 绘制梨
+           ========================================= */
+
+        function drawPear(
+            centerX,
+            centerY,
+            size,
+            fruit
+        ) {
+            ctx.fillStyle =
+                fruit.mainColor;
+
+            ctx.beginPath();
+
+            ctx.ellipse(
+                centerX,
+                centerY +
+                    size * 0.2,
+                size * 0.72,
+                size * 0.75,
+                0,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+            ctx.beginPath();
+
+            ctx.arc(
+                centerX,
+                centerY -
+                    size * 0.42,
+                size * 0.43,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+            ctx.strokeStyle =
+                "#716a57";
+
+            ctx.lineWidth =
+                Math.max(
+                    1.5,
+                    size * 0.13
+                );
+
+            ctx.lineCap = "round";
+
+            ctx.beginPath();
+
+            ctx.moveTo(
+                centerX,
+                centerY -
+                    size * 0.72
+            );
+
+            ctx.lineTo(
+                centerX +
+                    size * 0.08,
+                centerY -
+                    size * 1.05
+            );
+
+            ctx.stroke();
+
+            ctx.fillStyle =
+                "#759a8a";
+
+            ctx.beginPath();
+
+            ctx.ellipse(
+                centerX +
+                    size * 0.32,
+                centerY -
+                    size * 0.77,
+                size * 0.29,
+                size * 0.13,
+                -0.45,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+            drawFruitHighlight(
+                centerX -
+                    size * 0.25,
+                centerY -
+                    size * 0.05,
+                size
+            );
+        }
+
+
+        /* =========================================
+           26. 绘制橙子
+           ========================================= */
+
+        function drawOrange(
+            centerX,
+            centerY,
+            size,
+            fruit
+        ) {
+            ctx.fillStyle =
+                fruit.mainColor;
+
+            ctx.beginPath();
+
+            ctx.arc(
+                centerX,
+                centerY,
+                size * 0.78,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+            ctx.fillStyle =
+                "#779d8c";
+
+            ctx.beginPath();
+
+            ctx.ellipse(
+                centerX +
+                    size * 0.18,
+                centerY -
+                    size * 0.72,
+                size * 0.3,
+                size * 0.13,
+                -0.25,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+            ctx.fillStyle =
+                "rgba(255,225,195,0.3)";
+
+            const dots = [
+                [-0.3, -0.2],
+                [0.35, 0.1],
+                [-0.05, 0.38]
+            ];
+
+            dots.forEach(
+                function (dot) {
+                    ctx.beginPath();
+
+                    ctx.arc(
+                        centerX +
+                            size *
+                                dot[0],
+                        centerY +
+                            size *
+                                dot[1],
+                        Math.max(
+                            0.8,
+                            size * 0.06
+                        ),
+                        0,
+                        Math.PI * 2
+                    );
+
+                    ctx.fill();
+                }
+            );
+
+            drawFruitHighlight(
+                centerX -
+                    size * 0.28,
+                centerY -
+                    size * 0.3,
+                size
+            );
+        }
+
+
+        /* =========================================
+           27. 绘制葡萄
+           ========================================= */
+
+        function drawGrape(
+            centerX,
+            centerY,
+            size,
+            fruit
+        ) {
+            ctx.fillStyle =
+                fruit.mainColor;
+
+            const grapes = [
+                [0, -0.43],
+                [-0.38, -0.13],
+                [0.38, -0.13],
+                [-0.25, 0.28],
+                [0.25, 0.28],
+                [0, 0.63]
+            ];
+
+            grapes.forEach(
+                function (grape) {
+                    ctx.beginPath();
+
+                    ctx.arc(
+                        centerX +
+                            size *
+                                grape[0],
+                        centerY +
+                            size *
+                                grape[1],
+                        size * 0.36,
+                        0,
+                        Math.PI * 2
+                    );
+
+                    ctx.fill();
+                }
+            );
+
+            ctx.fillStyle =
+                "#759b92";
+
+            ctx.beginPath();
+
+            ctx.ellipse(
+                centerX +
+                    size * 0.28,
+                centerY -
+                    size * 0.76,
+                size * 0.38,
+                size * 0.17,
+                -0.45,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+            drawFruitHighlight(
+                centerX -
+                    size * 0.12,
+                centerY -
+                    size * 0.48,
+                size * 0.7
+            );
+        }
+
+
+        /* =========================================
+           28. 绘制蓝莓
+           ========================================= */
+
+        function drawBlueberry(
+            centerX,
+            centerY,
+            size,
+            fruit
+        ) {
+            ctx.fillStyle =
+                fruit.mainColor;
+
+            ctx.beginPath();
+
+            ctx.arc(
+                centerX,
+                centerY,
+                size * 0.78,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+            ctx.fillStyle =
+                "#425b89";
+
+            drawStar(
+                centerX,
+                centerY -
+                    size * 0.4,
+                5,
+                size * 0.25,
+                size * 0.1
+            );
+
+            drawFruitHighlight(
+                centerX -
+                    size * 0.25,
+                centerY -
+                    size * 0.2,
+                size
+            );
+        }
+
+
+        /* =========================================
+           29. 水果高光
+           ========================================= */
+
+        function drawFruitHighlight(
+            x,
+            y,
+            size
+        ) {
+            ctx.fillStyle =
+                "rgba(255,255,255,0.32)";
+
+            ctx.beginPath();
+
+            ctx.arc(
+                x,
+                y,
+                Math.max(
+                    1.2,
+                    size * 0.13
+                ),
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+        }
+
+
+        /* =========================================
+           30. 蛇眼
+           ========================================= */
+
+        function drawSnakeEyes(
+            centerX,
+            centerY
+        ) {
+            let eyeOne;
+            let eyeTwo;
+
+            if (direction.x === 1) {
+                eyeOne = {
+                    x: 5,
+                    y: -4
+                };
+
+                eyeTwo = {
+                    x: 5,
+                    y: 4
+                };
+            } else if (
+                direction.x === -1
+            ) {
+                eyeOne = {
+                    x: -5,
+                    y: -4
+                };
+
+                eyeTwo = {
+                    x: -5,
+                    y: 4
+                };
+            } else if (
+                direction.y === -1
+            ) {
+                eyeOne = {
+                    x: -4,
+                    y: -5
+                };
+
+                eyeTwo = {
+                    x: 4,
+                    y: -5
+                };
+            } else {
+                eyeOne = {
+                    x: -4,
+                    y: 5
+                };
+
+                eyeTwo = {
+                    x: 4,
+                    y: 5
+                };
+            }
+
+            drawEye(
+                centerX + eyeOne.x,
+                centerY + eyeOne.y
+            );
+
+            drawEye(
+                centerX + eyeTwo.x,
+                centerY + eyeTwo.y
+            );
+        }
+
+        function drawEye(x, y) {
+            ctx.save();
+
+            ctx.shadowColor =
+                "rgba(220,248,255,0.55)";
+
+            ctx.shadowBlur = 4;
+
+            ctx.fillStyle =
+                "#eafaff";
+
+            ctx.beginPath();
+
+            ctx.arc(
+                x,
+                y,
+                2.8,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+            ctx.fillStyle =
+                "#0a1622";
+
+            ctx.beginPath();
+
+            ctx.arc(
+                x,
+                y,
+                1.25,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+
+        /* =========================================
+           31. 星形工具
+           ========================================= */
+
+        function drawStar(
+            centerX,
+            centerY,
+            pointCount,
+            outerRadius,
+            innerRadius
+        ) {
+            let angle =
+                -Math.PI / 2;
+
+            const step =
+                Math.PI / pointCount;
+
+            ctx.beginPath();
+
+            for (
+                let index = 0;
+                index <
+                    pointCount * 2;
+                index++
+            ) {
+                const radius =
+                    index % 2 === 0
+                        ? outerRadius
+                        : innerRadius;
+
+                const x =
+                    centerX +
+                    Math.cos(angle) *
+                        radius;
+
+                const y =
+                    centerY +
+                    Math.sin(angle) *
+                        radius;
+
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+
+                angle += step;
+            }
+
+            ctx.closePath();
+            ctx.fill();
+        }
+
+
+        /* =========================================
+           32. 图例与重新开始
+           ========================================= */
+
+        function createFruitLegend() {
+            fruitLegend.innerHTML = "";
+
+            FRUIT_TYPES.forEach(
+                function (fruit) {
+                    const item =
+                        document.createElement(
+                            "span"
+                        );
+
+                    item.className =
+                        "fruit-legend-item";
+
+                    item.textContent =
+                        fruit.icon +
+                        " " +
+                        fruit.name;
+
+                    fruitLegend.appendChild(
+                        item
+                    );
+                }
+            );
+        }
+
+        restartButton.addEventListener(
+            "click",
+            startGame
+        );
+
+
+        /* =========================================
+           33. 初始化
+           ========================================= */
+
+        createFruitLegend();
+        startGame();
+    </script>
+
+
+<script id="portfolio-back-bridge">
+  document.querySelector('[data-portfolio-back]').addEventListener('click', function (event) {
+    if (window.parent === window) return;
+    event.preventDefault();
+    window.parent.postMessage({ type: 'ai-lab-full-preview-nav', href: './snake-games.html' }, '*');
+  });
+</script>
+</body>
+</html>

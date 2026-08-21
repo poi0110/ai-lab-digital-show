@@ -1,0 +1,2544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>萌蛇吃果果·神光棒免疫版</title>
+
+  <style>
+    /* =========================
+       1. 页面基础样式
+    ========================== */
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --text: #39536d;
+      --pink: #ff6f91;
+      --green: #41c784;
+      --blue: #39a9d4;
+      --shadow: rgba(63, 93, 120, 0.18);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      padding: 7px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      overflow-x: hidden;
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 10%, #fff5a5 0 9%, transparent 26%),
+        radial-gradient(circle at 90% 12%, #bdf5ff 0 9%, transparent 26%),
+        radial-gradient(circle at 50% 96%, #ffd0e7 0 12%, transparent 30%),
+        linear-gradient(135deg, #e9fbff, #fff3d2, #ffe5f1);
+    }
+
+    button,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .game-card {
+      width: min(97vw, 740px);
+      padding: 13px;
+      border: 4px solid rgba(255, 255, 255, 0.92);
+      border-radius: 25px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 18px 44px var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    /* =========================
+       2. 标题和状态数据
+    ========================== */
+    .game-title {
+      margin: 0;
+      text-align: center;
+      font-size: clamp(25px, 6vw, 39px);
+      color: var(--pink);
+      text-shadow: 0 3px 0 white;
+    }
+
+    .subtitle {
+      margin: 3px 0 8px;
+      text-align: center;
+      font-size: 13px;
+      color: #72879a;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      margin-bottom: 7px;
+    }
+
+    .stat-box {
+      min-width: 0;
+      padding: 6px 3px;
+      border: 2px solid #d7f3ff;
+      border-radius: 13px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: bold;
+      background: #f4fcff;
+    }
+
+    .stat-value {
+      display: block;
+      margin-top: 1px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 19px;
+      color: var(--blue);
+    }
+
+    .magnet-active {
+      color: #ff8b35;
+      animation: pulse 0.75s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.08); }
+    }
+
+    /* =========================
+       3. 操作工具栏
+    ========================== */
+    .toolbar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 7px;
+    }
+
+    .toolbar label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 9px;
+      border-radius: 13px;
+      background: #fff7da;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    select {
+      border: 2px solid #ffd577;
+      border-radius: 9px;
+      padding: 3px 6px;
+      color: #536577;
+      background: white;
+      outline: none;
+    }
+
+    .small-button {
+      min-width: 94px;
+      padding: 8px 11px;
+      border: none;
+      border-radius: 13px;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 5px 0 rgba(0, 0, 0, 0.14);
+      transition: transform 0.08s, box-shadow 0.08s;
+    }
+
+    .small-button:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.14);
+    }
+
+    .start-button {
+      background: linear-gradient(135deg, #59d998, #2db97a);
+    }
+
+    .restart-button {
+      background: linear-gradient(135deg, #ff8baa, #ff6e78);
+    }
+
+    /* =========================
+       4. 游戏棋盘
+       始终根据屏幕宽度和高度缩放
+    ========================== */
+    .board-shell {
+      position: relative;
+      width: min(94vw, 58svh, 560px);
+      aspect-ratio: 1 / 1;
+      margin: 0 auto;
+      overflow: hidden;
+      border: 7px solid #ff9db6;
+      border-radius: 23px;
+      background: #eaffd8;
+      box-shadow:
+        0 0 0 4px white,
+        0 12px 28px rgba(74, 135, 98, 0.2);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+
+    /*
+      这个遮罩只在准备、暂停和失败时显示。
+      游戏进行中获取目标不会再出现遮挡动画。
+    */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 22px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(4px);
+    }
+
+    .overlay.show {
+      display: flex;
+    }
+
+    .overlay-icon {
+      font-size: 53px;
+    }
+
+    .overlay h2 {
+      margin: 7px 0;
+      color: #ff668c;
+      font-size: 29px;
+    }
+
+    .overlay p {
+      margin: 0 0 13px;
+      line-height: 1.6;
+      font-weight: bold;
+    }
+
+    .overlay button {
+      padding: 10px 19px;
+      border: none;
+      border-radius: 14px;
+      color: white;
+      background: linear-gradient(135deg, #ff7c9d, #ff9c65);
+      font-weight: bold;
+      box-shadow: 0 5px 0 #e56879;
+    }
+
+    /* =========================
+       5. 不遮挡地图的事件提示栏
+    ========================== */
+    .event-bar {
+      min-height: 35px;
+      margin: 9px auto 0;
+      padding: 7px 10px;
+      max-width: 590px;
+      border: 2px solid #e7edf2;
+      border-radius: 13px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: #63788d;
+      background: #ffffff;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .event-bar.flash {
+      background: #fff3c9;
+      transform: scale(1.015);
+    }
+
+    /* =========================
+       6. 道具说明
+    ========================== */
+    .item-legend {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 5px;
+      margin: 7px auto 0;
+      max-width: 620px;
+    }
+
+    .item-box {
+      min-width: 0;
+      padding: 6px 2px;
+      border: 2px solid #edf0f3;
+      border-radius: 11px;
+      text-align: center;
+      font-size: 9.5px;
+      font-weight: bold;
+      background: white;
+    }
+
+    .item-icon {
+      display: block;
+      margin-bottom: 1px;
+      font-size: 20px;
+    }
+
+    /* =========================
+       7. 手机方向键
+    ========================== */
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, 56px);
+      grid-template-rows: repeat(2, 49px);
+      justify-content: center;
+      gap: 6px;
+      margin: 9px auto 3px;
+      user-select: none;
+    }
+
+    .direction-button {
+      border: none;
+      border-radius: 15px;
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+      background: linear-gradient(145deg, #6ee0a0, #3dc888);
+      box-shadow: 0 5px 0 #259d6b;
+    }
+
+    .direction-button:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 #259d6b;
+    }
+
+    .up { grid-column: 2; grid-row: 1; }
+    .left { grid-column: 1; grid-row: 2; }
+    .down { grid-column: 2; grid-row: 2; }
+    .right { grid-column: 3; grid-row: 2; }
+
+    .tip {
+      margin: 6px 0 0;
+      text-align: center;
+      font-size: 11px;
+      line-height: 1.5;
+      color: #74879a;
+    }
+
+    /* 矮屏设备适配 */
+    @media (max-height: 730px) {
+      .game-card {
+        padding: 9px;
+      }
+
+      .game-title {
+        font-size: 25px;
+      }
+
+      .subtitle {
+        display: none;
+      }
+
+      .stats {
+        margin-bottom: 5px;
+      }
+
+      .stat-box {
+        padding: 4px 2px;
+      }
+
+      .stat-value {
+        font-size: 17px;
+      }
+
+      .toolbar {
+        margin-bottom: 5px;
+      }
+
+      .board-shell {
+        width: min(94vw, 50svh, 500px);
+      }
+
+      .event-bar {
+        min-height: 31px;
+        margin-top: 6px;
+        padding: 5px 8px;
+      }
+
+      .item-legend {
+        margin-top: 5px;
+      }
+
+      .controls {
+        margin-top: 6px;
+        grid-template-columns: repeat(3, 50px);
+        grid-template-rows: repeat(2, 43px);
+      }
+
+      .tip {
+        display: none;
+      }
+    }
+
+    @media (max-width: 460px) {
+      body {
+        padding: 4px;
+      }
+
+      .game-card {
+        width: 100%;
+        border-radius: 19px;
+      }
+
+      .board-shell {
+        width: min(95vw, 53svh);
+        border-width: 6px;
+      }
+
+      .small-button {
+        min-width: 89px;
+        padding: 7px 9px;
+      }
+
+      .item-legend {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .item-box {
+        font-size: 9px;
+      }
+    }
+  </style>
+
+<style id="portfolio-back-style">
+  .portfolio-back-link {
+    position: fixed;
+    z-index: 2147483647;
+    top: max(10px, env(safe-area-inset-top));
+    left: max(10px, env(safe-area-inset-left));
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid rgba(25, 52, 85, .18);
+    border-radius: 999px;
+    color: #173b68;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 8px 24px rgba(25, 52, 85, .16);
+    font: 800 14px/1 "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    text-decoration: none;
+    backdrop-filter: blur(12px);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .portfolio-back-link:active { transform: scale(.97); }
+</style>
+<style id="ai-lab-responsive-v2">
+  /* 全站响应式增强：宽屏保持网页版，移动设备自动切换 H5。 */
+  html, body { max-width: 100%; }
+  body { overflow-x: clip; }
+  img, video, svg { max-width: 100%; height: auto; }
+  canvas { max-width: 100%; }
+  table { max-width: 100%; }
+  .table-wrap, .table-responsive, .report-table, .admin-table-section { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  html.ai-lab-h5 { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  html.ai-lab-h5, html.ai-lab-h5 body { width: 100%; min-width: 0 !important; overflow-x: hidden !important; }
+  html.ai-lab-h5 body { overscroll-behavior-x: none; }
+  html.ai-lab-h5 .app-shell,
+  html.ai-lab-h5 .game-shell,
+  html.ai-lab-h5 .game-app,
+  html.ai-lab-h5 .shell,
+  html.ai-lab-h5 .container,
+  html.ai-lab-h5 .wrapper,
+  html.ai-lab-h5 .content,
+  html.ai-lab-h5 .main,
+  html.ai-lab-h5 main { width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin-right: auto !important; margin-left: auto !important; }
+
+  html.ai-lab-h5 .home-layout,
+  html.ai-lab-h5 .calendar-layout,
+  html.ai-lab-h5 .dashboard-grid,
+  html.ai-lab-h5 .manager-grid,
+  html.ai-lab-h5 .map-grid,
+  html.ai-lab-h5 .report-layout,
+  html.ai-lab-h5 .report-grid,
+  html.ai-lab-h5 .profile-grid,
+  html.ai-lab-h5 .content-grid,
+  html.ai-lab-h5 .detail-grid,
+  html.ai-lab-h5 .library-grid,
+  html.ai-lab-h5 .test-reader-grid,
+  html.ai-lab-h5 .tech-grid,
+  html.ai-lab-h5 .controls-guide-grid,
+  html.ai-lab-h5 .shop-layout,
+  html.ai-lab-h5 .login,
+  html.ai-lab-h5 .hero { grid-template-columns: minmax(0, 1fr) !important; }
+
+  html.ai-lab-h5 .form-grid,
+  html.ai-lab-h5 .admin-form,
+  html.ai-lab-h5 .stats-grid,
+  html.ai-lab-h5 .quick-grid,
+  html.ai-lab-h5 .book-grid,
+  html.ai-lab-h5 .person-grid,
+  html.ai-lab-h5 .region-grid,
+  html.ai-lab-h5 .rules-grid,
+  html.ai-lab-h5 .identity-role-grid,
+  html.ai-lab-h5 .grid-3,
+  html.ai-lab-h5 .rewards-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)) !important; }
+
+  html.ai-lab-h5 .header-actions,
+  html.ai-lab-h5 .hero-actions,
+  html.ai-lab-h5 .main-actions,
+  html.ai-lab-h5 .top-controls,
+  html.ai-lab-h5 .action-row,
+  html.ai-lab-h5 .modal-actions,
+  html.ai-lab-h5 .toolbar,
+  html.ai-lab-h5 .controls { max-width: 100%; flex-wrap: wrap !important; }
+
+  html.ai-lab-h5 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  html.ai-lab-h5 select,
+  html.ai-lab-h5 textarea { width: 100%; max-width: 100%; min-width: 0; font-size: 16px !important; }
+  html.ai-lab-h5 button,
+  html.ai-lab-h5 .btn,
+  html.ai-lab-h5 [role="button"] { min-height: 44px; touch-action: manipulation; }
+  html.ai-lab-h5 textarea { resize: vertical; }
+
+  html.ai-lab-h5 canvas { display: block; width: auto; height: auto; max-width: 100% !important; max-height: min(68vh, 680px); margin-right: auto; margin-left: auto; touch-action: none; }
+  html.ai-lab-h5 .canvas-container,
+  html.ai-lab-h5 .canvas-wrapper,
+  html.ai-lab-h5 .canvas-wrap,
+  html.ai-lab-h5 .canvas-box,
+  html.ai-lab-h5 .board-shell,
+  html.ai-lab-h5 .board-wrapper,
+  html.ai-lab-h5 .gamewrap { width: 100% !important; max-width: 100% !important; min-width: 0 !important; overflow: hidden; }
+
+  html.ai-lab-h5 .modal-backdrop { padding: 12px !important; }
+  html.ai-lab-h5 .modal,
+  html.ai-lab-h5 .modal-card,
+  html.ai-lab-h5 .redeem-panel { width: min(100%, calc(100vw - 24px)) !important; max-width: calc(100vw - 24px) !important; max-height: 88dvh; overflow-y: auto; }
+  html.ai-lab-h5 .bottom-nav { padding-bottom: max(7px, env(safe-area-inset-bottom)); }
+  html.ai-lab-h5 .portfolio-return-bar { min-height: 54px; padding-right: 10px; padding-left: 10px; }
+  html.ai-lab-h5 .portfolio-back { max-width: calc(100vw - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  @media (max-width: 520px) {
+    html.ai-lab-h5 .stats-grid,
+    html.ai-lab-h5 .quick-grid,
+    html.ai-lab-h5 .form-grid,
+    html.ai-lab-h5 .admin-form,
+    html.ai-lab-h5 .identity-role-grid { grid-template-columns: minmax(0, 1fr) !important; }
+    html.ai-lab-h5 .card-footer { align-items: flex-start; flex-direction: column; }
+  }
+</style>
+<script id="ai-lab-responsive-runtime">
+(() => {
+  const root = document.documentElement;
+  const mobileUa = /Android|webOS|iPhone|iPad|iPod|Mobile|IEMobile|Opera Mini/i.test(navigator.userAgent || "");
+  const coarsePointer = window.matchMedia?.("(hover: none) and (pointer: coarse)")?.matches || false;
+  const updateLayoutMode = () => {
+    const narrowScreen = window.innerWidth <= 768;
+    const touchTablet = coarsePointer && window.innerWidth <= 1024;
+    const mobileDevice = mobileUa && window.innerWidth <= 1180;
+    const useH5 = narrowScreen || touchTablet || mobileDevice;
+    root.classList.toggle("ai-lab-h5", useH5);
+    root.classList.toggle("ai-lab-web", !useH5);
+    root.dataset.layoutMode = useH5 ? "h5" : "web";
+  };
+  updateLayoutMode();
+  window.addEventListener("resize", updateLayoutMode, { passive: true });
+  window.addEventListener("orientationchange", updateLayoutMode, { passive: true });
+})();
+</script>
+</head>
+
+<body>
+<a class="portfolio-back-link" href="../snake-games.html" data-portfolio-back>← 返回贪吃蛇合集</a>
+  <main class="game-card">
+    <h1 class="game-title">🐍 萌蛇吃果果·神光棒免疫版</h1>
+    <p class="subtitle">成长目标、怪兽和神光棒可以同时出现；捡到神光棒可获得2秒免疫。</p>
+
+    <!-- 游戏数据 -->
+    <section class="stats">
+      <div class="stat-box">
+        当前分数
+        <span class="stat-value" id="score">0</span>
+      </div>
+
+      <div class="stat-box">
+        最高分
+        <span class="stat-value" id="highScore">0</span>
+      </div>
+
+      <div class="stat-box">
+        蛇的长度
+        <span class="stat-value" id="snakeLength">3</span>
+      </div>
+
+      <div class="stat-box">
+        梅尔巴
+        <span class="stat-value" id="magnetStatus">未开启</span>
+      </div>
+
+      <div class="stat-box">
+        神光棒免疫
+        <span class="stat-value" id="immunityStatus">未开启</span>
+      </div>
+    </section>
+
+    <!-- 操作栏 -->
+    <section class="toolbar">
+      <label>
+        游戏速度
+        <select id="speedSelect">
+          <option value="270">轻松</option>
+          <option value="220" selected>标准</option>
+          <option value="170">挑战</option>
+        </select>
+      </label>
+
+      <button class="small-button start-button" id="startPauseButton">
+        开始游戏
+      </button>
+
+      <button class="small-button restart-button" id="restartButton">
+        重新开始
+      </button>
+    </section>
+
+    <!-- 游戏棋盘 -->
+    <section class="board-shell">
+      <canvas
+        id="gameCanvas"
+        width="600"
+        height="600"
+        aria-label="贪吃蛇游戏地图"
+      ></canvas>
+
+      <div class="overlay show" id="overlay">
+        <div class="overlay-icon" id="overlayIcon">🐍</div>
+        <h2 id="overlayTitle">准备好了吗？</h2>
+        <p id="overlayText">
+          地图里始终有一个成长目标。<br />
+          怪兽和神光棒都可能作为独立道具同时出现。
+        </p>
+        <button id="overlayButton">开始游戏</button>
+      </div>
+    </section>
+
+    <!-- 所有获取目标和道具提示都放在棋盘外，不遮挡游戏 -->
+    <div class="event-bar" id="eventBar">
+      规则：吃到道具时不会弹出遮挡动画。
+    </div>
+
+    <!-- 功能说明 -->
+    <section class="item-legend">
+      <div class="item-box">
+        <span class="item-icon">⭐</span>
+        星光梦<br />+10分，长1节
+      </div>
+
+      <div class="item-box">
+        <span class="item-icon">🔴</span>
+        迷你迪迦<br />+25分，长2节
+      </div>
+
+      <div class="item-box">
+        <span class="item-icon">✨</span>
+        闪耀迪迦<br />+50分，长3节
+      </div>
+
+      <div class="item-box">
+        <span class="item-icon">🪽</span>
+        梅尔巴<br />吸近成长目标
+      </div>
+
+      <div class="item-box">
+        <span class="item-icon">🦖</span>
+        哥尔赞<br />断掉3—5节
+      </div>
+
+      <div class="item-box">
+        <span class="item-icon">🔦</span>
+        神光棒<br />免疫2秒
+      </div>
+    </section>
+
+    <!-- 手机方向键 -->
+    <section class="controls" aria-label="手机方向控制">
+      <button class="direction-button up" data-direction="up">↑</button>
+      <button class="direction-button left" data-direction="left">←</button>
+      <button class="direction-button down" data-direction="down">↓</button>
+      <button class="direction-button right" data-direction="right">→</button>
+    </section>
+
+    <p class="tip">
+      电脑：方向键或 W、A、S、D　｜　手机：点击按钮或在地图上滑动　｜　空格：暂停
+    </p>
+  </main>
+
+  <script>
+    /* =========================
+       1. 获取页面元素
+    ========================== */
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const scoreElement = document.getElementById("score");
+    const highScoreElement = document.getElementById("highScore");
+    const snakeLengthElement = document.getElementById("snakeLength");
+    const magnetStatusElement = document.getElementById("magnetStatus");
+    const immunityStatusElement = document.getElementById("immunityStatus");
+
+    const speedSelect = document.getElementById("speedSelect");
+    const startPauseButton = document.getElementById("startPauseButton");
+    const restartButton = document.getElementById("restartButton");
+
+    const overlay = document.getElementById("overlay");
+    const overlayIcon = document.getElementById("overlayIcon");
+    const overlayTitle = document.getElementById("overlayTitle");
+    const overlayText = document.getElementById("overlayText");
+    const overlayButton = document.getElementById("overlayButton");
+
+    const eventBar = document.getElementById("eventBar");
+    const directionButtons = document.querySelectorAll(".direction-button");
+
+    /* =========================
+       2. 游戏基础数据
+    ========================== */
+    const GRID_COUNT = 20;
+    const CELL_SIZE = canvas.width / GRID_COUNT;
+
+    // 梅尔巴持续36步，标准速度下约8秒
+    const MAGNET_DURATION_STEPS = 36;
+
+    // 目标距离蛇头8格以内时，梅尔巴才会生效
+    const MAGNET_RADIUS = 8;
+
+    // 神光棒提供整整2秒的免疫时间
+    const IMMUNITY_DURATION_MS = 2000;
+
+    let snake = [];
+    let apple = null;
+
+    /*
+      地图里始终有一个成长目标。
+      另外最多同时出现一只怪兽道具：
+      梅尔巴负责吸引目标，哥尔赞负责断尾。
+    */
+    let monsterItem = null;
+    let monsterItemLife = 0;
+
+    /*
+      神光棒是独立道具，不占用成长目标或怪兽的位置。
+      它可以和成长目标、梅尔巴或哥尔赞同时出现。
+    */
+    let lightStickItem = null;
+    let lightStickItemLife = 0;
+
+    let direction = { x: 1, y: 0 };
+    let nextDirection = { x: 1, y: 0 };
+
+    let score = 0;
+    let pendingGrowth = 0;
+    let magnetSteps = 0;
+    let magnetMoveCounter = 0;
+    let immunityRemainingMs = 0;
+    let applesEaten = 0;
+
+    // ready：准备；playing：进行；paused：暂停；over：失败
+    let gameState = "ready";
+
+    let timer = null;
+    let eventFlashTimer = null;
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    let highScore = loadHighScore();
+    highScoreElement.textContent = highScore;
+
+    /* =========================
+       3. 三种成长目标
+       地图上始终保留其中一个
+    ========================== */
+    const APPLE_TYPES = [
+      {
+        key: "normal",
+        name: "星光梦",
+        score: 10,
+        grow: 1,
+        weight: 62
+      },
+      {
+        key: "gold",
+        name: "迷你迪迦",
+        score: 25,
+        grow: 2,
+        weight: 25
+      },
+      {
+        key: "rainbow",
+        name: "闪耀迪迦",
+        score: 50,
+        grow: 3,
+        weight: 13
+      }
+    ];
+
+    /* 怪兽作为独立道具，不会占用成长目标的位置 */
+    const MONSTER_TYPES = [
+      {
+        key: "melba",
+        name: "梅尔巴",
+        score: 15,
+        weight: 55
+      },
+      {
+        key: "golza",
+        name: "哥尔赞",
+        score: 20,
+        weight: 45
+      }
+    ];
+
+    /* =========================
+       4. 最高分读取和保存
+    ========================== */
+    function loadHighScore() {
+      try {
+        return Number(localStorage.getItem("cuteSnakeChallengeHighScore")) || 0;
+      } catch (error) {
+        return 0;
+      }
+    }
+
+    function saveHighScore() {
+      try {
+        localStorage.setItem(
+          "cuteSnakeChallengeHighScore",
+          String(highScore)
+        );
+      } catch (error) {
+        // 浏览器不允许保存时直接跳过
+      }
+    }
+
+    /* =========================
+       5. 初始化游戏
+    ========================== */
+    function resetGame() {
+      clearInterval(timer);
+
+      snake = [
+        { x: 10, y: 10 },
+        { x: 9, y: 10 },
+        { x: 8, y: 10 }
+      ];
+
+      direction = { x: 1, y: 0 };
+      nextDirection = { x: 1, y: 0 };
+
+      score = 0;
+      pendingGrowth = 0;
+      magnetSteps = 0;
+      magnetMoveCounter = 0;
+      immunityRemainingMs = 0;
+      applesEaten = 0;
+
+      monsterItem = null;
+      monsterItemLife = 0;
+      lightStickItem = null;
+      lightStickItemLife = 0;
+
+      gameState = "ready";
+
+      createApple();
+      updateDisplay();
+      drawGame();
+
+      startPauseButton.textContent = "开始游戏";
+      setEventMessage("规则：成长目标始终存在；怪兽和神光棒都是额外独立道具。");
+
+      showOverlay(
+        "🐍",
+        "准备好了吗？",
+        "地图里始终有一个成长目标。<br>怪兽和神光棒都可能作为独立道具同时出现。",
+        "开始游戏"
+      );
+    }
+
+    /* =========================
+       6. 开始、暂停和继续
+    ========================== */
+    function startOrPauseGame() {
+      if (gameState === "ready") {
+        beginPlaying();
+        return;
+      }
+
+      if (gameState === "playing") {
+        pauseGame();
+        return;
+      }
+
+      if (gameState === "paused") {
+        resumeGame();
+        return;
+      }
+
+      if (gameState === "over") {
+        resetGame();
+        beginPlaying();
+      }
+    }
+
+    function beginPlaying() {
+      gameState = "playing";
+      hideOverlay();
+      startPauseButton.textContent = "暂停游戏";
+      startTimer();
+    }
+
+    function pauseGame() {
+      if (gameState !== "playing") return;
+
+      gameState = "paused";
+      clearInterval(timer);
+      startPauseButton.textContent = "继续游戏";
+
+      showOverlay(
+        "⏸️",
+        "游戏暂停",
+        "暂停时游戏不会继续移动。<br>准备好后再继续。",
+        "继续游戏"
+      );
+    }
+
+    function resumeGame() {
+      gameState = "playing";
+      hideOverlay();
+      startPauseButton.textContent = "暂停游戏";
+      startTimer();
+    }
+
+    function startTimer() {
+      clearInterval(timer);
+      timer = setInterval(gameLoop, Number(speedSelect.value));
+    }
+
+    /* =========================
+       7. 游戏主循环
+    ========================== */
+    function gameLoop() {
+      if (gameState !== "playing") return;
+
+      /*
+        免疫时间按每一步的游戏间隔递减。
+        暂停时循环停止，因此免疫时间也会暂停。
+      */
+      if (immunityRemainingMs > 0) {
+        immunityRemainingMs = Math.max(
+          0,
+          immunityRemainingMs - Number(speedSelect.value)
+        );
+
+        if (immunityRemainingMs === 0) {
+          setEventMessage("🔦 神光棒免疫结束，请重新注意墙壁和身体。");
+        }
+      }
+
+      /*
+        梅尔巴能力生效时，只移动当前唯一的成长目标。
+        每两步移动一次，而且只吸近，不会直接送进蛇嘴。
+      */
+      if (magnetSteps > 0) {
+        magnetMoveCounter += 1;
+
+        if (magnetMoveCounter >= 2) {
+          moveAppleCloser();
+          magnetMoveCounter = 0;
+        }
+
+        magnetSteps -= 1;
+
+        if (magnetSteps === 0) {
+          setEventMessage("🪽 梅尔巴效果结束，成长目标不再自动移动。");
+        }
+      }
+
+      // 地图上的怪兽没有被碰到时，会在一段时间后离开
+      if (monsterItem) {
+        monsterItemLife -= 1;
+
+        if (monsterItemLife <= 0) {
+          const monsterName = monsterItem.type.name;
+          monsterItem = null;
+          setEventMessage(`${monsterName}离开了地图。`);
+        }
+      }
+
+      // 神光棒没有被捡到时，也会在一段时间后消失
+      if (lightStickItem) {
+        lightStickItemLife -= 1;
+
+        if (lightStickItemLife <= 0) {
+          lightStickItem = null;
+          setEventMessage("🔦 神光棒的光芒消失了。");
+        }
+      }
+
+      direction = { ...nextDirection };
+
+      const head = snake[0];
+      const newHead = {
+        x: head.x + direction.x,
+        y: head.y + direction.y
+      };
+
+      const immunityActive = immunityRemainingMs > 0;
+
+      /*
+        免疫期间撞墙不会失败，而是从地图另一侧穿出。
+      */
+      if (immunityActive) {
+        newHead.x = (newHead.x + GRID_COUNT) % GRID_COUNT;
+        newHead.y = (newHead.y + GRID_COUNT) % GRID_COUNT;
+      }
+
+      const willEatApple =
+        newHead.x === apple.x &&
+        newHead.y === apple.y;
+
+      const willEatMonster =
+        monsterItem &&
+        newHead.x === monsterItem.x &&
+        newHead.y === monsterItem.y;
+
+      const willEatLightStick =
+        lightStickItem &&
+        newHead.x === lightStickItem.x &&
+        newHead.y === lightStickItem.y;
+
+      /*
+        如果正在增长，或者下一格是成长目标，
+        尾巴本回合不会移动，需要检查完整身体。
+      */
+      const willKeepTail =
+        pendingGrowth > 0 ||
+        (willEatApple && apple.type.grow > 0);
+
+      const bodyToCheck = willKeepTail
+        ? snake
+        : snake.slice(0, -1);
+
+      /*
+        免疫期间：
+        1. 撞墙会从另一侧穿出；
+        2. 撞到自己的身体不会失败。
+      */
+      if (
+        !immunityActive &&
+        (hitWall(newHead) || hitBody(newHead, bodyToCheck))
+      ) {
+        endGame();
+        return;
+      }
+
+      snake.unshift(newHead);
+
+      let cutAmountAfterMove = 0;
+
+      if (willEatApple) {
+        eatApple();
+      }
+
+      /*
+        怪兽和成长目标是两套独立物品。
+        碰到怪兽不会让成长目标消失或重新生成。
+      */
+      if (willEatMonster) {
+        cutAmountAfterMove = eatMonster();
+      }
+
+      if (willEatLightStick) {
+        eatLightStick();
+      }
+
+      if (pendingGrowth > 0) {
+        pendingGrowth -= 1;
+      } else {
+        snake.pop();
+      }
+
+      // 哥尔赞效果在正常移动完成后生效
+      if (cutAmountAfterMove > 0) {
+        cutSnakeTail(cutAmountAfterMove);
+      }
+
+      updateDisplay();
+      drawGame();
+    }
+
+    /* =========================
+       8. 获取成长目标
+    ========================== */
+    function eatApple() {
+      score += apple.type.score;
+      applesEaten += 1;
+      pendingGrowth += apple.type.grow;
+
+      setEventMessage(
+        `${appleIcon(apple.type.key)} 获取${apple.type.name}：+${apple.type.score}分，增长${apple.type.grow}节`
+      );
+
+      updateHighScore();
+
+      /*
+        吃掉成长目标后立即生成下一个成长目标。
+        即使地图上有哥尔赞或梅尔巴，成长目标也会正常刷新。
+      */
+      createApple();
+
+      // 只在吃完成长目标后各抽取一次，避免每走一步都抽奖
+      maybeSpawnMonster();
+      maybeSpawnLightStick();
+    }
+
+    /* =========================
+       9. 遇到怪兽道具
+    ========================== */
+    function eatMonster() {
+      if (!monsterItem) return 0;
+
+      const monsterType = monsterItem.type;
+
+      monsterItem = null;
+      monsterItemLife = 0;
+
+      score += monsterType.score;
+      updateHighScore();
+
+      if (monsterType.key === "melba") {
+        magnetSteps = MAGNET_DURATION_STEPS;
+        magnetMoveCounter = 0;
+
+        setEventMessage(
+          "🪽 碰到梅尔巴：当前成长目标会慢慢靠近，但仍需你自己去获取。"
+        );
+
+        return 0;
+      }
+
+      if (monsterType.key === "golza") {
+        if (immunityRemainingMs > 0) {
+          setEventMessage(
+            `🔦 神光棒挡住哥尔赞！+${monsterType.score}分，尾巴没有受伤`
+          );
+          return 0;
+        }
+
+        const requestedCut = randomInteger(3, 5);
+
+        setEventMessage(
+          `🦖 碰到哥尔赞：+${monsterType.score}分，准备断掉${requestedCut}节尾巴`
+        );
+
+        return requestedCut;
+      }
+
+      return 0;
+    }
+
+    /* =========================
+       10. 神光棒免疫效果
+    ========================== */
+    function eatLightStick() {
+      lightStickItem = null;
+      lightStickItemLife = 0;
+
+      // 重复捡到时重新获得完整2秒，不无限叠加
+      immunityRemainingMs = IMMUNITY_DURATION_MS;
+
+      score += 30;
+      updateHighScore();
+
+      setEventMessage(
+        "🔦 捡到神光棒：+30分，获得2秒免疫！可穿墙、免疫自身碰撞和哥尔赞断尾。"
+      );
+    }
+
+    /* =========================
+       11. 哥尔赞效果
+    ========================== */
+    function cutSnakeTail(requestedAmount) {
+      const maximumCanCut = Math.max(0, snake.length - 3);
+      const actualCut = Math.min(requestedAmount, maximumCanCut);
+
+      if (actualCut > 0) {
+        snake.splice(snake.length - actualCut, actualCut);
+
+        setEventMessage(
+          `✂️ 断尾成功：断掉${actualCut}节，当前长度${snake.length}节`
+        );
+      } else {
+        setEventMessage(
+          "✂️ 小蛇太短，至少要保留3节，所以这次没有断掉尾巴。"
+        );
+      }
+    }
+
+    /* =========================
+       11. 梅尔巴移动苹果
+    ========================== */
+    function moveAppleCloser() {
+      const head = snake[0];
+
+      const distance =
+        Math.abs(apple.x - head.x) +
+        Math.abs(apple.y - head.y);
+
+      // 超出范围不吸；只剩一格时也停止，避免自动吃掉
+      if (distance > MAGNET_RADIUS || distance <= 1) {
+        return;
+      }
+
+      const dx = head.x - apple.x;
+      const dy = head.y - apple.y;
+
+      const horizontalMove = {
+        x: Math.sign(dx),
+        y: 0
+      };
+
+      const verticalMove = {
+        x: 0,
+        y: Math.sign(dy)
+      };
+
+      const possibleMoves =
+        Math.abs(dx) >= Math.abs(dy)
+          ? [horizontalMove, verticalMove]
+          : [verticalMove, horizontalMove];
+
+      for (const move of possibleMoves) {
+        if (move.x === 0 && move.y === 0) continue;
+
+        const newX = apple.x + move.x;
+        const newY = apple.y + move.y;
+
+        if (canAppleMoveTo(newX, newY)) {
+          apple.x = newX;
+          apple.y = newY;
+          break;
+        }
+      }
+    }
+
+    function canAppleMoveTo(x, y) {
+      if (
+        x < 0 ||
+        x >= GRID_COUNT ||
+        y < 0 ||
+        y >= GRID_COUNT
+      ) {
+        return false;
+      }
+
+      const head = snake[0];
+
+      // 不允许苹果直接移动到蛇头上
+      if (x === head.x && y === head.y) {
+        return false;
+      }
+
+      const onSnake = snake.some(function (part) {
+        return part.x === x && part.y === y;
+      });
+
+      if (onSnake) return false;
+
+      const onMonster =
+        monsterItem &&
+        monsterItem.x === x &&
+        monsterItem.y === y;
+
+      const onLightStick =
+        lightStickItem &&
+        lightStickItem.x === x &&
+        lightStickItem.y === y;
+
+      return !onMonster && !onLightStick;
+    }
+
+    /* =========================
+       12. 生成成长目标
+    ========================== */
+    function createApple() {
+      let newApple;
+      let safe = false;
+      let attempts = 0;
+
+      while (!safe && attempts < 400) {
+        attempts += 1;
+
+        newApple = {
+          x: Math.floor(Math.random() * GRID_COUNT),
+          y: Math.floor(Math.random() * GRID_COUNT),
+          type: chooseAppleType()
+        };
+
+        const onSnake = snake.some(function (part) {
+          return part.x === newApple.x && part.y === newApple.y;
+        });
+
+        const onMonster =
+          monsterItem &&
+          monsterItem.x === newApple.x &&
+          monsterItem.y === newApple.y;
+
+        const onLightStick =
+          lightStickItem &&
+          lightStickItem.x === newApple.x &&
+          lightStickItem.y === newApple.y;
+
+        const head = snake[0];
+        const tooClose =
+          Math.abs(newApple.x - head.x) +
+          Math.abs(newApple.y - head.y) < 4;
+
+        safe = !onSnake && !onMonster && !onLightStick && !tooClose;
+      }
+
+      if (safe) {
+        apple = newApple;
+      }
+    }
+
+    function chooseAppleType() {
+      const totalWeight = APPLE_TYPES.reduce(function (sum, type) {
+        return sum + type.weight;
+      }, 0);
+
+      let randomValue = Math.random() * totalWeight;
+
+      for (const type of APPLE_TYPES) {
+        randomValue -= type.weight;
+
+        if (randomValue <= 0) {
+          return type;
+        }
+      }
+
+      return APPLE_TYPES[0];
+    }
+
+    /* =========================
+       13. 偶尔生成一个怪兽
+       成长目标不会因此消失
+    ========================== */
+    function maybeSpawnMonster() {
+      if (monsterItem || magnetSteps > 0) return;
+      if (applesEaten < 1) return;
+
+      // 每次吃完成长目标后，约30%的概率出现一只怪兽
+      if (Math.random() > 0.30) return;
+
+      let newItem;
+      let safe = false;
+      let attempts = 0;
+
+      while (!safe && attempts < 300) {
+        attempts += 1;
+
+        newItem = {
+          x: Math.floor(Math.random() * GRID_COUNT),
+          y: Math.floor(Math.random() * GRID_COUNT),
+          type: chooseMonsterType()
+        };
+
+        const onSnake = snake.some(function (part) {
+          return part.x === newItem.x && part.y === newItem.y;
+        });
+
+        const onApple =
+          apple.x === newItem.x &&
+          apple.y === newItem.y;
+
+        const onLightStick =
+          lightStickItem &&
+          lightStickItem.x === newItem.x &&
+          lightStickItem.y === newItem.y;
+
+        const head = snake[0];
+        const tooClose =
+          Math.abs(newItem.x - head.x) +
+          Math.abs(newItem.y - head.y) < 4;
+
+        safe = !onSnake && !onApple && !onLightStick && !tooClose;
+      }
+
+      if (safe) {
+        monsterItem = newItem;
+
+        // 大约存在10秒，没碰到就离开
+        monsterItemLife = 45;
+
+        if (monsterItem.type.key === "melba") {
+          setEventMessage(
+            "🪽 梅尔巴与成长目标同时出现！碰到它后，当前目标会慢慢靠近。"
+          );
+        } else {
+          setEventMessage(
+            "🦖 哥尔赞与成长目标同时出现！碰到哥尔赞会断掉3—5节尾巴。"
+          );
+        }
+      }
+    }
+
+    /*
+      神光棒是独立道具。
+      每次获取成长目标后约18%概率出现，最多同时存在一个。
+    */
+    function maybeSpawnLightStick() {
+      if (lightStickItem || immunityRemainingMs > 0) return;
+      if (applesEaten < 2) return;
+      if (Math.random() > 0.18) return;
+
+      let newItem;
+      let safe = false;
+      let attempts = 0;
+
+      while (!safe && attempts < 300) {
+        attempts += 1;
+
+        newItem = {
+          x: Math.floor(Math.random() * GRID_COUNT),
+          y: Math.floor(Math.random() * GRID_COUNT)
+        };
+
+        const onSnake = snake.some(function (part) {
+          return part.x === newItem.x && part.y === newItem.y;
+        });
+
+        const onApple =
+          apple.x === newItem.x &&
+          apple.y === newItem.y;
+
+        const onMonster =
+          monsterItem &&
+          monsterItem.x === newItem.x &&
+          monsterItem.y === newItem.y;
+
+        const head = snake[0];
+        const tooClose =
+          Math.abs(newItem.x - head.x) +
+          Math.abs(newItem.y - head.y) < 4;
+
+        safe = !onSnake && !onApple && !onMonster && !tooClose;
+      }
+
+      if (safe) {
+        lightStickItem = newItem;
+
+        // 约10秒内没捡到就消失
+        lightStickItemLife = 45;
+
+        setEventMessage(
+          "🔦 神光棒出现了！捡到后可获得2秒免疫。"
+        );
+      }
+    }
+
+    function chooseMonsterType() {
+      const totalWeight = MONSTER_TYPES.reduce(function (sum, type) {
+        return sum + type.weight;
+      }, 0);
+
+      let randomValue = Math.random() * totalWeight;
+
+      for (const type of MONSTER_TYPES) {
+        randomValue -= type.weight;
+
+        if (randomValue <= 0) {
+          return type;
+        }
+      }
+
+      return MONSTER_TYPES[0];
+    }
+
+    /* =========================
+       14. 工具函数
+    ========================== */
+    function hitWall(head) {
+      return (
+        head.x < 0 ||
+        head.x >= GRID_COUNT ||
+        head.y < 0 ||
+        head.y >= GRID_COUNT
+      );
+    }
+
+    function hitBody(head, body) {
+      return body.some(function (part) {
+        return part.x === head.x && part.y === head.y;
+      });
+    }
+
+    function randomInteger(minimum, maximum) {
+      return Math.floor(
+        Math.random() * (maximum - minimum + 1)
+      ) + minimum;
+    }
+
+    function appleIcon(key) {
+      const icons = {
+        normal: "⭐",
+        gold: "🔴",
+        rainbow: "✨"
+      };
+
+      return icons[key] || "⭐";
+    }
+
+    function updateHighScore() {
+      if (score > highScore) {
+        highScore = score;
+        saveHighScore();
+      }
+    }
+
+    function updateDisplay() {
+      scoreElement.textContent = score;
+      highScoreElement.textContent = highScore;
+      snakeLengthElement.textContent = snake.length;
+
+      if (magnetSteps > 0) {
+        const seconds = Math.ceil(
+          magnetSteps * Number(speedSelect.value) / 1000
+        );
+
+        magnetStatusElement.textContent = `${seconds}秒`;
+        magnetStatusElement.classList.add("magnet-active");
+      } else {
+        magnetStatusElement.textContent = "未开启";
+        magnetStatusElement.classList.remove("magnet-active");
+      }
+
+      if (immunityRemainingMs > 0) {
+        immunityStatusElement.textContent =
+          `${(immunityRemainingMs / 1000).toFixed(1)}秒`;
+        immunityStatusElement.classList.add("magnet-active");
+      } else {
+        immunityStatusElement.textContent = "未开启";
+        immunityStatusElement.classList.remove("magnet-active");
+      }
+    }
+
+    /*
+      提示只显示在棋盘下面，不会遮住游戏。
+    */
+    function setEventMessage(message) {
+      eventBar.textContent = message;
+      eventBar.classList.add("flash");
+
+      clearTimeout(eventFlashTimer);
+
+      eventFlashTimer = setTimeout(function () {
+        eventBar.classList.remove("flash");
+      }, 350);
+    }
+
+    /* =========================
+       15. 绘制游戏画面
+    ========================== */
+    function drawGame() {
+      drawBoard();
+      drawApple();
+      drawMonsterItem();
+      drawLightStickItem();
+      drawSnake();
+      drawImmunityShield();
+      drawMagnetLink();
+      drawWallWarning();
+    }
+
+    function drawBoard() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let row = 0; row < GRID_COUNT; row++) {
+        for (let column = 0; column < GRID_COUNT; column++) {
+          ctx.fillStyle =
+            (row + column) % 2 === 0
+              ? "#f2ffe1"
+              : "#e5f8d1";
+
+          ctx.fillRect(
+            column * CELL_SIZE,
+            row * CELL_SIZE,
+            CELL_SIZE,
+            CELL_SIZE
+          );
+        }
+      }
+
+      ctx.strokeStyle = "rgba(255, 91, 126, 0.45)";
+      ctx.lineWidth = 5;
+      ctx.strokeRect(2.5, 2.5, canvas.width - 5, canvas.height - 5);
+    }
+
+    function drawApple() {
+      if (!apple) return;
+
+      const centerX = apple.x * CELL_SIZE + CELL_SIZE / 2;
+      const centerY = apple.y * CELL_SIZE + CELL_SIZE / 2;
+
+      /*
+        用户希望把“人物和怪兽图案”放大一些，
+        所以星星保持原大小，迪迦、闪耀迪迦和哥尔赞单独放大。
+      */
+      if (apple.type.key === "normal") {
+        drawStarDream(centerX, centerY, CELL_SIZE * 0.88);
+      } else if (apple.type.key === "gold") {
+        drawMiniTiga(centerX, centerY, CELL_SIZE * 1.04, false);
+      } else if (apple.type.key === "rainbow") {
+        drawMiniTiga(centerX, centerY, CELL_SIZE * 1.06, true);
+      }
+
+      // 增长2节、3节的道具在右下角显示小徽章。
+      if (apple.type.grow > 1) {
+        drawGrowthBadge(centerX, centerY, apple.type.grow);
+      }
+    }
+
+    /* 星光梦：发光五角星与两颗小星光 */
+    function drawStarDream(centerX, centerY, size) {
+      ctx.save();
+      ctx.translate(centerX, centerY);
+
+      const glow = ctx.createRadialGradient(0, 0, size * 0.08, 0, 0, size * 0.52);
+      glow.addColorStop(0, "rgba(255,255,255,0.98)");
+      glow.addColorStop(0.35, "rgba(255,244,121,0.9)");
+      glow.addColorStop(1, "rgba(255,213,68,0)");
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(0, 0, size * 0.52, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.shadowColor = "rgba(255, 198, 49, 0.9)";
+      ctx.shadowBlur = size * 0.18;
+      starPath(0, 0, size * 0.39, size * 0.18, 5);
+      const starGradient = ctx.createLinearGradient(0, -size * 0.4, 0, size * 0.4);
+      starGradient.addColorStop(0, "#fffbd0");
+      starGradient.addColorStop(0.45, "#ffe75a");
+      starGradient.addColorStop(1, "#ffb62f");
+      ctx.fillStyle = starGradient;
+      ctx.fill();
+      ctx.lineWidth = size * 0.055;
+      ctx.strokeStyle = "#fff7a8";
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // 星星表情
+      ctx.fillStyle = "#6f5b36";
+      ctx.beginPath();
+      ctx.arc(-size * 0.1, -size * 0.02, size * 0.035, 0, Math.PI * 2);
+      ctx.arc(size * 0.1, -size * 0.02, size * 0.035, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(0, size * 0.055, size * 0.09, 0.12 * Math.PI, 0.88 * Math.PI);
+      ctx.strokeStyle = "#9b663f";
+      ctx.lineWidth = size * 0.025;
+      ctx.stroke();
+
+      drawSparkle(-size * 0.36, -size * 0.3, size * 0.09, "#ffffff");
+      drawSparkle(size * 0.36, size * 0.22, size * 0.075, "#fff8b1");
+      ctx.restore();
+    }
+
+    /* 迷你迪迦与闪耀迪迦：卡通全身造型 */
+    function drawMiniTiga(centerX, centerY, size, shining) {
+      ctx.save();
+      ctx.translate(centerX, centerY);
+
+      if (shining) {
+        const aura = ctx.createRadialGradient(0, 0, size * 0.1, 0, 0, size * 0.58);
+        aura.addColorStop(0, "rgba(255,255,255,0.95)");
+        aura.addColorStop(0.42, "rgba(255,232,96,0.72)");
+        aura.addColorStop(1, "rgba(255,196,34,0)");
+        ctx.fillStyle = aura;
+        ctx.beginPath();
+        ctx.arc(0, 0, size * 0.58, 0, Math.PI * 2);
+        ctx.fill();
+        drawSparkle(-size * 0.4, -size * 0.28, size * 0.08, "#ffffff");
+        drawSparkle(size * 0.38, -size * 0.12, size * 0.07, "#ffe778");
+      }
+
+      const silver = shining ? "#fff3a3" : "#e7edf6";
+      const darkSilver = shining ? "#e4bd43" : "#aab8ca";
+      const red = shining ? "#ffca3c" : "#e94255";
+      const purple = shining ? "#fff06a" : "#6e4fbe";
+
+      // 腿
+      ctx.fillStyle = silver;
+      roundedRect(-size * 0.18, size * 0.18, size * 0.14, size * 0.26, size * 0.05);
+      ctx.fill();
+      roundedRect(size * 0.04, size * 0.18, size * 0.14, size * 0.26, size * 0.05);
+      ctx.fill();
+      ctx.fillStyle = red;
+      ctx.fillRect(-size * 0.18, size * 0.28, size * 0.14, size * 0.12);
+      ctx.fillRect(size * 0.04, size * 0.28, size * 0.14, size * 0.12);
+
+      // 双臂
+      ctx.save();
+      ctx.rotate(-0.18);
+      ctx.fillStyle = silver;
+      roundedRect(-size * 0.34, -size * 0.03, size * 0.17, size * 0.34, size * 0.06);
+      ctx.fill();
+      ctx.restore();
+      ctx.save();
+      ctx.rotate(0.18);
+      ctx.fillStyle = silver;
+      roundedRect(size * 0.17, -size * 0.03, size * 0.17, size * 0.34, size * 0.06);
+      ctx.fill();
+      ctx.restore();
+
+      // 身体
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.23, -size * 0.12);
+      ctx.lineTo(size * 0.23, -size * 0.12);
+      ctx.lineTo(size * 0.18, size * 0.25);
+      ctx.lineTo(-size * 0.18, size * 0.25);
+      ctx.closePath();
+      ctx.fillStyle = silver;
+      ctx.fill();
+      ctx.lineWidth = size * 0.025;
+      ctx.strokeStyle = darkSilver;
+      ctx.stroke();
+
+      // 胸部红紫纹路
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.22, -size * 0.1);
+      ctx.lineTo(-size * 0.03, size * 0.03);
+      ctx.lineTo(-size * 0.14, size * 0.22);
+      ctx.lineTo(-size * 0.22, size * 0.2);
+      ctx.closePath();
+      ctx.fillStyle = red;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(size * 0.22, -size * 0.1);
+      ctx.lineTo(size * 0.03, size * 0.03);
+      ctx.lineTo(size * 0.14, size * 0.22);
+      ctx.lineTo(size * 0.22, size * 0.2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.03, size * 0.03);
+      ctx.lineTo(0, size * 0.2);
+      ctx.lineTo(size * 0.03, size * 0.03);
+      ctx.lineTo(0, -size * 0.08);
+      ctx.closePath();
+      ctx.fillStyle = purple;
+      ctx.fill();
+
+      // 胸口能量灯
+      ctx.beginPath();
+      ctx.arc(0, size * 0.01, size * 0.055, 0, Math.PI * 2);
+      ctx.fillStyle = shining ? "#ffffff" : "#67e9ff";
+      ctx.fill();
+      ctx.lineWidth = size * 0.018;
+      ctx.strokeStyle = "#ffffff";
+      ctx.stroke();
+
+      // 头部
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.18, -size * 0.14);
+      ctx.quadraticCurveTo(-size * 0.2, -size * 0.38, 0, -size * 0.45);
+      ctx.quadraticCurveTo(size * 0.2, -size * 0.38, size * 0.18, -size * 0.14);
+      ctx.quadraticCurveTo(0, -size * 0.02, -size * 0.18, -size * 0.14);
+      ctx.closePath();
+      ctx.fillStyle = silver;
+      ctx.fill();
+      ctx.strokeStyle = darkSilver;
+      ctx.stroke();
+
+      // 额头中央尖冠
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.045, -size * 0.39);
+      ctx.lineTo(0, -size * 0.56);
+      ctx.lineTo(size * 0.045, -size * 0.39);
+      ctx.closePath();
+      ctx.fillStyle = purple;
+      ctx.fill();
+
+      // 眼睛
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.145, -size * 0.28);
+      ctx.lineTo(-size * 0.035, -size * 0.23);
+      ctx.lineTo(-size * 0.13, -size * 0.18);
+      ctx.closePath();
+      ctx.moveTo(size * 0.145, -size * 0.28);
+      ctx.lineTo(size * 0.035, -size * 0.23);
+      ctx.lineTo(size * 0.13, -size * 0.18);
+      ctx.closePath();
+      ctx.fillStyle = shining ? "#ffffff" : "#fff39c";
+      ctx.shadowColor = ctx.fillStyle;
+      ctx.shadowBlur = size * 0.09;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      ctx.restore();
+    }
+
+    /*
+      神光棒：金色翼片、发光宝石和短柄造型。
+      直接用Canvas绘制，不需要额外图片文件。
+    */
+    function drawLightStickItem() {
+      if (!lightStickItem) return;
+
+      const centerX = lightStickItem.x * CELL_SIZE + CELL_SIZE / 2;
+      const centerY = lightStickItem.y * CELL_SIZE + CELL_SIZE / 2;
+      const size = CELL_SIZE * 1.02;
+
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(-0.22);
+
+      const aura = ctx.createRadialGradient(
+        0, 0, size * 0.05,
+        0, 0, size * 0.55
+      );
+      aura.addColorStop(0, "rgba(255,255,255,0.98)");
+      aura.addColorStop(0.45, "rgba(255,227,92,0.72)");
+      aura.addColorStop(1, "rgba(255,191,35,0)");
+      ctx.fillStyle = aura;
+      ctx.beginPath();
+      ctx.arc(0, 0, size * 0.55, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.shadowColor = "#ffe75f";
+      ctx.shadowBlur = size * 0.16;
+
+      // 手柄
+      roundedRect(
+        -size * 0.09,
+        size * 0.02,
+        size * 0.18,
+        size * 0.43,
+        size * 0.06
+      );
+      const handleGradient = ctx.createLinearGradient(
+        0, size * 0.02,
+        0, size * 0.45
+      );
+      handleGradient.addColorStop(0, "#fff6c9");
+      handleGradient.addColorStop(0.45, "#e6ba45");
+      handleGradient.addColorStop(1, "#8c6424");
+      ctx.fillStyle = handleGradient;
+      ctx.fill();
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = size * 0.025;
+      ctx.stroke();
+
+      // 左右翼片
+      ctx.beginPath();
+      ctx.moveTo(0, size * 0.08);
+      ctx.lineTo(-size * 0.38, -size * 0.12);
+      ctx.lineTo(-size * 0.23, -size * 0.3);
+      ctx.lineTo(-size * 0.04, -size * 0.12);
+      ctx.closePath();
+      ctx.moveTo(0, size * 0.08);
+      ctx.lineTo(size * 0.38, -size * 0.12);
+      ctx.lineTo(size * 0.23, -size * 0.3);
+      ctx.lineTo(size * 0.04, -size * 0.12);
+      ctx.closePath();
+
+      const wingGradient = ctx.createLinearGradient(
+        -size * 0.4, 0,
+        size * 0.4, 0
+      );
+      wingGradient.addColorStop(0, "#c58a25");
+      wingGradient.addColorStop(0.5, "#fff3a2");
+      wingGradient.addColorStop(1, "#c58a25");
+      ctx.fillStyle = wingGradient;
+      ctx.fill();
+      ctx.strokeStyle = "#fff9c9";
+      ctx.stroke();
+
+      // 中央宝石
+      ctx.beginPath();
+      ctx.ellipse(
+        0,
+        -size * 0.08,
+        size * 0.11,
+        size * 0.16,
+        0,
+        0,
+        Math.PI * 2
+      );
+      const gem = ctx.createLinearGradient(
+        -size * 0.08, -size * 0.18,
+        size * 0.08, size * 0.05
+      );
+      gem.addColorStop(0, "#76efff");
+      gem.addColorStop(0.48, "#2877ff");
+      gem.addColorStop(1, "#ff4d60");
+      ctx.fillStyle = gem;
+      ctx.fill();
+      ctx.lineWidth = size * 0.03;
+      ctx.strokeStyle = "#ffffff";
+      ctx.stroke();
+
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    }
+
+    /* 梅尔巴：橙红色翼龙怪兽，用作吸附道具 */
+    function drawMonsterItem() {
+      if (!monsterItem) return;
+
+      const centerX = monsterItem.x * CELL_SIZE + CELL_SIZE / 2;
+      const centerY = monsterItem.y * CELL_SIZE + CELL_SIZE / 2;
+
+      if (monsterItem.type.key === "melba") {
+        drawMelba(centerX, centerY, CELL_SIZE * 1.06);
+      } else if (monsterItem.type.key === "golza") {
+        drawGolza(centerX, centerY, CELL_SIZE * 1.03);
+      }
+    }
+
+    function drawMelba(centerX, centerY, size) {
+      ctx.save();
+      ctx.translate(centerX, centerY);
+
+      const aura = ctx.createRadialGradient(0, 0, size * 0.08, 0, 0, size * 0.52);
+      aura.addColorStop(0, "rgba(255,238,148,0.7)");
+      aura.addColorStop(1, "rgba(255,145,45,0)");
+      ctx.fillStyle = aura;
+      ctx.beginPath();
+      ctx.arc(0, 0, size * 0.52, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 双翼
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.08, -size * 0.05);
+      ctx.lineTo(-size * 0.47, -size * 0.32);
+      ctx.lineTo(-size * 0.36, size * 0.16);
+      ctx.lineTo(-size * 0.12, size * 0.1);
+      ctx.closePath();
+      ctx.fillStyle = "#d95732";
+      ctx.fill();
+      ctx.strokeStyle = "#7d3329";
+      ctx.lineWidth = size * 0.03;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(size * 0.08, -size * 0.05);
+      ctx.lineTo(size * 0.47, -size * 0.32);
+      ctx.lineTo(size * 0.36, size * 0.16);
+      ctx.lineTo(size * 0.12, size * 0.1);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // 翼膜线条
+      ctx.strokeStyle = "#ffae58";
+      ctx.lineWidth = size * 0.018;
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.12, -size * 0.02);
+      ctx.lineTo(-size * 0.38, -size * 0.23);
+      ctx.moveTo(size * 0.12, -size * 0.02);
+      ctx.lineTo(size * 0.38, -size * 0.23);
+      ctx.stroke();
+
+      // 身体
+      ctx.beginPath();
+      ctx.ellipse(0, size * 0.08, size * 0.17, size * 0.3, 0, 0, Math.PI * 2);
+      ctx.fillStyle = "#c94c31";
+      ctx.fill();
+      ctx.strokeStyle = "#72372d";
+      ctx.stroke();
+
+      // 长喙头部
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.18, -size * 0.18);
+      ctx.lineTo(0, -size * 0.42);
+      ctx.lineTo(size * 0.18, -size * 0.18);
+      ctx.lineTo(size * 0.06, -size * 0.04);
+      ctx.lineTo(-size * 0.06, -size * 0.04);
+      ctx.closePath();
+      ctx.fillStyle = "#e16a37";
+      ctx.fill();
+      ctx.strokeStyle = "#743a2e";
+      ctx.stroke();
+
+      // 眼睛
+      ctx.beginPath();
+      ctx.arc(-size * 0.07, -size * 0.2, size * 0.035, 0, Math.PI * 2);
+      ctx.arc(size * 0.07, -size * 0.2, size * 0.035, 0, Math.PI * 2);
+      ctx.fillStyle = "#76efff";
+      ctx.shadowColor = "#76efff";
+      ctx.shadowBlur = size * 0.08;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // 爪子
+      ctx.strokeStyle = "#f1cf83";
+      ctx.lineWidth = size * 0.035;
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.08, size * 0.31);
+      ctx.lineTo(-size * 0.13, size * 0.42);
+      ctx.moveTo(size * 0.08, size * 0.31);
+      ctx.lineTo(size * 0.13, size * 0.42);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    /* 哥尔赞：厚重角兽造型，用作断尾效果 */
+    function drawGolza(centerX, centerY, size) {
+      ctx.save();
+      ctx.translate(centerX, centerY);
+
+      // 阴影
+      ctx.beginPath();
+      ctx.ellipse(0, size * 0.35, size * 0.3, size * 0.09, 0, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(67,45,55,0.2)";
+      ctx.fill();
+
+      // 身体
+      ctx.beginPath();
+      ctx.ellipse(0, size * 0.08, size * 0.29, size * 0.36, 0, 0, Math.PI * 2);
+      const bodyGradient = ctx.createLinearGradient(0, -size * 0.3, 0, size * 0.4);
+      bodyGradient.addColorStop(0, "#8b6b60");
+      bodyGradient.addColorStop(1, "#4f3f42");
+      ctx.fillStyle = bodyGradient;
+      ctx.fill();
+      ctx.strokeStyle = "#332c33";
+      ctx.lineWidth = size * 0.03;
+      ctx.stroke();
+
+      // 肩部装甲
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.28, -size * 0.06);
+      ctx.lineTo(-size * 0.43, size * 0.02);
+      ctx.lineTo(-size * 0.28, size * 0.16);
+      ctx.closePath();
+      ctx.moveTo(size * 0.28, -size * 0.06);
+      ctx.lineTo(size * 0.43, size * 0.02);
+      ctx.lineTo(size * 0.28, size * 0.16);
+      ctx.closePath();
+      ctx.fillStyle = "#70534d";
+      ctx.fill();
+      ctx.stroke();
+
+      // 头部
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.23, -size * 0.12);
+      ctx.lineTo(-size * 0.14, -size * 0.38);
+      ctx.lineTo(0, -size * 0.45);
+      ctx.lineTo(size * 0.14, -size * 0.38);
+      ctx.lineTo(size * 0.23, -size * 0.12);
+      ctx.lineTo(size * 0.17, size * 0.04);
+      ctx.lineTo(-size * 0.17, size * 0.04);
+      ctx.closePath();
+      ctx.fillStyle = "#75615c";
+      ctx.fill();
+      ctx.stroke();
+
+      // 头角
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.09, -size * 0.38);
+      ctx.lineTo(0, -size * 0.58);
+      ctx.lineTo(size * 0.09, -size * 0.38);
+      ctx.closePath();
+      ctx.fillStyle = "#c7aa78";
+      ctx.fill();
+      ctx.strokeStyle = "#5d493b";
+      ctx.stroke();
+
+      // 额头红纹
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.1, -size * 0.29);
+      ctx.lineTo(0, -size * 0.39);
+      ctx.lineTo(size * 0.1, -size * 0.29);
+      ctx.lineTo(0, -size * 0.17);
+      ctx.closePath();
+      ctx.fillStyle = "#bd4a46";
+      ctx.fill();
+
+      // 红眼
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.17, -size * 0.18);
+      ctx.lineTo(-size * 0.04, -size * 0.14);
+      ctx.lineTo(-size * 0.15, -size * 0.1);
+      ctx.closePath();
+      ctx.moveTo(size * 0.17, -size * 0.18);
+      ctx.lineTo(size * 0.04, -size * 0.14);
+      ctx.lineTo(size * 0.15, -size * 0.1);
+      ctx.closePath();
+      ctx.fillStyle = "#ff4b45";
+      ctx.shadowColor = "#ff4b45";
+      ctx.shadowBlur = size * 0.08;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // 胸口岩甲纹理
+      ctx.strokeStyle = "#b08b70";
+      ctx.lineWidth = size * 0.02;
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.16, size * 0.07);
+      ctx.lineTo(size * 0.16, size * 0.07);
+      ctx.moveTo(-size * 0.18, size * 0.17);
+      ctx.lineTo(size * 0.18, size * 0.17);
+      ctx.moveTo(-size * 0.14, size * 0.27);
+      ctx.lineTo(size * 0.14, size * 0.27);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawGrowthBadge(centerX, centerY, growth) {
+      const radius = CELL_SIZE * 0.15;
+      const x = centerX + CELL_SIZE * 0.29;
+      const y = centerY + CELL_SIZE * 0.28;
+
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fillStyle = "#ff5f77";
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#ffffff";
+      ctx.stroke();
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `bold ${CELL_SIZE * 0.21}px Arial`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(`+${growth}`, x, y + 0.5);
+    }
+
+    function starPath(centerX, centerY, outerRadius, innerRadius, points) {
+      ctx.beginPath();
+      for (let i = 0; i < points * 2; i++) {
+        const radius = i % 2 === 0 ? outerRadius : innerRadius;
+        const angle = -Math.PI / 2 + i * Math.PI / points;
+        const x = centerX + Math.cos(angle) * radius;
+        const y = centerY + Math.sin(angle) * radius;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+    }
+
+    function drawSparkle(x, y, radius, color) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.beginPath();
+      ctx.moveTo(0, -radius);
+      ctx.lineTo(radius * 0.25, -radius * 0.25);
+      ctx.lineTo(radius, 0);
+      ctx.lineTo(radius * 0.25, radius * 0.25);
+      ctx.lineTo(0, radius);
+      ctx.lineTo(-radius * 0.25, radius * 0.25);
+      ctx.lineTo(-radius, 0);
+      ctx.lineTo(-radius * 0.25, -radius * 0.25);
+      ctx.closePath();
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawSnake() {
+      snake.forEach(function (part, index) {
+        const x = part.x * CELL_SIZE + CELL_SIZE * 0.08;
+        const y = part.y * CELL_SIZE + CELL_SIZE * 0.08;
+        const size = CELL_SIZE * 0.84;
+
+        ctx.fillStyle =
+          index === 0
+            ? "#22b976"
+            : index % 2 === 0
+              ? "#70de8d"
+              : "#87e99d";
+
+        roundedRect(x, y, size, size, CELL_SIZE * 0.21);
+        ctx.fill();
+
+        if (index > 0) {
+          ctx.beginPath();
+          ctx.arc(
+            x + size * 0.34,
+            y + size * 0.31,
+            size * 0.075,
+            0,
+            Math.PI * 2
+          );
+          ctx.fillStyle = "rgba(255,255,255,0.45)";
+          ctx.fill();
+        }
+
+        if (index === 0) {
+          drawSnakeFace(x, y, size);
+        }
+      });
+    }
+
+    function drawSnakeFace(x, y, size) {
+      let eyes;
+      let mouthStart;
+      let mouthEnd;
+
+      if (direction.x === 1) {
+        eyes = [
+          { x: x + size * 0.7, y: y + size * 0.3 },
+          { x: x + size * 0.7, y: y + size * 0.7 }
+        ];
+        mouthStart = { x: x + size * 0.74, y: y + size * 0.5 };
+        mouthEnd = { x: x + size * 0.93, y: y + size * 0.5 };
+      } else if (direction.x === -1) {
+        eyes = [
+          { x: x + size * 0.3, y: y + size * 0.3 },
+          { x: x + size * 0.3, y: y + size * 0.7 }
+        ];
+        mouthStart = { x: x + size * 0.26, y: y + size * 0.5 };
+        mouthEnd = { x: x + size * 0.07, y: y + size * 0.5 };
+      } else if (direction.y === -1) {
+        eyes = [
+          { x: x + size * 0.3, y: y + size * 0.3 },
+          { x: x + size * 0.7, y: y + size * 0.3 }
+        ];
+        mouthStart = { x: x + size * 0.5, y: y + size * 0.26 };
+        mouthEnd = { x: x + size * 0.5, y: y + size * 0.07 };
+      } else {
+        eyes = [
+          { x: x + size * 0.3, y: y + size * 0.7 },
+          { x: x + size * 0.7, y: y + size * 0.7 }
+        ];
+        mouthStart = { x: x + size * 0.5, y: y + size * 0.74 };
+        mouthEnd = { x: x + size * 0.5, y: y + size * 0.93 };
+      }
+
+      eyes.forEach(function (eye) {
+        ctx.beginPath();
+        ctx.arc(eye.x, eye.y, size * 0.13, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(eye.x, eye.y, size * 0.055, 0, Math.PI * 2);
+        ctx.fillStyle = "#27465b";
+        ctx.fill();
+      });
+
+      ctx.beginPath();
+      ctx.moveTo(mouthStart.x, mouthStart.y);
+      ctx.lineTo(mouthEnd.x, mouthEnd.y);
+      ctx.strokeStyle = "#ff6b91";
+      ctx.lineWidth = 4;
+      ctx.lineCap = "round";
+      ctx.stroke();
+    }
+
+    /*
+      神光棒免疫开启时，在蛇头周围显示轻薄光盾。
+      不会遮挡棋盘或影响操作。
+    */
+    function drawImmunityShield() {
+      if (immunityRemainingMs <= 0) return;
+
+      const head = snake[0];
+      const centerX = head.x * CELL_SIZE + CELL_SIZE / 2;
+      const centerY = head.y * CELL_SIZE + CELL_SIZE / 2;
+
+      ctx.save();
+
+      const shieldGradient = ctx.createRadialGradient(
+        centerX,
+        centerY,
+        CELL_SIZE * 0.2,
+        centerX,
+        centerY,
+        CELL_SIZE * 0.75
+      );
+      shieldGradient.addColorStop(0, "rgba(255,255,255,0)");
+      shieldGradient.addColorStop(0.62, "rgba(90,220,255,0.12)");
+      shieldGradient.addColorStop(1, "rgba(255,230,80,0.52)");
+
+      ctx.beginPath();
+      ctx.arc(
+        centerX,
+        centerY,
+        CELL_SIZE * 0.72,
+        0,
+        Math.PI * 2
+      );
+      ctx.fillStyle = shieldGradient;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(
+        centerX,
+        centerY,
+        CELL_SIZE * 0.63,
+        0,
+        Math.PI * 2
+      );
+      ctx.strokeStyle = "rgba(255,244,134,0.9)";
+      ctx.lineWidth = 4;
+      ctx.setLineDash([7, 5]);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    /*
+      梅尔巴生效时只画一条淡淡的虚线，
+      不用大动画遮挡棋盘。
+    */
+    function drawMagnetLink() {
+      if (magnetSteps <= 0) return;
+
+      const head = snake[0];
+
+      const distance =
+        Math.abs(apple.x - head.x) +
+        Math.abs(apple.y - head.y);
+
+      if (distance > MAGNET_RADIUS) return;
+
+      const headX = head.x * CELL_SIZE + CELL_SIZE / 2;
+      const headY = head.y * CELL_SIZE + CELL_SIZE / 2;
+      const appleX = apple.x * CELL_SIZE + CELL_SIZE / 2;
+      const appleY = apple.y * CELL_SIZE + CELL_SIZE / 2;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(headX, headY);
+      ctx.lineTo(appleX, appleY);
+      ctx.strokeStyle = "rgba(255, 151, 46, 0.42)";
+      ctx.lineWidth = 4;
+      ctx.setLineDash([8, 8]);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawWallWarning() {
+      if (immunityRemainingMs > 0) return;
+
+      const head = snake[0];
+
+      const nearWall =
+        head.x <= 1 ||
+        head.x >= GRID_COUNT - 2 ||
+        head.y <= 1 ||
+        head.y >= GRID_COUNT - 2;
+
+      if (!nearWall || gameState !== "playing") return;
+
+      ctx.save();
+      ctx.strokeStyle = "rgba(255, 73, 94, 0.75)";
+      ctx.lineWidth = 11;
+      ctx.strokeRect(5.5, 5.5, canvas.width - 11, canvas.height - 11);
+      ctx.restore();
+    }
+
+    function roundedRect(x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(
+        x + width,
+        y + height,
+        x + width - radius,
+        y + height
+      );
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+    }
+
+    /* =========================
+       16. 游戏结束
+    ========================== */
+    function endGame() {
+      gameState = "over";
+      clearInterval(timer);
+      startPauseButton.textContent = "再玩一次";
+
+      showOverlay(
+        "😵",
+        "撞到了！",
+        `本次得分：${score}分<br>小蛇最终长度：${snake.length}节`,
+        "重新开始"
+      );
+    }
+
+    /* =========================
+       17. 遮罩控制
+    ========================== */
+    function showOverlay(icon, title, text, buttonText) {
+      overlayIcon.textContent = icon;
+      overlayTitle.textContent = title;
+      overlayText.innerHTML = text;
+      overlayButton.textContent = buttonText;
+      overlay.classList.add("show");
+    }
+
+    function hideOverlay() {
+      overlay.classList.remove("show");
+    }
+
+    /* =========================
+       18. 移动方向控制
+    ========================== */
+    function changeDirection(newDirection) {
+      if (gameState !== "playing") return;
+
+      const isOpposite =
+        newDirection.x === -direction.x &&
+        newDirection.y === -direction.y;
+
+      if (!isOpposite) {
+        nextDirection = newDirection;
+      }
+    }
+
+    function useDirectionName(name) {
+      const directionMap = {
+        up: { x: 0, y: -1 },
+        down: { x: 0, y: 1 },
+        left: { x: -1, y: 0 },
+        right: { x: 1, y: 0 }
+      };
+
+      changeDirection(directionMap[name]);
+    }
+
+    /* =========================
+       19. 电脑键盘操作
+    ========================== */
+    document.addEventListener("keydown", function (event) {
+      const key = event.key.toLowerCase();
+
+      const gameKeys = [
+        "arrowup",
+        "arrowdown",
+        "arrowleft",
+        "arrowright",
+        "w",
+        "a",
+        "s",
+        "d",
+        " "
+      ];
+
+      if (gameKeys.includes(key)) {
+        event.preventDefault();
+      }
+
+      if (key === "arrowup" || key === "w") {
+        useDirectionName("up");
+      }
+
+      if (key === "arrowdown" || key === "s") {
+        useDirectionName("down");
+      }
+
+      if (key === "arrowleft" || key === "a") {
+        useDirectionName("left");
+      }
+
+      if (key === "arrowright" || key === "d") {
+        useDirectionName("right");
+      }
+
+      if (key === " ") {
+        startOrPauseGame();
+      }
+    });
+
+    /* =========================
+       20. 手机按钮与滑动
+    ========================== */
+    directionButtons.forEach(function (button) {
+      button.addEventListener("pointerdown", function (event) {
+        event.preventDefault();
+        useDirectionName(button.dataset.direction);
+      });
+    });
+
+    canvas.addEventListener(
+      "touchstart",
+      function (event) {
+        const touch = event.changedTouches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+      },
+      { passive: true }
+    );
+
+    canvas.addEventListener(
+      "touchend",
+      function (event) {
+        const touch = event.changedTouches[0];
+
+        const moveX = touch.clientX - touchStartX;
+        const moveY = touch.clientY - touchStartY;
+
+        if (Math.abs(moveX) < 20 && Math.abs(moveY) < 20) {
+          return;
+        }
+
+        if (Math.abs(moveX) > Math.abs(moveY)) {
+          useDirectionName(moveX > 0 ? "right" : "left");
+        } else {
+          useDirectionName(moveY > 0 ? "down" : "up");
+        }
+      },
+      { passive: true }
+    );
+
+    /* =========================
+       21. 按钮事件
+    ========================== */
+    startPauseButton.addEventListener("click", startOrPauseGame);
+    overlayButton.addEventListener("click", startOrPauseGame);
+
+    restartButton.addEventListener("click", function () {
+      resetGame();
+      beginPlaying();
+    });
+
+    speedSelect.addEventListener("change", function () {
+      updateDisplay();
+
+      if (gameState === "playing") {
+        startTimer();
+      }
+    });
+
+    /* 页面打开时先停在准备状态 */
+    resetGame();
+  </script>
+
+<script id="portfolio-back-bridge">
+  document.querySelector('[data-portfolio-back]').addEventListener('click', function (event) {
+    if (window.parent === window) return;
+    event.preventDefault();
+    window.parent.postMessage({ type: 'ai-lab-full-preview-nav', href: './snake-games.html' }, '*');
+  });
+</script>
+</body>
+</html>

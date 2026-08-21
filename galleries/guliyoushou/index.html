@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>谷里有兽 · 辟邪 | 个人IP数字展厅</title>
+  <meta name="description" content="神兽谷原创潮玩IP——貔貅辟邪的个人IP数字展厅。" />
+  <style>
+    :root {
+      --white: #faf8f5;
+      --cloud: #f5f1ea;
+      --blue: #7cc6c6;
+      --blue-dark: #4a8a8a;
+      --gold: #c9a227;
+      --gold-light: #e8d28c;
+      --pink: #f4c2c2;
+      --ink: #2c2c2c;
+      --ink-soft: #555;
+      --shadow: 0 8px 30px rgba(0,0,0,0.08);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: var(--white);
+      color: var(--ink);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+    img, video { max-width: 100%; height: auto; display: block; }
+    a { text-decoration: none; color: inherit; }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(250,248,245,0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand img { height: 46px; width: auto; }
+    .brand-text {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--blue-dark);
+      letter-spacing: 1px;
+    }
+    nav ul {
+      display: flex;
+      gap: 18px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      font-size: 0.92rem;
+    }
+    nav a {
+      color: var(--ink-soft);
+      position: relative;
+      padding: 4px 0;
+      transition: color .2s;
+    }
+    nav a::after {
+      content: "";
+      position: absolute;
+      left: 0; bottom: 0;
+      width: 0; height: 2px;
+      background: var(--gold);
+      transition: width .25s;
+    }
+    nav a:hover { color: var(--blue-dark); }
+    nav a:hover::after { width: 100%; }
+    .menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--blue-dark);
+      cursor: pointer;
+    }
+    @media (max-width: 760px) {
+      nav { display: none; position: absolute; top: 100%; left: 0; right: 0; background: rgba(250,248,245,0.98); border-bottom: 1px solid rgba(0,0,0,0.06); }
+      nav.open { display: block; }
+      nav ul { flex-direction: column; gap: 0; padding: 10px 20px; }
+      nav li { border-bottom: 1px solid rgba(0,0,0,0.04); }
+      nav a { display: block; padding: 12px 0; }
+      .menu-btn { display: block; }
+    }
+
+    /* Sections */
+    section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 70px 20px;
+    }
+    .section-title {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .section-title h2 {
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      margin: 0 0 8px;
+      color: var(--blue-dark);
+    }
+    .section-title p {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+    }
+
+    /* Banner */
+    #banner {
+      max-width: none;
+      padding: 0;
+      position: relative;
+      background: linear-gradient(135deg, #eef7f7 0%, #f9f4e8 100%);
+      overflow: hidden;
+    }
+    .banner-bg {
+      position: absolute;
+      inset: -20px;
+      background: url("assets/images/fallback.optimized.webp") center/cover no-repeat;
+      filter: blur(28px) brightness(0.92);
+      z-index: 0;
+    }
+    .banner-inner {
+      position: relative;
+      z-index: 1;
+      min-height: 78vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px 40px;
+    }
+    .video-stage {
+      position: relative;
+      width: 100%;
+      max-width: 1100px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      background: #000;
+    }
+    #hero-video {
+      width: 100%;
+      max-height: 68vh;
+      object-fit: contain;
+      background: #000;
+    }
+    #fallback-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+      display: none;
+    }
+    .video-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.18) 45%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+      transition: opacity .3s;
+    }
+    .banner-text {
+      position: absolute;
+      left: 6%;
+      bottom: 14%;
+      color: #fff;
+      pointer-events: none;
+      text-shadow: 0 2px 16px rgba(0,0,0,0.35);
+      max-width: 46%;
+    }
+    .banner-text .label {
+      display: inline-block;
+      font-size: 0.85rem;
+      letter-spacing: 3px;
+      color: var(--gold-light);
+      border: 1px solid var(--gold-light);
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+    }
+    .banner-text h1 {
+      font-size: clamp(2.4rem, 7vw, 5rem);
+      margin: 0 0 6px;
+      line-height: 1.05;
+    }
+    .banner-text .slogan {
+      font-size: clamp(1.1rem, 3vw, 1.6rem);
+      margin: 0;
+      opacity: 0.95;
+    }
+    .video-controls {
+      position: absolute;
+      right: 16px;
+      bottom: 16px;
+      display: flex;
+      gap: 10px;
+      z-index: 5;
+    }
+    .video-controls button {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.5);
+      background: rgba(0,0,0,0.35);
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .2s, transform .2s;
+      backdrop-filter: blur(4px);
+    }
+    .video-controls button:hover { background: rgba(0,0,0,0.55); transform: scale(1.05); }
+    .play-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.35);
+      z-index: 4;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s;
+    }
+    .play-overlay.show { opacity: 1; pointer-events: auto; }
+    .play-overlay .big-play {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.5);
+      padding: 14px 28px;
+      border-radius: 40px;
+      font-size: 1.1rem;
+      backdrop-filter: blur(6px);
+    }
+    @media (max-width: 760px) {
+      .banner-inner { min-height: auto; padding: 76px 0 0; flex-direction: column; }
+      .video-stage { border-radius: 0; box-shadow: none; }
+      #hero-video { max-height: 56vh; }
+      .banner-text { left: 5%; right: 5%; bottom: 10%; max-width: none; text-align: center; }
+      .video-overlay { background: linear-gradient(0deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0) 70%); }
+    }
+
+    /* Identity cards */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 22px;
+    }
+    .card {
+      background: #fff;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: transform .25s, box-shadow .25s;
+    }
+    .card:hover { transform: translateY(-6px); box-shadow: 0 14px 40px rgba(0,0,0,0.12); }
+    .card img { width: 100%; object-fit: contain; }
+    .card-caption {
+      padding: 14px 16px;
+      text-align: center;
+      font-weight: 600;
+      color: var(--blue-dark);
+      background: linear-gradient(180deg, #fff 0%, var(--cloud) 100%);
+    }
+
+    /* Story */
+    .story-wrap {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 40px;
+      align-items: center;
+    }
+    .story-text {
+      background: #fff;
+      padding: 34px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border-left: 5px solid var(--gold);
+    }
+    .story-text h3 {
+      margin: 0 0 18px;
+      color: var(--blue-dark);
+      font-size: 1.4rem;
+    }
+    .story-text p { margin: 0 0 14px; text-align: justify; }
+    .story-quote {
+      margin-top: 22px;
+      padding: 18px 22px;
+      background: var(--cloud);
+      border-radius: 12px;
+      color: var(--ink-soft);
+      font-style: italic;
+      position: relative;
+    }
+    .story-quote::before {
+      content: "“";
+      font-size: 2.6rem;
+      color: var(--gold);
+      position: absolute;
+      left: 10px; top: -8px;
+      line-height: 1;
+    }
+    .story-img { border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+    .story-img img { width: 100%; object-fit: contain; }
+    @media (max-width: 860px) {
+      .story-wrap { grid-template-columns: 1fr; }
+      .story-img { order: -1; }
+    }
+
+    /* Poster */
+    .poster-stage {
+      display: flex;
+      justify-content: center;
+    }
+    .poster-stage img {
+      max-width: 520px;
+      width: 100%;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    /* Gallery */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .gallery-item {
+      background: #fff;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      cursor: zoom-in;
+      transition: transform .25s;
+    }
+    .gallery-item:hover { transform: scale(1.02); }
+    .gallery-item img { width: 100%; object-fit: contain; }
+
+    /* Stickers & merch */
+    .merch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .merch-card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .merch-card img { margin: 0 auto; border-radius: 12px; object-fit: contain; max-height: 520px; }
+    .merch-card h4 { margin: 14px 0 6px; color: var(--blue-dark); }
+    .merch-card p { margin: 0; font-size: 0.9rem; color: var(--ink-soft); }
+
+    /* Presale */
+    .presale-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 36px;
+      align-items: center;
+    }
+    .presale-img { border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+    .presale-img img { width: 100%; object-fit: contain; }
+    .presale-text {
+      background: linear-gradient(135deg, #fff 0%, #fdf9ee 100%);
+      padding: 34px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .presale-text h3 { margin: 0 0 16px; color: var(--blue-dark); font-size: 1.5rem; }
+    .presale-text p { margin: 0 0 14px; }
+    .presale-text ul { padding-left: 20px; margin: 0 0 20px; color: var(--ink-soft); }
+    .presale-text li { margin-bottom: 8px; }
+    .cta-btn {
+      display: inline-block;
+      background: linear-gradient(90deg, var(--blue), var(--blue-dark));
+      color: #fff;
+      padding: 12px 30px;
+      border-radius: 30px;
+      font-weight: 700;
+      box-shadow: 0 6px 18px rgba(74,138,138,0.3);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(74,138,138,0.35); }
+    @media (max-width: 860px) {
+      .presale-wrap { grid-template-columns: 1fr; }
+      .presale-img { order: -1; }
+    }
+
+    /* Designer */
+    .designer-wrap {
+      display: grid;
+      grid-template-columns: 0.85fr 1.15fr;
+      gap: 36px;
+      align-items: start;
+    }
+    .designer-img { border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+    .designer-img img { width: 100%; object-fit: contain; }
+    .designer-info {
+      background: #fff;
+      padding: 32px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .designer-info h3 { margin: 0 0 10px; color: var(--blue-dark); font-size: 1.5rem; }
+    .designer-info .role { color: var(--gold); font-weight: 700; margin-bottom: 18px; }
+    .designer-info p { margin: 0 0 12px; color: var(--ink-soft); }
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .tag {
+      background: var(--cloud);
+      color: var(--blue-dark);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      border: 1px solid rgba(124,198,198,0.25);
+    }
+    @media (max-width: 860px) {
+      .designer-wrap { grid-template-columns: 1fr; }
+      .designer-img { max-width: 420px; margin: 0 auto; }
+    }
+
+    /* Footer */
+    footer {
+      background: #f1ece4;
+      text-align: center;
+      padding: 36px 20px;
+      color: var(--ink-soft);
+      font-size: 0.9rem;
+    }
+    footer .brand-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    footer img { height: 42px; }
+    footer strong { color: var(--blue-dark); }
+
+    /* Lightbox */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.88);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 20px;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img {
+      max-width: 100%;
+      max-height: 90vh;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 18px; right: 24px;
+      color: #fff;
+      font-size: 2rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    /* Scroll reveal */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+  </style>
+  <link rel="stylesheet" href="../../gallery-return.css" />
+</head>
+<body>
+  <a class="portfolio-back" href="../../index.html#digital-galleries" aria-label="返回3D打印数字展厅">← 返回3D打印数字展厅</a>
+  <header>
+    <div class="header-inner">
+      <a class="brand" href="#banner">
+        <img src="assets/images/logo.png" alt="谷里有兽 Logo" />
+        <span class="brand-text">谷里有兽</span>
+      </a>
+      <button class="menu-btn" aria-label="打开菜单" onclick="document.getElementById('nav').classList.toggle('open')">☰</button>
+      <nav id="nav">
+        <ul>
+          <li><a href="#identity">身份卡</a></li>
+          <li><a href="#story">角色故事</a></li>
+          <li><a href="#poster">主海报</a></li>
+          <li><a href="#merch">贴纸周边</a></li>
+          <li><a href="#presale">预售体验</a></li>
+          <li><a href="#designer">设计师</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Banner -->
+  <section id="banner">
+    <div class="banner-bg" aria-hidden="true"></div>
+    <div class="banner-inner">
+      <div class="video-stage">
+        <video id="hero-video" autoplay muted loop playsinline webkit-playsinline poster="assets/images/fallback.optimized.webp">
+          <source src="assets/video/bixie.optimized.mp4" type="video/mp4" />
+        </video>
+        <img id="fallback-img" src="assets/images/fallback.optimized.webp" alt="辟邪手办展示" />
+        <div class="video-overlay"></div>
+        <div class="banner-text">
+          <span class="label">神兽谷 · 原创潮玩IP</span>
+          <h1>辟邪</h1>
+          <p class="slogan">我要吃遍全天下</p>
+        </div>
+        <div class="video-controls">
+          <button id="btn-play" aria-label="播放/暂停" title="播放/暂停">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/></svg>
+          </button>
+          <button id="btn-sound" aria-label="打开声音" title="打开声音">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4 9.91 6.09 12 8.18V4z"/></svg>
+          </button>
+        </div>
+        <div id="play-overlay" class="play-overlay">
+          <div class="big-play">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            <span>点击播放</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Identity cards -->
+  <section id="identity">
+    <div class="section-title reveal">
+      <h2>身份卡</h2>
+      <p>认识神兽谷的小伙伴们</p>
+    </div>
+    <div class="cards-grid">
+      <article class="card reveal">
+        <img src="assets/images/card_stats.optimized.webp" alt="辟邪档案卡" loading="lazy" />
+        <div class="card-caption">辟邪 · 角色档案</div>
+      </article>
+      <article class="card reveal">
+        <img src="assets/images/card_no001.optimized.webp" alt="辟邪编号卡" loading="lazy" />
+        <div class="card-caption">辟邪 · No.001</div>
+      </article>
+      <article class="card reveal">
+        <img src="assets/images/card_baize.optimized.webp" alt="白泽身份卡" loading="lazy" />
+        <div class="card-caption">白泽 · 神兽谷伙伴</div>
+      </article>
+      <article class="card reveal">
+        <img src="assets/images/card_bixie_story.optimized.webp" alt="辟邪故事卡" loading="lazy" />
+        <div class="card-caption">辟邪 · 深度档案</div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Story -->
+  <section id="story">
+    <div class="section-title reveal">
+      <h2>角色故事</h2>
+      <p>一只来自神兽谷的小貔貅</p>
+    </div>
+    <div class="story-wrap">
+      <div class="story-text reveal">
+        <h3>辟邪是谁？</h3>
+        <p><strong>辟邪</strong>是一只来自<strong>神兽谷</strong>的小貔貅，物种为貔貅，使命是「吃遍全天下」。他毛茸茸、软软糯糯，还有一点点凶巴巴，胸前挂着一枚<strong>辟邪宝牌</strong>，用来辨识身份、积蓄力量。</p>
+        <p>辟邪对万事万物都充满好奇，典型的三分钟热度；天真无邪、傻白甜，没有心机，开心就笑，不开心就吃东西。没人知道他的小秘密——肚子里是个无底洞，永远吃不饱；更没人知道，他隐藏着极其危险的吞噬之力……所以他一直住在森林深处的「辟邪小屋」里，自由自在地生活。</p>
+        <div class="story-quote">来自神兽谷的小神兽，爱吃爱闹，守着自己的宝牌。—— 角色台词</div>
+        <div class="story-quote" style="margin-top:12px">我要吃遍全天下！—— 辟邪</div>
+      </div>
+      <div class="story-img reveal">
+        <img src="assets/images/card_bixie_story.optimized.webp" alt="辟邪角色故事卡" loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Main poster -->
+  <section id="poster">
+    <div class="section-title reveal">
+      <h2>60×90 主海报</h2>
+      <p>貔貅辟邪 · 我要吃遍全天下</p>
+    </div>
+    <div class="poster-stage reveal">
+      <img src="assets/images/poster_main.optimized.webp" alt="60×90主海报" loading="lazy" />
+    </div>
+  </section>
+
+  <!-- Stickers & merch -->
+  <section id="merch">
+    <div class="section-title reveal">
+      <h2>贴纸和周边</h2>
+      <p>A4贴纸与周边宣传页</p>
+    </div>
+    <div class="merch-grid">
+      <div class="merch-card reveal">
+        <img src="assets/images/sticker1.optimized.webp" alt="辟邪A4贴纸" loading="lazy" />
+        <h4>辟邪主题贴纸</h4>
+        <p>多种萌趣姿态 + 祥云、 paw印装饰</p>
+      </div>
+      <div class="merch-card reveal">
+        <img src="assets/images/sticker2.optimized.webp" alt="貔貅辟邪贴纸" loading="lazy" />
+        <h4>貔貅｜辟邪贴纸</h4>
+        <p>经典造型与宝物元素合集</p>
+      </div>
+      <div class="merch-card reveal">
+        <img src="assets/images/promo_a4.optimized.webp" alt="A4周边宣传页" loading="lazy" />
+        <h4>A4 周边宣传页</h4>
+        <p>品牌色彩：云朵白 · 马卡龙蓝 · 鎏光金 · 樱花粉</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Presale -->
+  <section id="presale">
+    <div class="section-title reveal">
+      <h2>预售体验卡</h2>
+      <p>抢先领养你的谷里守护神</p>
+    </div>
+    <div class="presale-wrap">
+      <div class="presale-img reveal">
+        <img src="assets/images/presale.optimized.webp" alt="预售体验卡" loading="lazy" />
+      </div>
+      <div class="presale-text reveal">
+        <h3>辟邪 · 谷里守护神</h3>
+        <p>神兽谷是充满神秘与美好的奇幻世界，这里生活着可爱又强大的神兽伙伴。现在，第一位登场的守护神——辟邪，正式开启预售体验！</p>
+        <ul>
+          <li>系列：神兽谷日常系列</li>
+          <li>材质：PVC / ABS</li>
+          <li>推荐年龄：8+</li>
+          <li>特别亮点：胸前辟邪宝牌</li>
+        </ul>
+        <a class="cta-btn" href="#banner">立即了解</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Designer -->
+  <section id="designer">
+    <div class="section-title reveal">
+      <h2>设计师介绍</h2>
+      <p>关于创作者张一楠</p>
+    </div>
+    <div class="designer-wrap">
+      <div class="designer-img reveal">
+        <img src="assets/images/card_designer.optimized.webp" alt="设计师张一楠身份地图" loading="lazy" />
+      </div>
+      <div class="designer-info reveal">
+        <h3>张一楠</h3>
+        <div class="role">10岁 · 射手座 · 小设计师</div>
+        <p><strong>爱好：</strong>画画、看书、听音乐、唱歌、做手工、骑马</p>
+        <p><strong>擅长：</strong>和朋友聊天、画画、想象力丰富</p>
+        <p><strong>喜欢：</strong>紫色、DJ/说唱、冬天</p>
+        <p><strong>梦想：</strong>环游世界、成为一名律师</p>
+        <p><strong>一句话：</strong>不要后悔过去，要享受当下。</p>
+        <div class="tag-list">
+          <span class="tag">创意满满</span>
+          <span class="tag">热爱画画</span>
+          <span class="tag">想象力丰富</span>
+          <span class="tag">享受生活</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="brand-row">
+      <img src="assets/images/logo.png" alt="谷里有兽" />
+      <strong>谷里有兽 · 神兽谷</strong>
+    </div>
+    <p>© 2026 神兽谷原创潮玩IP · 辟邪个人数字展厅</p>
+    <p>让一群可爱毛茸茸、软软糯糯同时还有点凶巴巴的小神兽治愈我们的生活。</p>
+  </footer>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+    <span class="lightbox-close">&times;</span>
+    <img id="lightbox-img" src="" alt="放大预览" />
+  </div>
+
+  <script>
+    /* Video controls */
+    const video = document.getElementById('hero-video');
+    const fallbackImg = document.getElementById('fallback-img');
+    const btnPlay = document.getElementById('btn-play');
+    const btnSound = document.getElementById('btn-sound');
+    const overlay = document.getElementById('play-overlay');
+    let userPaused = false;
+
+    function updatePlayIcon() {
+      btnPlay.innerHTML = video.paused
+        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'
+        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/></svg>';
+    }
+    function updateSoundIcon() {
+      btnSound.innerHTML = video.muted
+        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4 9.91 6.09 12 8.18V4z"/></svg>'
+        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
+    }
+
+    btnPlay.addEventListener('click', () => {
+      if (video.paused) { video.play(); userPaused = false; }
+      else { video.pause(); userPaused = true; }
+      updatePlayIcon();
+    });
+    btnSound.addEventListener('click', () => {
+      video.muted = !video.muted;
+      updateSoundIcon();
+    });
+    overlay.addEventListener('click', () => {
+      video.muted = false;
+      video.play();
+      overlay.classList.remove('show');
+      updatePlayIcon();
+      updateSoundIcon();
+    });
+
+    video.addEventListener('play', () => { overlay.classList.remove('show'); updatePlayIcon(); });
+    video.addEventListener('pause', () => { if (!userPaused) return; updatePlayIcon(); });
+    video.addEventListener('error', () => {
+      video.style.display = 'none';
+      fallbackImg.style.display = 'block';
+      overlay.classList.remove('show');
+    });
+
+    // Autoplay fallback for blocked autoplay
+    video.play().then(() => {
+      overlay.classList.remove('show');
+    }).catch(() => {
+      overlay.classList.add('show');
+    });
+
+    updatePlayIcon();
+    updateSoundIcon();
+
+    /* Mobile nav close on link click */
+    document.querySelectorAll('nav a').forEach(a => {
+      a.addEventListener('click', () => document.getElementById('nav').classList.remove('open'));
+    });
+
+    /* Scroll reveal */
+    const reveals = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => io.observe(el));
+
+    /* Lightbox */
+    const lightbox = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lightbox-img');
+    document.querySelectorAll('.gallery-item img, .poster-stage img, .merch-card img, .presale-img img, .designer-img img').forEach(img => {
+      img.addEventListener('click', (e) => {
+        e.stopPropagation();
+        lbImg.src = img.src;
+        lbImg.alt = img.alt;
+        lightbox.classList.add('open');
+      });
+    });
+    function closeLightbox() { lightbox.classList.remove('open'); }
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+  </script>
+</body>
+</html>

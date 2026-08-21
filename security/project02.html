@@ -1,0 +1,3399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2f6df6">
+  <meta name="description" content="保安巡逻助手——优莱城保安任务、蓝牙打卡与负责人管理工具">
+  <title>保安巡逻助手</title>
+
+  <style>
+    /* ==================== 页面样式：颜色、布局、手机端适配 ==================== */
+    :root {
+      --blue: #2f6df6;
+      --blue-dark: #1749bb;
+      --cyan: #25b9d7;
+      --green: #23b875;
+      --yellow: #ffbf3f;
+      --orange: #ff7d4d;
+      --red: #ef4b5f;
+      --ink: #173052;
+      --muted: #6e7e96;
+      --line: #dce6f4;
+      --surface: #ffffff;
+      --page: #f4f8ff;
+      --shadow: 0 12px 35px rgba(43, 85, 150, .12);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--page);
+    }
+
+    body {
+      margin: 0;
+      min-width: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(106, 210, 255, .24), transparent 28rem),
+        radial-gradient(circle at 100% 10%, rgba(255, 205, 91, .22), transparent 24rem),
+        var(--page);
+      font-family: "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      min-height: 46px;
+      border: 0;
+      cursor: pointer;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible {
+      outline: 3px solid rgba(47, 109, 246, .28);
+      outline-offset: 2px;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: .48;
+    }
+
+    .skip-link {
+      position: fixed;
+      left: 14px;
+      top: -80px;
+      z-index: 300;
+      padding: 12px 18px;
+      border-radius: 12px;
+      color: #fff;
+      background: var(--ink);
+      transition: top .2s;
+    }
+
+    .skip-link:focus {
+      top: 14px;
+    }
+
+    .app-shell {
+      width: 100%;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 68px;
+      padding: 10px max(16px, env(safe-area-inset-left));
+      border-bottom: 1px solid rgba(220, 230, 244, .9);
+      background: rgba(255, 255, 255, .9);
+      backdrop-filter: blur(16px);
+    }
+
+    .brand {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      display: grid;
+      flex: 0 0 44px;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      border-radius: 15px;
+      color: #fff;
+      background: linear-gradient(145deg, var(--blue), var(--cyan));
+      box-shadow: 0 8px 18px rgba(47, 109, 246, .25);
+      font-size: 24px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 19px;
+      letter-spacing: -.5px;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 11px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .role-switch {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      min-height: 46px;
+      padding: 4px 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--ink);
+      background: #fff;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .role-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(35, 184, 117, .14);
+    }
+
+    .layout {
+      display: grid;
+      width: min(1180px, 100%);
+      margin: 0 auto;
+    }
+
+    .side-nav {
+      display: none;
+    }
+
+    .main {
+      min-width: 0;
+      padding: 18px 16px calc(98px + env(safe-area-inset-bottom));
+    }
+
+    .view {
+      display: none;
+      animation: fadeUp .28s ease;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 24px;
+      border-radius: 28px;
+      color: #fff;
+      background: linear-gradient(135deg, #2f6df6 0%, #398bf1 55%, #26bbcf 100%);
+      box-shadow: 0 18px 38px rgba(47, 109, 246, .22);
+    }
+
+    .hero::before,
+    .hero::after {
+      position: absolute;
+      content: "";
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .12);
+    }
+
+    .hero::before {
+      width: 170px;
+      height: 170px;
+      right: -55px;
+      top: -70px;
+    }
+
+    .hero::after {
+      width: 92px;
+      height: 92px;
+      right: 84px;
+      bottom: -50px;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin: 0 0 12px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(255, 255, 255, .18);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .hero h2 {
+      max-width: 560px;
+      margin: 0;
+      font-size: clamp(25px, 7vw, 39px);
+      line-height: 1.18;
+      letter-spacing: -1px;
+    }
+
+    .hero p {
+      max-width: 590px;
+      margin: 10px 0 20px;
+      color: rgba(255, 255, 255, .86);
+      line-height: 1.65;
+      font-size: 14px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+      padding: 0 18px;
+      border-radius: 15px;
+      font-weight: 800;
+      transition: transform .16s, box-shadow .16s, background .16s;
+    }
+
+    .btn:active {
+      transform: scale(.98);
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: var(--blue);
+      box-shadow: 0 8px 18px rgba(47, 109, 246, .22);
+    }
+
+    .btn-white {
+      color: var(--blue-dark);
+      background: #fff;
+      box-shadow: 0 8px 18px rgba(17, 70, 170, .12);
+    }
+
+    .btn-soft {
+      color: var(--blue-dark);
+      background: #eaf1ff;
+    }
+
+    .btn-success {
+      color: #fff;
+      background: var(--green);
+      box-shadow: 0 8px 18px rgba(35, 184, 117, .2);
+    }
+
+    .btn-danger {
+      color: #fff;
+      background: var(--red);
+    }
+
+    .btn-ghost {
+      color: var(--ink);
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .stat {
+      min-width: 0;
+      padding: 15px 10px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      text-align: center;
+      background: var(--surface);
+      box-shadow: 0 5px 14px rgba(43, 85, 150, .06);
+    }
+
+    .stat strong {
+      display: block;
+      overflow: hidden;
+      color: var(--ink);
+      font-size: clamp(19px, 6vw, 28px);
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 26px 2px 12px;
+    }
+
+    .section-head h2,
+    .section-head h3 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 20px;
+      letter-spacing: -.4px;
+    }
+
+    .section-head p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .text-button {
+      min-height: 46px;
+      padding: 0 10px;
+      color: var(--blue);
+      background: transparent;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .filter-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-chip {
+      flex: 0 0 auto;
+      min-height: 44px;
+      padding: 0 15px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: #fff;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .filter-chip.active {
+      color: #fff;
+      border-color: var(--blue);
+      background: var(--blue);
+    }
+
+    .task-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .task-card {
+      position: relative;
+      display: grid;
+      grid-template-columns: 54px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 21px;
+      background: var(--surface);
+      box-shadow: 0 7px 22px rgba(43, 85, 150, .07);
+      transition: transform .18s, box-shadow .18s, border-color .18s;
+    }
+
+    .task-card:hover {
+      transform: translateY(-2px);
+      border-color: #bed1ef;
+      box-shadow: var(--shadow);
+    }
+
+    .task-card.completed {
+      border-color: rgba(35, 184, 117, .35);
+      background: linear-gradient(135deg, #fff, #f0fff7);
+    }
+
+    .task-icon {
+      display: grid;
+      width: 54px;
+      height: 54px;
+      place-items: center;
+      border-radius: 17px;
+      background: #edf4ff;
+      font-size: 27px;
+    }
+
+    .task-info {
+      min-width: 0;
+    }
+
+    .task-topline {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .task-info h3 {
+      margin: 0;
+      overflow: hidden;
+      font-size: 16px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .task-info p {
+      margin: 6px 0 0;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 23px;
+      padding: 0 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .badge-red { color: #c3293d; background: #ffe8eb; }
+    .badge-yellow { color: #976000; background: #fff3ce; }
+    .badge-green { color: #08794a; background: #ddf9eb; }
+    .badge-blue { color: #2253ba; background: #e6efff; }
+
+    .task-arrow {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border-radius: 14px;
+      color: var(--blue);
+      background: #edf4ff;
+      font-size: 20px;
+    }
+
+    .progress {
+      width: 100%;
+      height: 9px;
+      margin-top: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e8eef8;
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--blue), var(--cyan));
+      transition: width .35s ease;
+    }
+
+    .empty-state {
+      padding: 32px 18px;
+      border: 2px dashed #cbd9ec;
+      border-radius: 22px;
+      text-align: center;
+      background: rgba(255, 255, 255, .65);
+    }
+
+    .empty-state .empty-icon {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 42px;
+    }
+
+    .empty-state h3 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .empty-state p {
+      margin: 8px 0 16px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .panel {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: 0 8px 22px rgba(43, 85, 150, .07);
+    }
+
+    .panel + .panel {
+      margin-top: 14px;
+    }
+
+    .panel h3 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .panel-note {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .checkin-card {
+      padding: 24px;
+      border-radius: 26px;
+      color: #fff;
+      text-align: center;
+      background: linear-gradient(145deg, #173052, #2d5f91);
+      box-shadow: var(--shadow);
+    }
+
+    .checkin-visual {
+      display: grid;
+      width: 94px;
+      height: 94px;
+      margin: 0 auto 14px;
+      place-items: center;
+      border: 7px solid rgba(255, 255, 255, .16);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .1);
+      font-size: 42px;
+    }
+
+    .checkin-card h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .checkin-card p {
+      margin: 8px auto 18px;
+      color: rgba(255, 255, 255, .76);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 0;
+      margin-top: 8px;
+    }
+
+    .timeline-item {
+      position: relative;
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      padding: 9px 0;
+    }
+
+    .timeline-dot {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      width: 28px;
+      height: 28px;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--green);
+      font-size: 12px;
+    }
+
+    .timeline-item:not(:last-child)::before {
+      position: absolute;
+      left: 13px;
+      top: 32px;
+      bottom: -4px;
+      width: 2px;
+      content: "";
+      background: #dbe7f2;
+    }
+
+    .timeline-content strong {
+      display: block;
+      font-size: 14px;
+    }
+
+    .timeline-content span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .progress-ring {
+      --value: 0;
+      display: grid;
+      width: 148px;
+      height: 148px;
+      margin: 10px auto 18px;
+      place-items: center;
+      border-radius: 50%;
+      background: conic-gradient(var(--green) calc(var(--value) * 1%), #e7edf6 0);
+    }
+
+    .progress-ring::before {
+      width: 116px;
+      height: 116px;
+      border-radius: 50%;
+      content: "";
+      background: #fff;
+    }
+
+    .ring-text {
+      position: absolute;
+      text-align: center;
+    }
+
+    .ring-text strong {
+      display: block;
+      font-size: 30px;
+    }
+
+    .ring-text span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .reward-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .reward {
+      padding: 14px 8px;
+      border-radius: 16px;
+      text-align: center;
+      background: #f5f8fd;
+    }
+
+    .reward span {
+      display: block;
+      font-size: 25px;
+    }
+
+    .reward strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 12px;
+    }
+
+    .profile-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 20px;
+      border-radius: 24px;
+      color: #fff;
+      background: linear-gradient(135deg, #ff8f58, #ffbe47);
+      box-shadow: 0 14px 28px rgba(255, 143, 88, .22);
+    }
+
+    .avatar {
+      display: grid;
+      flex: 0 0 66px;
+      width: 66px;
+      height: 66px;
+      place-items: center;
+      border: 4px solid rgba(255, 255, 255, .45);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, .2);
+      font-size: 33px;
+    }
+
+    .profile-card h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .profile-card p {
+      margin: 5px 0 0;
+      color: rgba(255, 255, 255, .84);
+      font-size: 13px;
+    }
+
+    .settings-list {
+      display: grid;
+      gap: 1px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--line);
+    }
+
+    .setting {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 60px;
+      padding: 10px 15px;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    .setting-main {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      font-size: 14px;
+      font-weight: 750;
+    }
+
+    .setting-icon {
+      display: grid;
+      flex: 0 0 38px;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      border-radius: 12px;
+      background: #eef4ff;
+      font-size: 19px;
+    }
+
+    .toggle {
+      position: relative;
+      flex: 0 0 50px;
+      width: 50px;
+      height: 29px;
+      border-radius: 999px;
+      background: #cbd7e7;
+      transition: background .2s;
+    }
+
+    .toggle::after {
+      position: absolute;
+      left: 4px;
+      top: 4px;
+      width: 21px;
+      height: 21px;
+      border-radius: 50%;
+      content: "";
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, .16);
+      transition: transform .2s;
+    }
+
+    .toggle.on {
+      background: var(--green);
+    }
+
+    .toggle.on::after {
+      transform: translateX(21px);
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 60;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 7px 10px calc(7px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--line);
+      background: rgba(255, 255, 255, .96);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 -8px 25px rgba(43, 85, 150, .08);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      min-height: 57px;
+      border-radius: 15px;
+      color: #718198;
+      background: transparent;
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .nav-icon {
+      font-size: 21px;
+      line-height: 1;
+    }
+
+    .nav-item.active {
+      color: var(--blue);
+      background: #edf4ff;
+    }
+
+    .sos-button {
+      position: fixed;
+      z-index: 55;
+      right: 17px;
+      bottom: calc(84px + env(safe-area-inset-bottom));
+      display: grid;
+      width: 58px;
+      height: 58px;
+      min-height: 58px;
+      place-items: center;
+      border: 5px solid rgba(255, 255, 255, .85);
+      border-radius: 50%;
+      color: #fff;
+      background: var(--red);
+      box-shadow: 0 10px 24px rgba(239, 75, 95, .3);
+      font-size: 13px;
+      font-weight: 950;
+      animation: sosPulse 2.8s infinite;
+    }
+
+    @keyframes sosPulse {
+      0%, 70%, 100% { box-shadow: 0 10px 24px rgba(239, 75, 95, .3); }
+      82% { box-shadow: 0 10px 24px rgba(239, 75, 95, .3), 0 0 0 10px rgba(239, 75, 95, .1); }
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+      background: rgba(18, 38, 68, .48);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+      animation: backdropIn .2s ease;
+    }
+
+    @keyframes backdropIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal {
+      width: 100%;
+      max-height: 91vh;
+      overflow-y: auto;
+      padding: 20px 18px calc(22px + env(safe-area-inset-bottom));
+      border-radius: 28px 28px 0 0;
+      background: #fff;
+      animation: sheetUp .28s ease;
+    }
+
+    @keyframes sheetUp {
+      from { transform: translateY(35px); opacity: .7; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .modal-head h2 {
+      margin: 0;
+      font-size: 21px;
+    }
+
+    .close-button {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      min-height: 44px;
+      place-items: center;
+      border-radius: 14px;
+      color: var(--ink);
+      background: #edf2f8;
+      font-size: 21px;
+    }
+
+    .detail-hero {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 16px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #edf4ff, #effdf9);
+    }
+
+    .detail-hero .task-icon {
+      flex: 0 0 58px;
+      width: 58px;
+      height: 58px;
+      background: #fff;
+    }
+
+    .detail-hero h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .detail-hero p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .check-list {
+      display: grid;
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .check-item {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      align-items: center;
+      gap: 10px;
+      min-height: 56px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      color: var(--ink);
+      text-align: left;
+      background: #fff;
+    }
+
+    .check-box {
+      display: grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      border: 2px solid #b9c8dc;
+      border-radius: 10px;
+      color: #fff;
+      background: #fff;
+      font-weight: 900;
+    }
+
+    .check-item.checked {
+      border-color: #a8e3c7;
+      background: #f2fff8;
+    }
+
+    .check-item.checked .check-box {
+      border-color: var(--green);
+      background: var(--green);
+    }
+
+    .form-group {
+      margin: 14px 0;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .field {
+      width: 100%;
+      min-height: 50px;
+      padding: 12px 14px;
+      border: 1px solid #cdd9e9;
+      border-radius: 14px;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    textarea.field {
+      min-height: 92px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .button-stack {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .alert-box {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 13px 0;
+      padding: 13px;
+      border-radius: 15px;
+      color: #855807;
+      background: #fff7dd;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .toast-region {
+      position: fixed;
+      left: 50%;
+      top: 78px;
+      z-index: 220;
+      display: grid;
+      width: min(92%, 420px);
+      gap: 8px;
+      pointer-events: none;
+      transform: translateX(-50%);
+    }
+
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 15px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      color: var(--ink);
+      background: #fff;
+      box-shadow: 0 14px 32px rgba(26, 59, 110, .2);
+      font-size: 13px;
+      font-weight: 700;
+      animation: toastIn .25s ease, toastOut .28s ease 2.7s forwards;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-12px) scale(.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes toastOut {
+      to { opacity: 0; transform: translateY(-8px); }
+    }
+
+    .toast.success { border-left: 5px solid var(--green); }
+    .toast.error { border-left: 5px solid var(--red); }
+    .toast.info { border-left: 5px solid var(--blue); }
+
+    .intro {
+      width: min(92%, 470px);
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 25px;
+      border-radius: 28px;
+      background: #fff;
+      text-align: center;
+      animation: introPop .3s ease;
+    }
+
+    @keyframes introPop {
+      from { opacity: 0; transform: scale(.94); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .intro-visual {
+      display: grid;
+      width: 90px;
+      height: 90px;
+      margin: 0 auto 15px;
+      place-items: center;
+      border-radius: 29px;
+      color: #fff;
+      background: linear-gradient(145deg, var(--blue), var(--cyan));
+      box-shadow: 0 15px 28px rgba(47, 109, 246, .2);
+      font-size: 45px;
+    }
+
+    .intro h2 {
+      margin: 0;
+      font-size: 25px;
+    }
+
+    .intro > p {
+      margin: 8px auto 18px;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 13px;
+    }
+
+    .intro-steps {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    .intro-step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 12px;
+      border-radius: 15px;
+      background: #f2f6fc;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .intro-step span {
+      display: grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      border-radius: 10px;
+      color: #fff;
+      background: var(--blue);
+    }
+
+    .confetti {
+      position: fixed;
+      z-index: 250;
+      width: 9px;
+      height: 15px;
+      border-radius: 3px;
+      pointer-events: none;
+      animation: confettiFall 1.3s ease-out forwards;
+    }
+
+    @keyframes confettiFall {
+      from { opacity: 1; transform: translateY(-10vh) rotate(0); }
+      to { opacity: 0; transform: translateY(90vh) rotate(540deg); }
+    }
+
+    .manager-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .staff-card {
+      display: grid;
+      grid-template-columns: 46px 1fr auto;
+      align-items: center;
+      gap: 11px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fff;
+    }
+
+    .staff-avatar {
+      display: grid;
+      width: 46px;
+      height: 46px;
+      place-items: center;
+      border-radius: 15px;
+      background: #edf4ff;
+      font-size: 23px;
+    }
+
+    .staff-card h3 {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .staff-card p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .staff-score {
+      color: var(--green);
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .issue-card {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 10px;
+      width: 100%;
+      padding: 13px;
+      border-left: 5px solid var(--red);
+      border-radius: 16px;
+      color: var(--ink);
+      text-align: left;
+      background: #fff0f2;
+    }
+
+    button.issue-card:active {
+      transform: scale(.99);
+    }
+
+    .issue-status {
+      display: inline-flex;
+      align-items: center;
+      margin-top: 7px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      color: #a53848;
+      background: #ffe0e5;
+      font-size: 11px;
+      font-weight: 850;
+    }
+
+    .issue-status.done {
+      color: #08784b;
+      background: #dff8ec;
+    }
+
+    .issue-card + .issue-card {
+      margin-top: 10px;
+    }
+
+    .issue-card h3 {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .issue-card p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .verify-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    .verify-card {
+      padding: 14px 10px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      text-align: center;
+      background: #f6f9fe;
+    }
+
+    .verify-card.done {
+      border-color: #9cddbf;
+      background: #effcf6;
+    }
+
+    .verify-card span {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 25px;
+    }
+
+    .verify-card strong {
+      display: block;
+      font-size: 12px;
+    }
+
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background:
+        linear-gradient(90deg, transparent 48%, #dfe8f5 49%, #dfe8f5 51%, transparent 52%),
+        linear-gradient(transparent 48%, #dfe8f5 49%, #dfe8f5 51%, transparent 52%),
+        #f3f7fc;
+    }
+
+    .patrol-map {
+      position: relative;
+      grid-column: 1 / -1;
+      min-height: 330px;
+      overflow: hidden;
+      margin-bottom: 14px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background:
+        linear-gradient(90deg, transparent 47%, #d5e2f2 48%, #d5e2f2 52%, transparent 53%),
+        linear-gradient(transparent 47%, #d5e2f2 48%, #d5e2f2 52%, transparent 53%),
+        #eef5fb;
+    }
+
+    .patrol-map::before,
+    .patrol-map::after {
+      position: absolute;
+      content: "";
+      background: rgba(255,255,255,.82);
+      border: 2px solid #c9d8eb;
+      border-radius: 18px;
+    }
+
+    .patrol-map::before {
+      inset: 20px 54% 54% 20px;
+    }
+
+    .patrol-map::after {
+      inset: 54% 20px 20px 54%;
+    }
+
+    .map-label {
+      position: absolute;
+      z-index: 2;
+      padding: 6px 9px;
+      border-radius: 10px;
+      color: #49627f;
+      background: rgba(255,255,255,.9);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .guard-marker {
+      position: absolute;
+      z-index: 5;
+      display: grid;
+      width: 54px;
+      height: 54px;
+      place-items: center;
+      border: 4px solid #fff;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--blue);
+      box-shadow: 0 0 0 9px rgba(47,109,246,.16), 0 10px 24px rgba(47,109,246,.3);
+      font-size: 25px;
+      transform: translate(-50%, -50%);
+      animation: guardPulse 2s infinite;
+    }
+
+    #refreshGuardLocation {
+      grid-column: 1 / -1;
+    }
+
+    .location-status {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: -4px 0 14px;
+      padding: 12px 14px;
+      border: 1px solid #cfe0f5;
+      border-radius: 16px;
+      color: #49627f;
+      background: #f4f8fd;
+      font-size: 12px;
+      font-weight: 750;
+      line-height: 1.55;
+    }
+
+    .location-status.success {
+      border-color: #9ee0c0;
+      color: #176b4c;
+      background: #effcf6;
+    }
+
+    .location-status.error {
+      border-color: #ffc3c3;
+      color: #a33b3b;
+      background: #fff4f4;
+    }
+
+    .location-coordinates {
+      display: block;
+      margin-top: 3px;
+      font-size: 11px;
+      font-weight: 650;
+      word-break: break-all;
+    }
+
+    .guard-caption {
+      position: absolute;
+      z-index: 6;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #fff;
+      background: #173d73;
+      font-size: 11px;
+      font-weight: 850;
+      transform: translate(-50%, 35px);
+      white-space: nowrap;
+    }
+
+    @keyframes guardPulse {
+      50% { box-shadow: 0 0 0 15px rgba(47,109,246,.06), 0 10px 24px rgba(47,109,246,.3); }
+    }
+
+    .map-zone {
+      min-height: 112px;
+      padding: 13px;
+      border: 2px solid #c9d8eb;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, .94);
+      box-shadow: 0 7px 18px rgba(43, 85, 150, .07);
+    }
+
+    .map-zone.done {
+      border-color: var(--green);
+      background: #effcf6;
+    }
+
+    .map-zone.doing {
+      border-color: var(--yellow);
+      background: #fff9e7;
+    }
+
+    .map-zone strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .map-zone p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .compact-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 13px;
+    }
+
+    .voice-input {
+      padding: 14px;
+      border: 1px solid #cfe0f5;
+      border-radius: 18px;
+      background: #f4f8fd;
+    }
+
+    .voice-input textarea {
+      min-height: 96px;
+      margin-bottom: 10px;
+      background: #fff;
+    }
+
+    .voice-input textarea[readonly] {
+      color: var(--text);
+      cursor: default;
+    }
+
+    .voice-button {
+      width: 100%;
+    }
+
+    .voice-button.listening {
+      color: #fff;
+      background: var(--danger);
+      box-shadow: 0 0 0 7px rgba(239, 75, 95, .12);
+      animation: guardPulse 1.2s infinite;
+    }
+
+    .time-warning {
+      margin: 12px 0;
+      padding: 12px 14px;
+      border: 1px solid #ffd2a8;
+      border-radius: 16px;
+      color: #99521f;
+      background: #fff7ed;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    .time-warning.overdue {
+      border-color: #ffc3c3;
+      color: #a33b3b;
+      background: #fff3f3;
+    }
+
+    .compact-actions .btn {
+      min-height: 44px;
+      padding: 0 14px;
+      font-size: 13px;
+    }
+
+    body.high-contrast {
+      --ink: #071a35;
+      --muted: #43536b;
+      --line: #9db0c8;
+      --page: #eef5ff;
+    }
+
+    body.big-text {
+      font-size: 18px;
+    }
+
+    body.big-text .task-info h3,
+    body.big-text .panel h3 {
+      font-size: 18px;
+    }
+
+    @media (min-width: 760px) {
+      .topbar {
+        padding-left: 26px;
+        padding-right: 26px;
+      }
+
+      .main {
+        padding: 26px 26px 110px;
+      }
+
+      .task-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .manager-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .button-stack {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .modal-backdrop {
+        align-items: center;
+        padding: 28px;
+      }
+
+      .modal {
+        max-width: 610px;
+        padding: 24px;
+        border-radius: 28px;
+      }
+
+      .hero {
+        padding: 34px;
+      }
+    }
+
+    @media (min-width: 980px) {
+      .topbar {
+        position: fixed;
+        left: 0;
+        right: 0;
+      }
+
+      .layout {
+        grid-template-columns: 220px minmax(0, 1fr);
+        padding-top: 68px;
+      }
+
+      .side-nav {
+        position: sticky;
+        top: 68px;
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        height: calc(100vh - 68px);
+        padding: 25px 15px;
+        border-right: 1px solid var(--line);
+        background: rgba(255, 255, 255, .68);
+      }
+
+      .side-nav .nav-item {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 12px;
+        min-height: 52px;
+        padding: 0 15px;
+        font-size: 14px;
+      }
+
+      .main {
+        width: 100%;
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 34px 34px 60px;
+      }
+
+      .bottom-nav {
+        display: none;
+      }
+
+      .sos-button {
+        right: 28px;
+        bottom: 28px;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(3, 160px);
+        justify-content: start;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+  <style>
+    body { padding-top: 54px; }
+    .topbar { top: 54px; }
+    .portfolio-return-bar {
+      position: fixed;
+      z-index: 1000;
+      top: 0;
+      right: 0;
+      left: 0;
+      display: flex;
+      align-items: center;
+      height: 54px;
+      padding: 0 14px;
+      border-bottom: 1px solid #dce6f4;
+      background: rgba(255, 255, 255, .96);
+      backdrop-filter: blur(14px);
+    }
+    .portfolio-back {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      padding: 0 14px;
+      border: 1px solid #dce6f4;
+      border-radius: 999px;
+      color: #1749bb;
+      background: #f4f8ff;
+      font-size: 14px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+    .portfolio-back:active { transform: scale(.97); }
+  </style>
+<style id="ai-lab-responsive-v2">
+  /* 全站响应式增强：宽屏保持网页版，移动设备自动切换 H5。 */
+  html, body { max-width: 100%; }
+  body { overflow-x: clip; }
+  img, video, svg { max-width: 100%; height: auto; }
+  canvas { max-width: 100%; }
+  table { max-width: 100%; }
+  .table-wrap, .table-responsive, .report-table, .admin-table-section { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  html.ai-lab-h5 { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  html.ai-lab-h5, html.ai-lab-h5 body { width: 100%; min-width: 0 !important; overflow-x: hidden !important; }
+  html.ai-lab-h5 body { overscroll-behavior-x: none; }
+  html.ai-lab-h5 .app-shell,
+  html.ai-lab-h5 .game-shell,
+  html.ai-lab-h5 .game-app,
+  html.ai-lab-h5 .shell,
+  html.ai-lab-h5 .container,
+  html.ai-lab-h5 .wrapper,
+  html.ai-lab-h5 .content,
+  html.ai-lab-h5 .main,
+  html.ai-lab-h5 main { width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin-right: auto !important; margin-left: auto !important; }
+
+  html.ai-lab-h5 .home-layout,
+  html.ai-lab-h5 .calendar-layout,
+  html.ai-lab-h5 .dashboard-grid,
+  html.ai-lab-h5 .manager-grid,
+  html.ai-lab-h5 .map-grid,
+  html.ai-lab-h5 .report-layout,
+  html.ai-lab-h5 .report-grid,
+  html.ai-lab-h5 .profile-grid,
+  html.ai-lab-h5 .content-grid,
+  html.ai-lab-h5 .detail-grid,
+  html.ai-lab-h5 .library-grid,
+  html.ai-lab-h5 .test-reader-grid,
+  html.ai-lab-h5 .tech-grid,
+  html.ai-lab-h5 .controls-guide-grid,
+  html.ai-lab-h5 .shop-layout,
+  html.ai-lab-h5 .login,
+  html.ai-lab-h5 .hero { grid-template-columns: minmax(0, 1fr) !important; }
+
+  html.ai-lab-h5 .form-grid,
+  html.ai-lab-h5 .admin-form,
+  html.ai-lab-h5 .stats-grid,
+  html.ai-lab-h5 .quick-grid,
+  html.ai-lab-h5 .book-grid,
+  html.ai-lab-h5 .person-grid,
+  html.ai-lab-h5 .region-grid,
+  html.ai-lab-h5 .rules-grid,
+  html.ai-lab-h5 .identity-role-grid,
+  html.ai-lab-h5 .grid-3,
+  html.ai-lab-h5 .rewards-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)) !important; }
+
+  html.ai-lab-h5 .header-actions,
+  html.ai-lab-h5 .hero-actions,
+  html.ai-lab-h5 .main-actions,
+  html.ai-lab-h5 .top-controls,
+  html.ai-lab-h5 .action-row,
+  html.ai-lab-h5 .modal-actions,
+  html.ai-lab-h5 .toolbar,
+  html.ai-lab-h5 .controls { max-width: 100%; flex-wrap: wrap !important; }
+
+  html.ai-lab-h5 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  html.ai-lab-h5 select,
+  html.ai-lab-h5 textarea { width: 100%; max-width: 100%; min-width: 0; font-size: 16px !important; }
+  html.ai-lab-h5 button,
+  html.ai-lab-h5 .btn,
+  html.ai-lab-h5 [role="button"] { min-height: 44px; touch-action: manipulation; }
+  html.ai-lab-h5 textarea { resize: vertical; }
+
+  html.ai-lab-h5 canvas { display: block; width: auto; height: auto; max-width: 100% !important; max-height: min(68vh, 680px); margin-right: auto; margin-left: auto; touch-action: none; }
+  html.ai-lab-h5 .canvas-container,
+  html.ai-lab-h5 .canvas-wrapper,
+  html.ai-lab-h5 .canvas-wrap,
+  html.ai-lab-h5 .canvas-box,
+  html.ai-lab-h5 .board-shell,
+  html.ai-lab-h5 .board-wrapper,
+  html.ai-lab-h5 .gamewrap { width: 100% !important; max-width: 100% !important; min-width: 0 !important; overflow: hidden; }
+
+  html.ai-lab-h5 .modal-backdrop { padding: 12px !important; }
+  html.ai-lab-h5 .modal,
+  html.ai-lab-h5 .modal-card,
+  html.ai-lab-h5 .redeem-panel { width: min(100%, calc(100vw - 24px)) !important; max-width: calc(100vw - 24px) !important; max-height: 88dvh; overflow-y: auto; }
+  html.ai-lab-h5 .bottom-nav { padding-bottom: max(7px, env(safe-area-inset-bottom)); }
+  html.ai-lab-h5 .portfolio-return-bar { min-height: 54px; padding-right: 10px; padding-left: 10px; }
+  html.ai-lab-h5 .portfolio-back { max-width: calc(100vw - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  @media (max-width: 520px) {
+    html.ai-lab-h5 .stats-grid,
+    html.ai-lab-h5 .quick-grid,
+    html.ai-lab-h5 .form-grid,
+    html.ai-lab-h5 .admin-form,
+    html.ai-lab-h5 .identity-role-grid { grid-template-columns: minmax(0, 1fr) !important; }
+    html.ai-lab-h5 .card-footer { align-items: flex-start; flex-direction: column; }
+  }
+</style>
+<script id="ai-lab-responsive-runtime">
+(() => {
+  const root = document.documentElement;
+  const mobileUa = /Android|webOS|iPhone|iPad|iPod|Mobile|IEMobile|Opera Mini/i.test(navigator.userAgent || "");
+  const coarsePointer = window.matchMedia?.("(hover: none) and (pointer: coarse)")?.matches || false;
+  const updateLayoutMode = () => {
+    const narrowScreen = window.innerWidth <= 768;
+    const touchTablet = coarsePointer && window.innerWidth <= 1024;
+    const mobileDevice = mobileUa && window.innerWidth <= 1180;
+    const useH5 = narrowScreen || touchTablet || mobileDevice;
+    root.classList.toggle("ai-lab-h5", useH5);
+    root.classList.toggle("ai-lab-web", !useH5);
+    root.dataset.layoutMode = useH5 ? "h5" : "web";
+  };
+  updateLayoutMode();
+  window.addEventListener("resize", updateLayoutMode, { passive: true });
+  window.addEventListener("orientationchange", updateLayoutMode, { passive: true });
+})();
+</script>
+</head>
+
+<body>
+  <div class="portfolio-return-bar"><a class="portfolio-back" href="../security-works.html" data-portfolio-back>← 返回物业保安作品集</a></div>
+  <a class="skip-link" href="#mainContent">跳到主要内容</a>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">⚡</div>
+        <div>
+          <h1>保安巡逻助手</h1>
+          <p id="todayLabel">优莱城保安任务助手</p>
+        </div>
+      </div>
+      <button class="role-switch" id="roleSwitch" type="button" aria-label="切换保安与负责人身份">
+        <span class="role-dot"></span>
+        <span id="roleLabel">保安端</span>
+        <span aria-hidden="true">⇄</span>
+      </button>
+    </header>
+
+    <div class="layout">
+      <nav class="side-nav" aria-label="电脑端主导航">
+        <button class="nav-item active" data-view="home" type="button"><span class="nav-icon">📋</span>任务</button>
+        <button class="nav-item" data-view="checkin" type="button"><span class="nav-icon">✅</span>打卡</button>
+        <button class="nav-item" data-view="progress" type="button"><span class="nav-icon">📈</span>进度</button>
+        <button class="nav-item" data-view="profile" type="button"><span class="nav-icon">👤</span>我的</button>
+      </nav>
+
+      <main class="main" id="mainContent">
+        <section class="view active" id="homeView" aria-label="任务首页"></section>
+        <section class="view" id="checkinView" aria-label="打卡"></section>
+        <section class="view" id="progressView" aria-label="任务进度"></section>
+        <section class="view" id="profileView" aria-label="个人中心"></section>
+      </main>
+    </div>
+
+    <button class="sos-button" id="sosButton" type="button" aria-label="紧急问题上报">上报</button>
+
+    <nav class="bottom-nav" aria-label="手机端主导航">
+      <button class="nav-item active" data-view="home" type="button"><span class="nav-icon">📋</span>任务</button>
+      <button class="nav-item" data-view="checkin" type="button"><span class="nav-icon">✅</span>打卡</button>
+      <button class="nav-item" data-view="progress" type="button"><span class="nav-icon">📈</span>进度</button>
+      <button class="nav-item" data-view="profile" type="button"><span class="nav-icon">👤</span>我的</button>
+    </nav>
+  </div>
+
+  <div class="modal-backdrop" id="taskModal" role="dialog" aria-modal="true" aria-label="任务详情">
+    <div class="modal" id="taskModalBody"></div>
+  </div>
+
+  <div class="modal-backdrop" id="monitorModal" role="dialog" aria-modal="true" aria-labelledby="monitorTitle">
+    <div class="modal">
+      <div class="modal-head">
+        <h2 id="monitorTitle">现场监控</h2>
+        <button class="close-button" type="button" data-close="monitorModal" aria-label="关闭">×</button>
+      </div>
+      <div id="monitorModalBody"></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="emergencyTaskModal" role="dialog" aria-modal="true" aria-labelledby="emergencyTaskTitle">
+    <div class="modal">
+      <div class="modal-head">
+        <h2 id="emergencyTaskTitle">紧急通知详情</h2>
+        <button class="close-button" type="button" data-close="emergencyTaskModal" aria-label="关闭">×</button>
+      </div>
+      <div id="emergencyTaskBody"></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="issueModal" role="dialog" aria-modal="true" aria-labelledby="issueTitle">
+    <div class="modal">
+      <div class="modal-head">
+        <h2 id="issueTitle">紧急问题上报</h2>
+        <button class="close-button" type="button" data-close="issueModal" aria-label="关闭">×</button>
+      </div>
+      <div class="alert-box"><span>💡</span><span>遇到漏水、设施损坏、堵车或安全隐患时，请马上上报。此演示版会把记录保存在当前设备。</span></div>
+      <form id="issueForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="issueType">问题类型</label>
+            <select class="field" id="issueType" required>
+              <option value="">请选择</option>
+              <option>安全隐患</option>
+              <option>水电故障</option>
+              <option>巡逻异常</option>
+              <option>入口拥堵</option>
+              <option>其他问题</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="issuePlace">发现位置</label>
+            <select class="field" id="issuePlace" required>
+              <option value="">请选择任务地点</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="issueText">问题说明（语音输入）</label>
+          <div class="voice-input">
+            <textarea class="field" id="issueText" required maxlength="120" readonly
+              placeholder="点击下方麦克风按钮，然后说出问题说明……"></textarea>
+            <button class="btn btn-soft voice-button" id="voiceIssueButton" type="button">🎙️ 开始语音输入</button>
+            <p class="panel-note" id="voiceIssueHint">请允许浏览器使用麦克风，说话结束后文字会自动填入。</p>
+          </div>
+        </div>
+        <button class="btn btn-danger" style="width:100%" type="submit">🚨 立即上报负责人</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="createModal" role="dialog" aria-modal="true" aria-labelledby="createTitle">
+    <div class="modal">
+      <div class="modal-head">
+        <h2 id="createTitle">发布新任务</h2>
+        <button class="close-button" type="button" data-close="createModal" aria-label="关闭">×</button>
+      </div>
+      <form id="createForm">
+        <div class="form-group">
+          <label for="newTitle">任务名称</label>
+          <input class="field" id="newTitle" required maxlength="24" placeholder="例如：检查二楼消防通道">
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="newPlace">任务位置</label>
+            <input class="field" id="newPlace" list="mapLocationOptions" required maxlength="24"
+              placeholder="选择预设位置或手动填写">
+            <datalist id="mapLocationOptions">
+              <option value="一楼大厅"></option>
+              <option value="中庭楼梯"></option>
+              <option value="南门入口"></option>
+              <option value="东侧设备区"></option>
+            </datalist>
+            <p class="panel-note">可以选择预设巡逻位置，也可以直接填写新的任务地点。</p>
+          </div>
+          <div class="form-group">
+            <label for="newTime">截止时间</label>
+            <input class="field" id="newTime" required type="time" value="17:30">
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="newPriority">优先级</label>
+            <select class="field" id="newPriority">
+              <option value="normal">普通</option>
+              <option value="high">紧急</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="newPoints">奖励积分</label>
+            <input class="field" id="newPoints" type="number" min="1" max="20" value="5">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="newBluetoothRequired">是否需要连接蓝牙</label>
+          <select class="field" id="newBluetoothRequired">
+            <option value="yes">是，需要连接现场蓝牙</option>
+            <option value="no">否，无需连接蓝牙</option>
+          </select>
+          <p class="panel-note">选择“是”后，保安必须连接蓝牙才能勾选清单和完成任务。</p>
+        </div>
+        <div class="form-group">
+          <label for="newChecks">检查项目（每行一项）</label>
+          <textarea class="field" id="newChecks" required placeholder="到达指定位置&#10;完成现场检查&#10;记录检查结果"></textarea>
+        </div>
+        <button class="btn btn-primary" style="width:100%" type="submit">📣 发布给小保</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="introModal" role="dialog" aria-modal="true" aria-labelledby="introTitle">
+    <div class="intro">
+      <div class="intro-visual" aria-hidden="true">⚡</div>
+      <h2 id="introTitle">欢迎使用保安巡逻助手</h2>
+      <p>第一步很简单：打开巡逻任务，到现场连接蓝牙点位并上传照片或视频。</p>
+      <div class="intro-steps">
+        <div class="intro-step"><span>1</span>点开任务并点击“开始任务”</div>
+        <div class="intro-step"><span>2</span>连接蓝牙点位并上传照片或视频</div>
+        <div class="intro-step"><span>3</span>逐项检查，全部完成后打卡</div>
+      </div>
+      <button class="btn btn-primary" id="startUseButton" style="width:100%" type="button">明白了，开始第一项</button>
+    </div>
+  </div>
+
+  <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+    /* ==================== 修改内容：可在这里调整默认名称、地点和任务 ==================== */
+    const STORAGE_KEY = "security-patrol-assistant-v2";
+    const INTRO_KEY = "security-patrol-assistant-intro-v2";
+    const DEFAULT_DATA = {
+      profile: {
+        name: "小保",
+        role: "worker",
+        points: 12,
+        voice: true,
+        bigText: false,
+        highContrast: false,
+        permissions: {
+          bluetooth: true,
+          camera: true,
+          notification: true
+        },
+        monitorBluetooth: false,
+        currentLocation: null
+      },
+      tasks: [
+        {
+          id: "task-lobby",
+          title: "一楼大厅巡查",
+          location: "优莱城一楼大厅",
+          icon: "🏢",
+          priority: "high",
+          due: "10:30",
+          points: 6,
+          required: true,
+          description: "检查大厅秩序、地面环境与安全通道，发现问题马上记录。",
+          status: "todo",
+          startedAt: "",
+          finishedAt: "",
+          note: "",
+          bluetooth: false,
+          video: false,
+          videoName: "",
+          checks: [
+            { text: "到达一楼大厅指定位置", done: false },
+            { text: "检查大厅人员与出入口秩序", done: false },
+            { text: "检查安全通道是否畅通", done: false }
+          ]
+        },
+        {
+          id: "task-rail",
+          title: "栏杆与扶手检查",
+          location: "中庭楼梯及扶梯口",
+          icon: "🪜",
+          priority: "normal",
+          due: "13:30",
+          points: 5,
+          required: true,
+          description: "检查栏杆、扶手是否松动或损坏，发现安全隐患立即上报。",
+          status: "todo",
+          startedAt: "",
+          finishedAt: "",
+          note: "",
+          bluetooth: false,
+          video: false,
+          videoName: "",
+          checks: [
+            { text: "检查中庭栏杆是否牢固", done: false },
+            { text: "检查扶手连接处是否松动", done: false },
+            { text: "记录需要维修的位置", done: false }
+          ]
+        },
+        {
+          id: "task-water",
+          title: "水电设备巡检",
+          location: "一楼东侧设备区",
+          icon: "⚡",
+          priority: "normal",
+          due: "16:00",
+          points: 6,
+          required: true,
+          description: "按照巡逻要求检查水电设备、照明和异常漏水情况。",
+          status: "todo",
+          startedAt: "",
+          finishedAt: "",
+          note: "",
+          bluetooth: false,
+          video: false,
+          videoName: "",
+          checks: [
+            { text: "检查设备区是否存在漏水", done: false },
+            { text: "检查照明是否正常", done: false },
+            { text: "确认配电箱外观无异常", done: false }
+          ]
+        },
+        {
+          id: "task-extra",
+          title: "入口高峰协助",
+          location: "优莱城南门",
+          icon: "🚗",
+          priority: "bonus",
+          due: "17:00",
+          points: 10,
+          required: false,
+          description: "可选加分任务：协助疏导入口车辆，减少拥堵和家长投诉。",
+          status: "todo",
+          startedAt: "",
+          finishedAt: "",
+          note: "",
+          bluetooth: false,
+          video: false,
+          videoName: "",
+          checks: [
+            { text: "到达南门入口", done: false },
+            { text: "协助车辆按顺序通行", done: false },
+            { text: "确认入口恢复畅通", done: false }
+          ]
+        }
+      ],
+      issues: [],
+      attendance: {
+        date: "",
+        checkedOutAt: ""
+      },
+      logs: [
+        { id: "welcome", text: "任务已准备好，可以开始巡查", time: "今天" }
+      ]
+    };
+
+    let appData = loadData();
+    let currentView = "home";
+    let currentFilter = "all";
+    let selectedTaskId = "";
+    let issueRecognition = null;
+    let issueListening = false;
+
+    /* ==================== 数据保存：使用 localStorage 保存和恢复数据 ==================== */
+    function cloneDefaultData() {
+      return JSON.parse(JSON.stringify(DEFAULT_DATA));
+    }
+
+    function loadData() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return cloneDefaultData();
+        const parsed = JSON.parse(saved);
+        if (!parsed || !Array.isArray(parsed.tasks) || !parsed.profile) {
+          throw new Error("数据格式不完整");
+        }
+        /* 兼容旧版本保存的数据 */
+        parsed.profile.permissions ||= { bluetooth: true, camera: true, notification: true };
+        parsed.profile.monitorBluetooth = !!parsed.profile.monitorBluetooth;
+        parsed.profile.guardLocationIndex = Number(parsed.profile.guardLocationIndex) || 0;
+        parsed.profile.currentLocation ||= null;
+        parsed.tasks.forEach(task => {
+          task.video = !!task.video;
+          task.videoName ||= "";
+        });
+        parsed.issues ||= [];
+        parsed.issues.forEach(issue => {
+          issue.status ||= issue.from === "manager" ? "todo" : "reported";
+          issue.video = !!issue.video;
+          issue.videoName ||= "";
+          issue.completedAt ||= "";
+        });
+        return parsed;
+      } catch (error) {
+        setTimeout(() => showToast("保存的数据无法读取，已恢复演示内容", "error"), 300);
+        return cloneDefaultData();
+      }
+    }
+
+    function saveData() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        return true;
+      } catch (error) {
+        showToast("保存失败：请检查浏览器是否允许本地存储", "error");
+        return false;
+      }
+    }
+
+    function resetData() {
+      const confirmed = window.confirm("确定重新开始吗？任务进度、积分和上报记录都会恢复为初始状态。");
+      if (!confirmed) return;
+      appData = cloneDefaultData();
+      currentFilter = "all";
+      saveData();
+      closeAllModals();
+      renderAll();
+      switchView("home");
+      showToast("已经重新开始，可以再次体验完整流程", "success");
+    }
+
+    /* ==================== 核心功能：渲染任务、完成流程、打卡与负责人管理 ==================== */
+    function getTodayText() {
+      return new Intl.DateTimeFormat("zh-CN", {
+        month: "long",
+        day: "numeric",
+        weekday: "short"
+      }).format(new Date());
+    }
+
+    function getTimeText(date = new Date()) {
+      return date.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit", hour12: false });
+    }
+
+    function getCurrentMinutes(date = new Date()) {
+      return date.getHours() * 60 + date.getMinutes();
+    }
+
+    function getDueMinutes(task) {
+      const match = String(task?.due || "").match(/^(\d{1,2}):(\d{2})$/);
+      if (!match) return null;
+      return Number(match[1]) * 60 + Number(match[2]);
+    }
+
+    function isTaskPastDue(task, date = new Date()) {
+      if (task.status === "done") return false;
+      const dueMinutes = getDueMinutes(task);
+      return dueMinutes !== null && getCurrentMinutes(date) > dueMinutes;
+    }
+
+    function getRequiredTasks() {
+      return appData.tasks.filter(task => task.required);
+    }
+
+    function getCompletedRequired() {
+      return getRequiredTasks().filter(task => task.status === "done").length;
+    }
+
+    function getCompletionPercent() {
+      const required = getRequiredTasks();
+      if (!required.length) return 0;
+      return Math.round(required.filter(task => task.status === "done").length / required.length * 100);
+    }
+
+    function getTaskCheckPercent(task) {
+      if (!task.checks.length) return 0;
+      return Math.round(task.checks.filter(item => item.done).length / task.checks.length * 100);
+    }
+
+    function allRequiredDone() {
+      const required = getRequiredTasks();
+      return required.length > 0 && required.every(task => task.status === "done");
+    }
+
+    function statusText(task) {
+      if (task.status === "done") return "已完成";
+      if (isTaskPastDue(task)) return "已超时";
+      if (task.status === "doing") return "处理中";
+      return "待处理";
+    }
+
+    function badgeForTask(task) {
+      if (task.status === "done") return '<span class="badge badge-green">已完成</span>';
+      if (isTaskPastDue(task)) return '<span class="badge badge-red">已超时</span>';
+      if (task.status === "doing") return '<span class="badge badge-yellow">处理中</span>';
+      if (task.priority === "high") return '<span class="badge badge-red">紧急待处理</span>';
+      if (!task.required) return '<span class="badge badge-yellow">加分任务</span>';
+      return '<span class="badge badge-blue">待处理</span>';
+    }
+
+    function safeText(text) {
+      return String(text || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function renderAll() {
+      document.getElementById("todayLabel").textContent = `${getTodayText()} · 优莱城`;
+      document.getElementById("roleLabel").textContent = appData.profile.role === "worker" ? "保安端" : "负责人端";
+      document.querySelector(".role-dot").style.background = appData.profile.role === "worker" ? "var(--green)" : "var(--orange)";
+      document.getElementById("sosButton").textContent = appData.profile.role === "worker" ? "上报" : "下发";
+      document.getElementById("sosButton").setAttribute("aria-label", appData.profile.role === "worker" ? "紧急问题上报" : "紧急任务下发");
+      document.body.classList.toggle("big-text", !!appData.profile.bigText);
+      document.body.classList.toggle("high-contrast", !!appData.profile.highContrast);
+      const isManager = appData.profile.role === "manager";
+      document.querySelectorAll('.nav-item[data-view="progress"]').forEach(button => {
+        button.hidden = isManager;
+      });
+      renderHome();
+      renderCheckin();
+      renderProgress();
+      renderProfile();
+      if (isManager && currentView === "progress") switchView("home");
+    }
+
+    function renderHome() {
+      const home = document.getElementById("homeView");
+      home.innerHTML = appData.profile.role === "worker" ? renderWorkerHome() : renderManagerHome();
+      bindHomeEvents();
+    }
+
+    function renderWorkerHome() {
+      const completed = getCompletedRequired();
+      const total = getRequiredTasks().length;
+      const percent = getCompletionPercent();
+      const activeTask = appData.tasks.find(task => task.status === "doing") ||
+        appData.tasks.find(task => task.status === "todo" && task.required);
+      const filteredTasks = appData.tasks.filter(task => {
+        if (currentFilter === "todo") return task.status !== "done";
+        if (currentFilter === "done") return task.status === "done";
+        if (currentFilter === "bonus") return !task.required;
+        return true;
+      });
+
+      return `
+        <div class="hero">
+          <div class="hero-content">
+            <div class="eyebrow">👋 ${completed === total && total ? "必做任务全部完成" : "今天也要安全巡查"}</div>
+            <h2>${completed === total && total ? "做得漂亮，小保！" : `先完成第 ${Math.min(completed + 1, total || 1)} 项任务吧`}</h2>
+            <p>${activeTask ? `下一步：${safeText(activeTask.title)}，地点在${safeText(activeTask.location)}。` : "当前没有待完成任务，可以前往打卡页完成下班打卡。"}</p>
+            <div class="hero-actions">
+              <button class="btn btn-white" id="firstTaskButton" type="button" ${activeTask ? "" : "disabled"}>${activeTask ? "▶ 打开当前任务" : "✓ 今日任务完成"}</button>
+              <button class="btn btn-soft" id="readTasksButton" type="button">🔊 朗读任务</button>
+            </div>
+          </div>
+        </div>
+
+        ${appData.issues.some(issue => issue.from === "manager") ? `
+          <div class="panel" style="margin-top:14px;border-color:#ffd0d6">
+            <div class="section-head" style="margin:0 0 10px">
+              <div><h3>🚨 负责人紧急通知</h3><p>点击通知，上传照片或视频并完成处理</p></div>
+            </div>
+            ${appData.issues.filter(issue => issue.from === "manager").slice().reverse().map(issue => `
+              <button class="issue-card" data-issue-id="${safeText(issue.id)}" type="button">
+                <div class="task-icon" style="width:42px;height:42px;font-size:20px;background:#fff">${issue.status === "done" ? "✅" : "🚨"}</div>
+                <div>
+                  <h3>${safeText(issue.type)} · ${safeText(issue.place)}</h3>
+                  <p>${safeText(issue.text)}</p>
+                  <span class="issue-status ${issue.status === "done" ? "done" : ""}">${issue.status === "done" ? "已完成" : "待完成 · 点击处理"}</span>
+                </div>
+              </button>
+            `).join("")}
+          </div>
+        ` : ""}
+
+        <div class="stats-grid" aria-label="今日数据">
+          <div class="stat"><strong>${completed}/${total}</strong><span>必做完成</span></div>
+          <div class="stat"><strong>${percent}%</strong><span>今日进度</span></div>
+          <div class="stat"><strong>${appData.profile.points}</strong><span>我的积分</span></div>
+        </div>
+
+        <div class="section-head">
+          <div><h2>今日任务</h2><p>逐项完成后才能下班打卡</p></div>
+          <button class="text-button" id="goCheckinButton" type="button">去打卡 →</button>
+        </div>
+
+        <div class="filter-row" aria-label="任务筛选">
+          ${[
+            ["all", "全部"],
+            ["todo", "待完成"],
+            ["done", "已完成"],
+            ["bonus", "加分"]
+          ].map(([value, label]) => `<button class="filter-chip ${currentFilter === value ? "active" : ""}" data-filter="${value}" type="button">${label}</button>`).join("")}
+        </div>
+
+        <div class="task-list">
+          ${filteredTasks.length ? filteredTasks.map(renderTaskCard).join("") : renderEmpty("🎉", "这个分类里没有任务", "试试切换到“全部”，或者等待负责人发布新任务。")}
+        </div>
+      `;
+    }
+
+    function renderManagerHome() {
+      const percent = getCompletionPercent();
+      const done = appData.tasks.filter(task => task.status === "done").length;
+      const urgentIssues = appData.issues.length;
+
+      return `
+        <div class="hero">
+          <div class="hero-content">
+            <div class="eyebrow">🧭 负责人工作台</div>
+            <h2>今天的任务完成度 ${percent}%</h2>
+            <p>${urgentIssues ? `收到 ${urgentIssues} 条现场上报，请及时查看。` : "暂未收到紧急上报，现场任务正在正常推进。"}</p>
+            <div class="hero-actions">
+              <button class="btn btn-white" id="createTaskButton" type="button">＋ 发布新任务</button>
+              <button class="btn btn-soft" id="monitorButton" type="button">📹 监控</button>
+              <button class="btn btn-soft" id="managerReadButton" type="button">🔊 朗读进度</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-grid" aria-label="管理数据">
+          <div class="stat"><strong>${done}</strong><span>已完成任务</span></div>
+          <div class="stat"><strong>${appData.tasks.length - done}</strong><span>待完成任务</span></div>
+          <div class="stat"><strong>${urgentIssues}</strong><span>现场上报</span></div>
+        </div>
+
+        <div class="section-head">
+          <div><h2>人员进度</h2><p>清楚看到任务完成状态</p></div>
+        </div>
+        <div class="manager-grid">
+          <div class="staff-card">
+            <div class="staff-avatar">🧢</div>
+            <div><h3>小保</h3><p>${getCompletedRequired()}/${getRequiredTasks().length} 项必做任务 · ${appData.profile.points} 积分</p></div>
+            <div class="staff-score">${percent}%</div>
+          </div>
+          <div class="staff-card">
+            <div class="staff-avatar">🦺</div>
+            <div><h3>王师傅</h3><p>3/3 项必做任务 · 已打卡</p></div>
+            <div class="staff-score">100%</div>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <div><h2>全部任务</h2><p>点击任务可查看现场记录</p></div>
+          <button class="text-button" id="createTaskTextButton" type="button">＋ 新建</button>
+        </div>
+        <div class="task-list">
+          ${appData.tasks.length ? appData.tasks.map(renderTaskCard).join("") : renderEmpty("📭", "还没有任务", "点击“发布新任务”，把任务发送给保安。")}
+        </div>
+
+        <div class="section-head">
+          <div><h2>现场上报</h2><p>问题会按最新时间排列</p></div>
+        </div>
+        <div id="managerIssues">
+          ${appData.issues.length ? appData.issues.slice().reverse().map(issue => `
+            <button class="issue-card" data-issue-id="${safeText(issue.id)}" type="button">
+              <div class="task-icon" style="width:42px;height:42px;font-size:20px;background:#fff">⚠️</div>
+              <div>
+                <h3>${safeText(issue.type)} · ${safeText(issue.place)}</h3>
+                <p>${safeText(issue.text)}<br>${safeText(issue.time)} · ${issue.from === "manager" ? "负责人下发" : "保安上报"}</p>
+                <span class="issue-status ${issue.status === "done" ? "done" : ""}">${
+                  issue.from === "manager"
+                    ? issue.status === "done" ? `已完成${issue.completedAt ? ` · ${safeText(issue.completedAt)}` : ""}` : "等待保安完成"
+                    : "保安主动上报"
+                }</span>
+              </div>
+            </button>
+          `).join("") : renderEmpty("🟢", "目前没有紧急问题", "收到上报后，会在这里显示问题类型、位置和说明。")}
+        </div>
+      `;
+    }
+
+    function renderTaskCard(task) {
+      const percent = getTaskCheckPercent(task);
+      return `
+        <article class="task-card ${task.status === "done" ? "completed" : ""}" data-task-id="${safeText(task.id)}" tabindex="0" role="button" aria-label="打开任务：${safeText(task.title)}">
+          <div class="task-icon" aria-hidden="true">${safeText(task.icon)}</div>
+          <div class="task-info">
+            <div class="task-topline">
+              <h3>${safeText(task.title)}</h3>
+              ${badgeForTask(task)}
+            </div>
+            <p>📍 ${safeText(task.location)} · ${safeText(task.due)}前 · ${task.points}积分</p>
+            ${appData.profile.role === "manager" ? "" : `<div class="progress" aria-label="检查进度 ${percent}%"><span style="width:${percent}%"></span></div>`}
+          </div>
+          ${appData.profile.role === "manager" ? "" : `<div class="task-arrow" aria-hidden="true">${task.status === "done" ? "✓" : "›"}</div>`}
+        </article>
+      `;
+    }
+
+    function renderEmpty(icon, title, text) {
+      return `<div class="empty-state"><span class="empty-icon">${icon}</span><h3>${title}</h3><p>${text}</p></div>`;
+    }
+
+    function bindHomeEvents() {
+      document.querySelectorAll("[data-task-id]").forEach(card => {
+        card.addEventListener("click", () => openTask(card.dataset.taskId));
+        card.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openTask(card.dataset.taskId);
+          }
+        });
+      });
+
+      document.querySelectorAll("[data-filter]").forEach(button => {
+        button.addEventListener("click", () => {
+          currentFilter = button.dataset.filter;
+          renderHome();
+        });
+      });
+
+      document.querySelectorAll("[data-issue-id]").forEach(button => {
+        button.addEventListener("click", () => openEmergencyTask(button.dataset.issueId));
+      });
+
+      const firstTask = document.getElementById("firstTaskButton");
+      if (firstTask && !firstTask.disabled) {
+        firstTask.addEventListener("click", () => {
+          const active = appData.tasks.find(task => task.status === "doing") ||
+            appData.tasks.find(task => task.status === "todo" && task.required);
+          if (active) openTask(active.id);
+        });
+      }
+
+      document.getElementById("goCheckinButton")?.addEventListener("click", () => switchView("checkin"));
+      document.getElementById("readTasksButton")?.addEventListener("click", readWorkerTasks);
+      document.getElementById("managerReadButton")?.addEventListener("click", readManagerProgress);
+      document.getElementById("monitorButton")?.addEventListener("click", openMonitor);
+      document.getElementById("createTaskButton")?.addEventListener("click", () => openModal("createModal"));
+      document.getElementById("createTaskTextButton")?.addEventListener("click", () => openModal("createModal"));
+    }
+
+    function openTask(taskId) {
+      const task = appData.tasks.find(item => item.id === taskId);
+      if (!task) {
+        showToast("任务不存在，可能已经被删除", "error");
+        return;
+      }
+      selectedTaskId = taskId;
+      const percent = getTaskCheckPercent(task);
+      const isManager = appData.profile.role === "manager";
+      const bluetoothRequired = task.requireBluetooth !== false;
+      const taskOverdue = isTaskPastDue(task);
+      document.getElementById("taskModalBody").innerHTML = `
+        <div class="modal-head">
+          <h2>${isManager ? "任务记录" : "巡逻任务"}</h2>
+          <button class="close-button" type="button" data-close="taskModal" aria-label="关闭">×</button>
+        </div>
+        <div class="detail-hero">
+          <div class="task-icon">${safeText(task.icon)}</div>
+          <div>
+            <h3>${safeText(task.title)}</h3>
+            <p>📍 ${safeText(task.location)} · ⏰ ${safeText(task.due)}前 · ⭐ ${task.points}积分</p>
+          </div>
+        </div>
+        <div class="time-warning ${taskOverdue ? "overdue" : ""}">
+          ${taskOverdue
+            ? `⛔ 已超过 ${safeText(task.due)} 的规定完成时间，本任务现在不能完成。请联系负责人重新安排时间。`
+            : `⏰ 规定完成时间：今天 ${safeText(task.due)} 前。超过时间后，“完成任务”功能将自动锁定。`}
+        </div>
+        <div class="alert-box"><span>💡</span><span>${safeText(task.description)}</span></div>
+        <div class="verify-row">
+          <div class="verify-card ${!bluetoothRequired || task.bluetooth ? "done" : ""}">
+            <span>${!bluetoothRequired || task.bluetooth ? "✅" : "📶"}</span>
+            <strong>${!bluetoothRequired ? "本任务无需连接蓝牙" : task.bluetooth ? "蓝牙点位已连接" : "蓝牙点位未连接"}</strong>
+          </div>
+          <div class="verify-card ${task.video ? "done" : ""}">
+            <span>${task.video ? "✅" : "📎"}</span>
+            <strong>${task.video ? `已上传${task.mediaType === "image" ? "照片" : "视频"}${task.videoName ? `：${safeText(task.videoName)}` : ""}` : "尚未上传照片或视频"}</strong>
+          </div>
+        </div>
+        ${!isManager && task.status === "doing" ? `
+          <div class="compact-actions">
+            ${bluetoothRequired ? `<button class="btn btn-soft" id="bluetoothButton" type="button">${task.bluetooth ? "✓ 已连接蓝牙" : "📶 连接蓝牙点位"}</button>` : ""}
+            <label class="btn btn-soft" for="taskVideoInput">📷 上传</label>
+            <input id="taskVideoInput" type="file" accept="image/*,video/*" capture="environment" hidden>
+          </div>
+        ` : ""}
+        <div class="section-head" style="margin-top:18px">
+          <div>
+            <h3>检查清单</h3>
+            <p>${!bluetoothRequired || task.bluetooth ? `已完成 ${percent}%` : "连接现场蓝牙后才能勾选"}</p>
+          </div>
+          ${badgeForTask(task)}
+        </div>
+        ${!isManager && task.status === "doing" && bluetoothRequired && !task.bluetooth ? `
+          <div class="alert-box"><span>🔒</span><span>检查清单已锁定。请先点击“连接蓝牙点位”，确认到达现场后才能开始勾选。</span></div>
+        ` : ""}
+        <div class="check-list">
+          ${task.checks.map((item, index) => `
+            <button class="check-item ${item.done ? "checked" : ""}" data-check-index="${index}" type="button" ${isManager || task.status === "todo" || task.status === "done" || (bluetoothRequired && !task.bluetooth) ? "disabled" : ""}>
+              <span class="check-box">${item.done ? "✓" : ""}</span>
+              <span>${safeText(item.text)}</span>
+            </button>
+          `).join("")}
+        </div>
+        <div class="form-group">
+          <label for="taskNote">现场记录</label>
+          <textarea class="field" id="taskNote" maxlength="120" placeholder="可填写发现的问题或处理结果……" ${isManager || task.status === "done" ? "disabled" : ""}>${safeText(task.note)}</textarea>
+        </div>
+        ${task.startedAt ? `<p class="panel-note">开始时间：${safeText(task.startedAt)}${task.finishedAt ? `　完成时间：${safeText(task.finishedAt)}` : ""}</p>` : ""}
+        <div class="button-stack">
+          ${isManager ? `
+            <button class="btn btn-ghost" id="managerCloseTask" type="button">关闭查看</button>
+            <button class="btn btn-danger" id="deleteTaskButton" type="button">删除任务</button>
+          ` : task.status === "todo" ? `
+            <button class="btn btn-primary" id="startTaskButton" type="button" ${taskOverdue ? "disabled" : ""}>${taskOverdue ? "⏰ 已超过规定时间" : "▶ 开始任务"}</button>
+          ` : task.status === "doing" ? `
+            <button class="btn btn-ghost" id="saveTaskButton" type="button">保存记录</button>
+            <button class="btn btn-success" id="finishTaskButton" type="button" ${taskOverdue ? "disabled" : ""}>${taskOverdue ? "⏰ 已超时，不能完成" : !bluetoothRequired || task.bluetooth ? "✓ 完成" : "🔒 连接蓝牙后完成"}</button>
+          ` : `
+            <button class="btn btn-success" type="button" disabled>✓ 已完成并获得 ${task.points} 积分</button>
+          `}
+        </div>
+      `;
+
+      openModal("taskModal");
+      bindTaskModalEvents(task);
+    }
+
+    function bindTaskModalEvents(task) {
+      document.querySelector("#taskModal [data-close]")?.addEventListener("click", () => closeModal("taskModal"));
+      document.getElementById("managerCloseTask")?.addEventListener("click", () => closeModal("taskModal"));
+      document.getElementById("startTaskButton")?.addEventListener("click", () => startTask(task.id));
+      document.getElementById("saveTaskButton")?.addEventListener("click", () => saveTaskNote(task.id, true));
+      document.getElementById("finishTaskButton")?.addEventListener("click", () => finishTask(task.id));
+      document.getElementById("bluetoothButton")?.addEventListener("click", () => connectBluetooth(task.id));
+      document.getElementById("taskVideoInput")?.addEventListener("change", event => captureTaskVideo(task.id, event));
+      const deleteButton = document.getElementById("deleteTaskButton");
+      deleteButton?.addEventListener("click", () => {
+        if (deleteButton.dataset.confirmDelete === "true") {
+          deleteTask(task.id);
+          return;
+        }
+        deleteButton.dataset.confirmDelete = "true";
+        deleteButton.textContent = "再次点击，确认删除";
+        deleteButton.setAttribute("aria-label", `再次点击，确认删除任务：${task.title}`);
+        showToast("请再次点击红色按钮确认删除", "info");
+        window.setTimeout(() => {
+          if (!document.body.contains(deleteButton)) return;
+          deleteButton.dataset.confirmDelete = "false";
+          deleteButton.textContent = "删除任务";
+          deleteButton.setAttribute("aria-label", `删除任务：${task.title}`);
+        }, 5000);
+      });
+      document.querySelectorAll("[data-check-index]").forEach(button => {
+        button.addEventListener("click", () => toggleCheck(task.id, Number(button.dataset.checkIndex)));
+      });
+    }
+
+    function startTask(taskId) {
+      const task = appData.tasks.find(item => item.id === taskId);
+      if (!task) return;
+      if (isTaskPastDue(task)) {
+        showToast(`已超过 ${task.due} 的规定时间，不能开始任务`, "error");
+        return;
+      }
+      task.status = "doing";
+      task.startedAt = getTimeText();
+      addLog(`开始任务：${task.title}`);
+      saveData();
+      renderAll();
+      openTask(taskId);
+      showToast(task.requireBluetooth === false ? "任务已开始，请按清单逐项检查" : "任务已开始，请先连接现场蓝牙解锁检查清单", "info");
+    }
+
+    function toggleCheck(taskId, index) {
+      const task = appData.tasks.find(item => item.id === taskId);
+      if (!task || task.status !== "doing" || !task.checks[index]) return;
+      if (task.requireBluetooth !== false && !task.bluetooth) {
+        showToast("请先连接现场蓝牙点位，清单才能勾选", "error");
+        return;
+      }
+      task.checks[index].done = !task.checks[index].done;
+      saveTaskNote(taskId, false);
+      saveData();
+      renderAll();
+      openTask(taskId);
+      showToast(task.checks[index].done ? "这一项已完成" : "已取消勾选", "info");
+    }
+
+    function saveTaskNote(taskId, withFeedback) {
+      const task = appData.tasks.find(item => item.id === taskId);
+      const note = document.getElementById("taskNote");
+      if (!task || !note) return;
+      task.note = note.value.trim();
+      saveData();
+      if (withFeedback) showToast("现场记录已保存", "success");
+    }
+
+    function connectBluetooth(taskId) {
+      const task = appData.tasks.find(item => item.id === taskId);
+      if (!task || task.status !== "doing") return;
+      if (!appData.profile.permissions?.bluetooth) {
+        showToast("请先在“我的”页面开启蓝牙权限", "error");
+        return;
+      }
+      task.bluetooth = true;
+      addLog(`蓝牙点位验证成功：${task.location}`);
+      saveData();
+      renderAll();
+      openTask(taskId);
+      showToast("蓝牙连接成功，已确认到达巡逻点", "success");
+    }
+
+    function captureTaskVideo(taskId, event) {
+      const task = appData.tasks.find(item => item.id === taskId);
+      const file = event.target.files?.[0];
+      if (!task || !file) return;
+      if (!appData.profile.permissions?.camera) {
+        showToast("请先在“我的”页面开启照片/视频上传权限", "error");
+        return;
+      }
+      const isImage = file.type.startsWith("image/");
+      const isVideo = file.type.startsWith("video/");
+      if (!isImage && !isVideo) {
+        showToast("请选择照片或视频文件", "error");
+        return;
+      }
+      task.video = true;
+      task.videoName = file.name.slice(0, 32);
+      task.mediaType = isImage ? "image" : "video";
+      addLog(`上传巡检${isImage ? "照片" : "视频"}：${task.title}`);
+      saveData();
+      renderAll();
+      openTask(taskId);
+      showToast(`${isImage ? "照片" : "视频"}上传成功`, "success");
+    }
+
+    function finishTask(taskId) {
+      const task = appData.tasks.find(item => item.id === taskId);
+      if (!task) return;
+      if (isTaskPastDue(task)) {
+        showToast(`已超过 ${task.due} 的规定时间，不能完成任务`, "error");
+        return;
+      }
+      saveTaskNote(taskId, false);
+      const unfinished = task.checks.filter(item => !item.done);
+      if (unfinished.length) {
+        showToast(`还有 ${unfinished.length} 项未检查，暂时不能完成`, "error");
+        return;
+      }
+      if (task.requireBluetooth !== false && !task.bluetooth) {
+        showToast("请先连接现场蓝牙点位", "error");
+        return;
+      }
+      if (!task.video) {
+        showToast("请先上传照片或视频", "error");
+        return;
+      }
+      task.status = "done";
+      task.finishedAt = getTimeText();
+      appData.profile.points += Number(task.points) || 0;
+      addLog(`完成任务：${task.title}，获得 ${task.points} 积分`);
+      saveData();
+      closeModal("taskModal");
+      renderAll();
+      launchConfetti();
+      showToast(`任务完成！获得 ${task.points} 积分`, "success");
+      if (allRequiredDone()) {
+        setTimeout(() => showToast("必做任务全部完成，现在可以下班打卡", "success"), 900);
+      }
+    }
+
+    function deleteTask(taskId) {
+      const task = appData.tasks.find(item => item.id === taskId);
+      if (!task) {
+        closeModal("taskModal");
+        showToast("任务不存在或已被删除", "error");
+        return;
+      }
+      appData.tasks = appData.tasks.filter(item => item.id !== taskId);
+      if (appData.selectedTaskId === taskId) appData.selectedTaskId = null;
+      addLog(`负责人删除任务：${task.title}`);
+      saveData();
+      closeModal("taskModal");
+      renderAll();
+      showToast("任务已删除", "success");
+    }
+
+    function renderCheckin() {
+      const view = document.getElementById("checkinView");
+      const required = getRequiredTasks();
+      const completed = getCompletedRequired();
+      const canCheckOut = allRequiredDone();
+      const checkedOut = !!appData.attendance.checkedOutAt;
+
+      view.innerHTML = `
+        <div class="section-head" style="margin-top:2px">
+          <div><h2>今日打卡</h2><p>${getTodayText()} · 优莱城</p></div>
+        </div>
+        <div class="checkin-card">
+          <div class="checkin-visual">${checkedOut ? "🎉" : canCheckOut ? "✅" : "🔒"}</div>
+          <h2>${checkedOut ? "今天已完成打卡" : canCheckOut ? "任务完成，可以打卡" : "完成任务后才能打卡"}</h2>
+          <p>${checkedOut ? `打卡时间 ${safeText(appData.attendance.checkedOutAt)}，辛苦了！` : canCheckOut ? "全部必做任务都已完成，点击按钮结束今天的工作。" : `还需完成 ${required.length - completed} 项必做任务，系统会自动更新状态。`}</p>
+          <button class="btn ${canCheckOut && !checkedOut ? "btn-white" : "btn-soft"}" id="checkoutButton" type="button" ${!canCheckOut || checkedOut ? "disabled" : ""}>
+            ${checkedOut ? "✓ 已打卡" : "📍 完成下班打卡"}
+          </button>
+        </div>
+
+        <div class="panel" style="margin-top:15px">
+          <h3>打卡条件</h3>
+          <p class="panel-note">只有每项必做任务都完成，按钮才会亮起。加分任务不影响正常打卡。</p>
+          <div class="progress"><span style="width:${getCompletionPercent()}%"></span></div>
+          <div class="timeline">
+            ${required.map(task => `
+              <div class="timeline-item">
+                <div class="timeline-dot" style="background:${task.status === "done" ? "var(--green)" : "#b9c8dc"}">${task.status === "done" ? "✓" : "·"}</div>
+                <div class="timeline-content">
+                  <strong>${safeText(task.title)}</strong>
+                  <span>${task.status === "done" ? `${safeText(task.finishedAt)} 已完成` : statusText(task)}</span>
+                </div>
+              </div>
+            `).join("") || `<p class="panel-note">没有设置必做任务，请联系负责人发布任务。</p>`}
+          </div>
+        </div>
+      `;
+
+      document.getElementById("checkoutButton")?.addEventListener("click", completeCheckout);
+    }
+
+    function completeCheckout() {
+      if (!allRequiredDone()) {
+        showToast("还有必做任务未完成，暂时不能打卡", "error");
+        return;
+      }
+      if (appData.attendance.checkedOutAt) {
+        showToast("今天已经打过卡了", "info");
+        return;
+      }
+      appData.attendance.date = new Date().toISOString().slice(0, 10);
+      appData.attendance.checkedOutAt = getTimeText();
+      appData.profile.points += 5;
+      addLog("完成下班打卡，获得连续完成奖励 5 积分");
+      saveData();
+      renderAll();
+      launchConfetti();
+      showToast("打卡成功！今天辛苦了", "success");
+    }
+
+    function renderProgress() {
+      const view = document.getElementById("progressView");
+      const percent = getCompletionPercent();
+      const doneTasks = appData.tasks.filter(task => task.status === "done");
+      const bonusDone = doneTasks.filter(task => !task.required).length;
+
+      view.innerHTML = `
+        <div class="section-head" style="margin-top:2px">
+          <div><h2>${appData.profile.role === "worker" ? "我的进度" : "团队进度"}</h2><p>每完成一项，进度都会自动更新</p></div>
+        </div>
+        <div class="panel" style="position:relative;text-align:center">
+          <div class="progress-ring" style="--value:${percent}">
+            <div class="ring-text"><strong>${percent}%</strong><span>必做完成度</span></div>
+          </div>
+          <h3>${percent === 100 ? "今天的必做任务全部完成！" : `再完成 ${getRequiredTasks().length - getCompletedRequired()} 项就能打卡`}</h3>
+          <p class="panel-note">保持任务连续完成，可以让负责人及时了解整体情况。</p>
+          <div class="reward-row">
+            <div class="reward"><span>⭐</span><strong>${appData.profile.points} 总积分</strong></div>
+            <div class="reward"><span>✅</span><strong>${doneTasks.length} 项完成</strong></div>
+            <div class="reward"><span>🎁</span><strong>${bonusDone} 项加分</strong></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>最近动态</h3>
+          <div class="timeline">
+            ${appData.logs.length ? appData.logs.slice().reverse().slice(0, 8).map(log => `
+              <div class="timeline-item">
+                <div class="timeline-dot">✓</div>
+                <div class="timeline-content"><strong>${safeText(log.text)}</strong><span>${safeText(log.time)}</span></div>
+              </div>
+            `).join("") : `<p class="panel-note">还没有动态，开始第一个任务后会显示记录。</p>`}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderProfile() {
+      const view = document.getElementById("profileView");
+      appData.profile.permissions ||= { bluetooth: true, camera: true, notification: true };
+      view.innerHTML = `
+        <div class="profile-card">
+          <div class="avatar">${appData.profile.role === "worker" ? "🧢" : "🧭"}</div>
+          <div>
+            <h2>${appData.profile.role === "worker" ? safeText(appData.profile.name) : "李负责人"}</h2>
+            <p>${appData.profile.role === "worker" ? "优莱城保安 · 今日值班" : "优莱城现场负责人 · 管理模式"}</p>
+          </div>
+        </div>
+
+        <div class="section-head"><div><h2>快捷功能</h2><p>按自己的需要调整</p></div></div>
+        <div class="settings-list">
+          <button class="setting" id="voiceSetting" type="button">
+            <span class="setting-main"><span class="setting-icon">🔊</span>语音朗读</span>
+            <span class="toggle ${appData.profile.voice ? "on" : ""}" aria-hidden="true"></span>
+          </button>
+          <button class="setting" id="bigTextSetting" type="button">
+            <span class="setting-main"><span class="setting-icon">🔠</span>大字模式</span>
+            <span class="toggle ${appData.profile.bigText ? "on" : ""}" aria-hidden="true"></span>
+          </button>
+          <button class="setting" id="contrastSetting" type="button">
+            <span class="setting-main"><span class="setting-icon">◐</span>高对比显示</span>
+            <span class="toggle ${appData.profile.highContrast ? "on" : ""}" aria-hidden="true"></span>
+          </button>
+          <button class="setting" id="bluetoothPermission" type="button">
+            <span class="setting-main"><span class="setting-icon">📶</span>蓝牙点位权限</span>
+            <span class="toggle ${appData.profile.permissions.bluetooth ? "on" : ""}" aria-hidden="true"></span>
+          </button>
+          <button class="setting" id="cameraPermission" type="button">
+            <span class="setting-main"><span class="setting-icon">📎</span>照片/视频上传权限</span>
+            <span class="toggle ${appData.profile.permissions.camera ? "on" : ""}" aria-hidden="true"></span>
+          </button>
+          <button class="setting" id="notificationPermission" type="button">
+            <span class="setting-main"><span class="setting-icon">🔔</span>紧急通知权限</span>
+            <span class="toggle ${appData.profile.permissions.notification ? "on" : ""}" aria-hidden="true"></span>
+          </button>
+          <button class="setting" id="roleSetting" type="button">
+            <span class="setting-main"><span class="setting-icon">⇄</span>切换为${appData.profile.role === "worker" ? "负责人端" : "保安端"}</span>
+            <span aria-hidden="true">›</span>
+          </button>
+          <button class="setting" id="introSetting" type="button">
+            <span class="setting-main"><span class="setting-icon">❓</span>再次查看使用方法</span>
+            <span aria-hidden="true">›</span>
+          </button>
+          <button class="setting" id="resetSetting" type="button">
+            <span class="setting-main"><span class="setting-icon">↻</span>重新开始演示</span>
+            <span aria-hidden="true">›</span>
+          </button>
+        </div>
+
+        <div class="panel" style="margin-top:15px">
+          <h3>关于保安巡逻助手</h3>
+          <p class="panel-note">让巡逻任务更清楚、点位验证更可靠、负责人查看更及时。本网页不连接服务器，所有演示数据只保存在当前浏览器。</p>
+        </div>
+      `;
+
+      document.getElementById("voiceSetting")?.addEventListener("click", () => toggleSetting("voice"));
+      document.getElementById("bigTextSetting")?.addEventListener("click", () => toggleSetting("bigText"));
+      document.getElementById("contrastSetting")?.addEventListener("click", () => toggleSetting("highContrast"));
+      document.getElementById("bluetoothPermission")?.addEventListener("click", () => togglePermission("bluetooth", "蓝牙点位权限"));
+      document.getElementById("cameraPermission")?.addEventListener("click", () => togglePermission("camera", "照片/视频上传权限"));
+      document.getElementById("notificationPermission")?.addEventListener("click", () => togglePermission("notification", "紧急通知权限"));
+      document.getElementById("roleSetting")?.addEventListener("click", switchRole);
+      document.getElementById("introSetting")?.addEventListener("click", () => openModal("introModal"));
+      document.getElementById("resetSetting")?.addEventListener("click", resetData);
+    }
+
+    function toggleSetting(name) {
+      appData.profile[name] = !appData.profile[name];
+      saveData();
+      renderAll();
+      showToast(`${name === "voice" ? "语音朗读" : name === "bigText" ? "大字模式" : "高对比显示"}已${appData.profile[name] ? "开启" : "关闭"}`, "success");
+    }
+
+    function togglePermission(name, label) {
+      appData.profile.permissions ||= {};
+      appData.profile.permissions[name] = !appData.profile.permissions[name];
+      saveData();
+      renderAll();
+      showToast(`${label}已${appData.profile.permissions[name] ? "开启" : "关闭"}`, "success");
+    }
+
+    function switchRole() {
+      appData.profile.role = appData.profile.role === "worker" ? "manager" : "worker";
+      saveData();
+      renderAll();
+      switchView("home");
+      showToast(`已切换到${appData.profile.role === "worker" ? "保安端" : "负责人端"}`, "success");
+    }
+
+    function createTask(event) {
+      event.preventDefault();
+      const title = document.getElementById("newTitle").value.trim();
+      const place = document.getElementById("newPlace").value.trim();
+      const due = document.getElementById("newTime").value;
+      const points = Math.max(1, Math.min(20, Number(document.getElementById("newPoints").value) || 5));
+      const checks = document.getElementById("newChecks").value
+        .split("\n")
+        .map(text => text.trim())
+        .filter(Boolean)
+        .slice(0, 8);
+
+      if (!title || !place || !due || !checks.length) {
+        showToast("请把任务名称、位置、时间和检查项目填写完整", "error");
+        return;
+      }
+
+      appData.tasks.push({
+        id: `task-${Date.now()}`,
+        title,
+        location: place,
+        icon: "📌",
+        priority: document.getElementById("newPriority").value,
+        due,
+        points,
+        required: true,
+        description: "负责人新发布的现场任务，请按清单逐项完成。",
+        status: "todo",
+        startedAt: "",
+        finishedAt: "",
+        note: "",
+        requireBluetooth: document.getElementById("newBluetoothRequired").value === "yes",
+        bluetooth: false,
+        video: false,
+        videoName: "",
+        checks: checks.map(text => ({ text, done: false }))
+      });
+      addLog(`负责人发布新任务：${title}`);
+      saveData();
+      event.target.reset();
+      document.getElementById("newTime").value = "17:30";
+      document.getElementById("newPoints").value = "5";
+      document.getElementById("newBluetoothRequired").value = "yes";
+      closeModal("createModal");
+      renderAll();
+      showToast("新任务已发布给小保", "success");
+    }
+
+    function submitIssue(event) {
+      event.preventDefault();
+      const type = document.getElementById("issueType").value;
+      const place = document.getElementById("issuePlace").value;
+      const text = document.getElementById("issueText").value.trim();
+      if (!type || !place || !text) {
+        showToast("请完整填写问题类型、位置和说明", "error");
+        return;
+      }
+      appData.issues.push({
+        id: `issue-${Date.now()}`,
+        type,
+        place,
+        text,
+        from: appData.profile.role,
+        time: `${getTodayText()} ${getTimeText()}`,
+        status: appData.profile.role === "manager" ? "todo" : "reported",
+        video: false,
+        videoName: "",
+        completedAt: ""
+      });
+      addLog(`${appData.profile.role === "manager" ? "负责人下发紧急信息" : "保安上报问题"}：${type}（${place}）`);
+      stopIssueVoice();
+      saveData();
+      event.target.reset();
+      closeModal("issueModal");
+      renderAll();
+      showToast(appData.profile.role === "manager" ? "紧急信息已下发给保安" : "上报成功，负责人端已经收到记录", "success");
+    }
+
+    function openEmergencyTask(issueId) {
+      const issue = appData.issues.find(item => item.id === issueId);
+      if (!issue) {
+        showToast("这条紧急通知不存在", "error");
+        return;
+      }
+      const isWorkerTask = appData.profile.role === "worker" && issue.from === "manager";
+      const body = document.getElementById("emergencyTaskBody");
+      body.innerHTML = `
+        <div class="detail-hero">
+          <div class="task-icon">🚨</div>
+          <div><h3>${safeText(issue.type)}</h3><p>📍 ${safeText(issue.place)} · ${safeText(issue.time)}</p></div>
+        </div>
+        <div class="alert-box"><span>📣</span><span>${safeText(issue.text)}</span></div>
+        <div class="verify-row">
+          <div class="verify-card ${issue.video ? "done" : ""}">
+            <span>${issue.video ? "✅" : "📎"}</span>
+            <strong>${issue.video ? `已上传${issue.mediaType === "image" ? "照片" : "视频"}${issue.videoName ? `：${safeText(issue.videoName)}` : ""}` : "尚未上传照片或视频"}</strong>
+          </div>
+          <div class="verify-card ${issue.status === "done" ? "done" : ""}">
+            <span>${issue.status === "done" ? "✅" : "⏳"}</span>
+            <strong>${issue.status === "done" ? "紧急通知已完成" : "紧急通知待完成"}</strong>
+          </div>
+        </div>
+        ${isWorkerTask && issue.status !== "done" ? `
+          <div class="button-stack">
+            <label class="btn btn-soft" for="issueVideoInput">📷 上传</label>
+            <input id="issueVideoInput" type="file" accept="image/*,video/*" capture="environment" hidden>
+            <button class="btn btn-success" id="completeIssueButton" type="button">${issue.video ? "✓ 完成紧急通知" : "🔒 上传后完成"}</button>
+          </div>
+        ` : `
+          <button class="btn btn-ghost" id="closeEmergencyTaskButton" style="width:100%" type="button">关闭查看</button>
+        `}
+      `;
+      document.getElementById("issueVideoInput")?.addEventListener("change", event => uploadIssueVideo(issue.id, event));
+      document.getElementById("completeIssueButton")?.addEventListener("click", () => completeEmergencyIssue(issue.id));
+      document.getElementById("closeEmergencyTaskButton")?.addEventListener("click", () => closeModal("emergencyTaskModal"));
+      openModal("emergencyTaskModal");
+    }
+
+    function uploadIssueVideo(issueId, event) {
+      const issue = appData.issues.find(item => item.id === issueId);
+      const file = event.target.files?.[0];
+      if (!issue || !file) return;
+      if (!appData.profile.permissions?.camera) {
+        showToast("请先在“我的”页面开启照片/视频上传权限", "error");
+        return;
+      }
+      const isImage = file.type.startsWith("image/");
+      const isVideo = file.type.startsWith("video/");
+      if (!isImage && !isVideo) {
+        showToast("请选择照片或视频文件", "error");
+        return;
+      }
+      issue.video = true;
+      issue.videoName = file.name.slice(0, 32);
+      issue.mediaType = isImage ? "image" : "video";
+      addLog(`上传紧急通知处理${isImage ? "照片" : "视频"}：${issue.type}`);
+      saveData();
+      renderAll();
+      openEmergencyTask(issueId);
+      showToast(`${isImage ? "照片" : "视频"}上传成功`, "success");
+    }
+
+    function completeEmergencyIssue(issueId) {
+      const issue = appData.issues.find(item => item.id === issueId);
+      if (!issue || issue.from !== "manager") return;
+      if (!issue.video) {
+        showToast("请先上传照片或视频", "error");
+        return;
+      }
+      issue.status = "done";
+      issue.completedAt = `${getTodayText()} ${getTimeText()}`;
+      addLog(`完成负责人紧急通知：${issue.type}（${issue.place}）`);
+      saveData();
+      closeModal("emergencyTaskModal");
+      renderAll();
+      launchConfetti();
+      showToast("紧急通知已完成，负责人端已同步状态", "success");
+    }
+
+    function openMonitor() {
+      if (appData.profile.role !== "manager") {
+        showToast("只有负责人可以使用监控功能", "error");
+        return;
+      }
+      renderMonitorModal();
+      openModal("monitorModal");
+    }
+
+    function renderMonitorModal() {
+      const connected = !!appData.profile.monitorBluetooth;
+      const body = document.getElementById("monitorModalBody");
+      if (!body) return;
+      body.innerHTML = connected ? `
+        <div class="alert-box"><span>✅</span><span>监控蓝牙已连接，可以查看优莱城现场监控。</span></div>
+        <div class="map-grid">
+          <article class="map-zone done"><strong>📹 一楼大厅监控</strong><p>画面正常 · 实时连接中<br>入口与服务台区域</p></article>
+          <article class="map-zone doing"><strong>📹 南门入口监控</strong><p>画面正常 · 实时连接中<br>车辆通行区域</p></article>
+          <article class="map-zone done"><strong>📹 中庭楼梯监控</strong><p>画面正常 · 实时连接中<br>扶梯与栏杆区域</p></article>
+          <article class="map-zone todo"><strong>📹 东侧设备区</strong><p>画面正常 · 实时连接中<br>水电设备区域</p></article>
+        </div>
+        <div class="button-stack">
+          <button class="btn btn-soft" id="refreshMonitorButton" type="button">↻ 刷新监控状态</button>
+          <button class="btn btn-ghost" id="disconnectMonitorButton" type="button">断开监控蓝牙</button>
+        </div>
+      ` : `
+        <div class="empty-state">
+          <span class="empty-icon">🔒</span>
+          <h3>监控尚未解锁</h3>
+          <p>为保护现场安全，负责人必须先连接监控专用蓝牙，才能查看监控画面。</p>
+          <button class="btn btn-primary" id="connectMonitorButton" type="button">📶 连接监控蓝牙</button>
+        </div>
+      `;
+      document.getElementById("connectMonitorButton")?.addEventListener("click", connectMonitorBluetooth);
+      document.getElementById("refreshMonitorButton")?.addEventListener("click", () => showToast("监控状态已刷新，4个画面连接正常", "success"));
+      document.getElementById("disconnectMonitorButton")?.addEventListener("click", disconnectMonitorBluetooth);
+    }
+
+    function connectMonitorBluetooth() {
+      if (!appData.profile.permissions?.bluetooth) {
+        showToast("请先在“我的”页面开启蓝牙权限", "error");
+        return;
+      }
+      appData.profile.monitorBluetooth = true;
+      addLog("负责人连接监控专用蓝牙");
+      saveData();
+      renderMonitorModal();
+      showToast("监控蓝牙连接成功，监控已解锁", "success");
+    }
+
+    function disconnectMonitorBluetooth() {
+      appData.profile.monitorBluetooth = false;
+      addLog("负责人断开监控专用蓝牙");
+      saveData();
+      renderMonitorModal();
+      showToast("监控蓝牙已断开，监控已锁定", "info");
+    }
+
+    function addLog(text) {
+      appData.logs.push({
+        id: `log-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        text,
+        time: `${getTodayText()} ${getTimeText()}`
+      });
+    }
+
+    function readWorkerTasks() {
+      const pending = appData.tasks.filter(task => task.status !== "done" && task.required);
+      const message = pending.length
+        ? `小保，你还有${pending.length}项必做任务。下一项是${pending[0].title}，地点${pending[0].location}，请在${pending[0].due}前完成。`
+        : "今天的必做任务已经全部完成，可以前往打卡。";
+      speak(message);
+    }
+
+    function readManagerProgress() {
+      speak(`负责人你好，小保的必做任务完成度是百分之${getCompletionPercent()}，当前有${appData.issues.length}条现场上报。`);
+    }
+
+    function speak(message) {
+      if (!appData.profile.voice) {
+        showToast("请先在“我的”页面开启语音朗读", "error");
+        return;
+      }
+      if (!("speechSynthesis" in window)) {
+        showToast("当前浏览器不支持语音朗读，可以直接查看文字任务", "error");
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(message);
+      utterance.lang = "zh-CN";
+      utterance.rate = .9;
+      window.speechSynthesis.speak(utterance);
+      showToast("正在朗读任务", "info");
+    }
+
+    function switchView(viewName) {
+      currentView = viewName;
+      document.querySelectorAll(".view").forEach(view => {
+        view.classList.toggle("active", view.id === `${viewName}View`);
+      });
+      document.querySelectorAll(".nav-item[data-view]").forEach(button => {
+        const active = button.dataset.view === viewName;
+        button.classList.toggle("active", active);
+        if (active) button.setAttribute("aria-current", "page");
+        else button.removeAttribute("aria-current");
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      if (!modal) return;
+      modal.classList.add("open");
+      document.body.style.overflow = "hidden";
+      setTimeout(() => modal.querySelector("button, input, select, textarea")?.focus(), 60);
+    }
+
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      if (!modal) return;
+      modal.classList.remove("open");
+      if (!document.querySelector(".modal-backdrop.open")) {
+        document.body.style.overflow = "";
+      }
+    }
+
+    function closeAllModals() {
+      document.querySelectorAll(".modal-backdrop").forEach(modal => modal.classList.remove("open"));
+      document.body.style.overflow = "";
+    }
+
+    function showToast(message, type = "info") {
+      const region = document.getElementById("toastRegion");
+      if (!region) return;
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<span>${type === "success" ? "✅" : type === "error" ? "⚠️" : "💬"}</span><span>${safeText(message)}</span>`;
+      region.appendChild(toast);
+      setTimeout(() => toast.remove(), 3100);
+    }
+
+    function launchConfetti() {
+      const colors = ["#2f6df6", "#25b9d7", "#23b875", "#ffbf3f", "#ff7d4d", "#ef4b5f"];
+      for (let index = 0; index < 22; index += 1) {
+        const piece = document.createElement("span");
+        piece.className = "confetti";
+        piece.style.left = `${8 + Math.random() * 84}%`;
+        piece.style.top = `${-5 - Math.random() * 10}%`;
+        piece.style.background = colors[index % colors.length];
+        piece.style.animationDelay = `${Math.random() * .35}s`;
+        piece.style.transform = `rotate(${Math.random() * 180}deg)`;
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 1800);
+      }
+    }
+
+    function bindGlobalEvents() {
+      document.querySelectorAll(".nav-item[data-view]").forEach(button => {
+        button.addEventListener("click", () => switchView(button.dataset.view));
+      });
+
+      document.getElementById("roleSwitch").addEventListener("click", switchRole);
+      document.getElementById("sosButton").addEventListener("click", openEmergencyModal);
+      document.getElementById("issueForm").addEventListener("submit", submitIssue);
+      document.getElementById("voiceIssueButton").addEventListener("click", startIssueVoice);
+      document.getElementById("createForm").addEventListener("submit", createTask);
+      document.getElementById("startUseButton").addEventListener("click", () => {
+        localStorage.setItem(INTRO_KEY, "seen");
+        closeModal("introModal");
+        const first = appData.tasks.find(task => task.required && task.status !== "done");
+        if (first) openTask(first.id);
+      });
+
+      document.querySelectorAll("[data-close]").forEach(button => {
+        button.addEventListener("click", () => {
+          if (button.dataset.close === "issueModal") stopIssueVoice();
+          closeModal(button.dataset.close);
+        });
+      });
+
+      document.querySelectorAll(".modal-backdrop").forEach(backdrop => {
+        backdrop.addEventListener("click", event => {
+          if (event.target === backdrop && backdrop.id !== "introModal") {
+            if (backdrop.id === "issueModal") stopIssueVoice();
+            closeModal(backdrop.id);
+          }
+        });
+      });
+
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+          const openModals = [...document.querySelectorAll(".modal-backdrop.open")];
+          const latest = openModals.at(-1);
+          if (latest && latest.id !== "introModal") closeModal(latest.id);
+        }
+      });
+    }
+
+    function openEmergencyModal() {
+      const isManager = appData.profile.role === "manager";
+      populateIssuePlaces();
+      document.getElementById("issueTitle").textContent = isManager ? "紧急任务下发" : "紧急问题上报";
+      document.querySelector("#issueModal .alert-box span:last-child").textContent = isManager
+        ? "负责人可把紧急问题迅速下发给保安，保安端会立即显示通知。"
+        : "遇到水电故障、设施损坏、入口拥堵或安全隐患时，请马上上报。";
+      document.querySelector("#issueModal button[type='submit']").textContent = isManager ? "🚨 立即下发给保安" : "🚨 立即上报负责人";
+      const issueText = document.getElementById("issueText");
+      const voiceButton = document.getElementById("voiceIssueButton");
+      const voiceHint = document.getElementById("voiceIssueHint");
+      issueText.readOnly = !isManager;
+      issueText.placeholder = isManager ? "请填写需要保安处理的紧急事项……" : "点击下方麦克风按钮，然后说出问题说明……";
+      voiceButton.hidden = isManager;
+      voiceHint.textContent = isManager
+        ? "负责人可直接输入紧急任务说明。"
+        : "请允许浏览器使用麦克风，说话结束后文字会自动填入。";
+      openModal("issueModal");
+    }
+
+    function populateIssuePlaces() {
+      const select = document.getElementById("issuePlace");
+      const locations = [...new Set(appData.tasks.map(task => String(task.location || "").trim()).filter(Boolean))];
+      select.innerHTML = '<option value="">请选择任务地点</option>';
+      locations.forEach(location => {
+        const option = document.createElement("option");
+        option.value = location;
+        option.textContent = location;
+        select.appendChild(option);
+      });
+      select.disabled = locations.length === 0;
+    }
+
+    /* ==================== 核心功能：使用浏览器语音识别填写问题说明 ==================== */
+    function startIssueVoice() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const button = document.getElementById("voiceIssueButton");
+      const hint = document.getElementById("voiceIssueHint");
+      const textarea = document.getElementById("issueText");
+
+      if (!SpeechRecognition) {
+        textarea.readOnly = false;
+        textarea.placeholder = "当前浏览器不支持语音识别，请改用键盘输入问题说明。";
+        hint.textContent = "当前浏览器不支持语音识别，已自动开启手动输入。";
+        button.hidden = true;
+        textarea.focus();
+        showToast("当前浏览器不支持语音识别，已切换为手动输入", "error");
+        return;
+      }
+      if (issueListening) {
+        stopIssueVoice();
+        return;
+      }
+
+      issueRecognition = new SpeechRecognition();
+      issueRecognition.lang = "zh-CN";
+      issueRecognition.interimResults = true;
+      issueRecognition.continuous = false;
+      const originalText = textarea.value.trim();
+
+      issueRecognition.onstart = () => {
+        issueListening = true;
+        button.classList.add("listening");
+        button.textContent = "⏹️ 停止并完成输入";
+        hint.textContent = "正在聆听，请清楚说出问题情况……";
+      };
+      issueRecognition.onresult = event => {
+        let transcript = "";
+        for (let index = event.resultIndex; index < event.results.length; index += 1) {
+          transcript += event.results[index][0].transcript;
+        }
+        textarea.value = `${originalText}${originalText && transcript ? "，" : ""}${transcript}`.slice(0, 120);
+      };
+      issueRecognition.onerror = event => {
+        const message = event.error === "not-allowed"
+          ? "麦克风权限未开启，请允许后重试"
+          : event.error === "no-speech" ? "没有听到声音，请重新说一次" : "语音识别失败，请重新尝试";
+        hint.textContent = message;
+        showToast(message, "error");
+      };
+      issueRecognition.onend = () => {
+        issueListening = false;
+        button.classList.remove("listening");
+        button.textContent = "🎙️ 继续语音输入";
+        if (textarea.value.trim()) hint.textContent = "语音已转换为文字，可继续录入或直接提交。";
+        issueRecognition = null;
+      };
+      try {
+        issueRecognition.start();
+      } catch (error) {
+        showToast("麦克风正在启动，请稍后再试", "error");
+      }
+    }
+
+    function stopIssueVoice() {
+      if (issueRecognition && issueListening) issueRecognition.stop();
+    }
+
+    function initialize() {
+      bindGlobalEvents();
+      renderAll();
+      switchView("home");
+      if (!localStorage.getItem(INTRO_KEY)) {
+        openModal("introModal");
+      }
+    }
+
+    initialize();
+  </script>
+  <script>
+    document.querySelector('[data-portfolio-back]').addEventListener('click', function (event) {
+      if (window.parent === window) return;
+      event.preventDefault();
+      window.parent.postMessage({ type: 'ai-lab-full-preview-nav', href: './security-works.html' }, '*');
+    });
+  </script>
+</body>
+</html>

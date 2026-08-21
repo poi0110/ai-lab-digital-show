@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ff8b43">
+<meta name="description" content="寻找流浪猫：记录位置、补充证据并核验信息的社区流浪猫地图。">
+<title>寻找流浪猫</title>
+<style>
+/* ==================== 页面样式：颜色、布局与手机适配 ==================== */
+:root{
+  --orange:#ff8b43;--orange2:#fff0e5;--green:#31a395;--green2:#e8f7f4;
+  --blue:#347fe8;--blue2:#eaf2ff;--red:#e65757;--red2:#fff0f0;
+  --yellow:#d69218;--yellow2:#fff7df;--ink:#26323d;--muted:#73818d;
+  --line:#e5ebef;--page:#f3f6f8;--shadow:0 12px 32px rgba(34,53,67,.13)
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",Arial,sans-serif;color:var(--ink);background:#dde4e8}
+button,input,select,textarea{font:inherit}button{border:0;cursor:pointer}.hidden{display:none!important}
+.shell{position:relative;width:100%;height:100%;overflow:hidden;background:var(--page)}
+.view{position:absolute;inset:0;display:none;overflow:hidden}.view.active{display:flex;flex-direction:column}
+.header{flex:0 0 auto;min-height:56px;display:grid;grid-template-columns:44px 1fr 44px;align-items:end;padding:max(9px,env(safe-area-inset-top)) 14px 10px;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);z-index:50}
+.header h1{margin:0;text-align:center;font-size:18px;line-height:38px}.icon-btn{width:38px;height:38px;border-radius:50%;background:#f0f4f6;color:var(--ink);font-size:19px}.ghost{visibility:hidden}
+
+/* 首页 */
+#home{background:radial-gradient(circle at 90% 10%,rgba(255,180,100,.35),transparent 28%),radial-gradient(circle at 7% 72%,rgba(49,163,149,.18),transparent 30%),linear-gradient(180deg,#fffaf6,#f4f7f8)}
+#home .header{background:transparent;border:0}
+.home-scroll{flex:1;overflow-y:auto;padding:14px 16px 126px}
+.hero{min-height:280px;padding:26px 22px;border-radius:26px;background:rgba(255,255,255,.95);box-shadow:var(--shadow)}
+.hero-chip{display:inline-flex;padding:7px 11px;border-radius:999px;background:var(--orange2);color:#e66e22;font-size:13px;font-weight:750}
+.hero-emoji{margin-top:19px;font-size:64px}.hero h2{margin:15px 0 8px;font-size:34px}.hero p{margin:0;color:var(--muted);font-size:15px;line-height:1.72}
+.features{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:15px}.feature{padding:15px;border-radius:18px;background:#fff;box-shadow:0 7px 20px rgba(34,53,67,.07)}.feature b{display:block;margin-top:7px;font-size:14px}.feature span{display:block;margin-top:4px;color:var(--muted);font-size:12px;line-height:1.45}
+.notice{margin-top:14px;padding:14px 15px;border-radius:17px;background:var(--blue2);color:#42689b;font-size:12px;line-height:1.65}
+.home-cta{position:absolute;left:0;right:0;bottom:0;padding:15px 16px max(18px,calc(env(safe-area-inset-bottom) + 8px));background:linear-gradient(180deg,transparent,rgba(243,246,248,.96) 28%,#f3f6f8 62%)}
+.primary{width:100%;min-height:56px;border-radius:18px;background:linear-gradient(135deg,var(--orange),#ffae59);color:#fff;font-size:18px;font-weight:800;box-shadow:0 12px 24px rgba(255,139,67,.3)}
+
+/* 主布局：地图缩小 */
+.workspace{flex:1;min-height:0;display:grid;grid-template-rows:40% 60%;overflow:hidden}
+.map-zone{position:relative;min-height:0;overflow:hidden;border-bottom:1px solid var(--line);background:#e8eee8}
+#map{position:absolute;inset:0}
+#mapCanvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
+.map-badge{position:absolute;left:10px;top:9px;z-index:550;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.94);box-shadow:0 5px 15px rgba(34,53,67,.13);color:var(--green);font-size:10px;font-weight:800;pointer-events:none}
+.map-top{position:absolute;top:9px;left:10px;right:10px;z-index:550;display:flex;justify-content:flex-end;gap:8px;pointer-events:none}
+.map-tip{display:none!important}
+.locate{width:40px;height:40px;border-radius:50%;background:#fff;color:var(--blue);font-size:19px;box-shadow:0 7px 19px rgba(34,53,67,.15);pointer-events:auto}
+.loc-status{position:absolute;left:50%;bottom:10px;z-index:560;display:none;transform:translateX(-50%);padding:8px 12px;border-radius:999px;background:rgba(38,50,61,.9);color:#fff;font-size:11px;white-space:nowrap}.loc-status.show{display:block}
+.fab{position:absolute;right:14px;bottom:12px;z-index:570;min-width:108px;height:45px;padding:0 15px;border-radius:999px;background:var(--orange);color:#fff;font-weight:800;box-shadow:0 10px 22px rgba(255,139,67,.3)}
+
+.content{min-height:0;display:flex;flex-direction:column;background:#fff;overflow:hidden}
+.stats{flex:0 0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:9px 10px;background:#fafcfd;border-bottom:1px solid var(--line)}
+.stat{padding:7px 3px;border-radius:11px;background:#fff;text-align:center;box-shadow:0 4px 12px rgba(34,53,67,.05)}.stat b{display:block;font-size:16px}.stat span{display:block;margin-top:2px;color:var(--muted);font-size:9px}
+.tabs{flex:0 0 auto;display:grid;grid-template-columns:repeat(4,1fr);padding:6px 7px;border-bottom:1px solid var(--line)}
+.tab{min-height:48px;border-radius:12px;background:transparent;color:var(--muted);font-size:11px}.tab i{display:block;font-style:normal;font-size:18px;margin-bottom:2px}.tab.active{background:var(--orange2);color:#e66e22;font-weight:750}
+.scroll{flex:1;min-height:0;overflow-y:auto;padding:11px 11px calc(17px + env(safe-area-inset-bottom))}
+.page{display:none}.page.active{display:block}.title{display:flex;justify-content:space-between;align-items:center;margin:1px 1px 9px}.title h2{margin:0;font-size:16px}.title small{color:var(--muted);font-size:10px}
+.search-row{display:grid;grid-template-columns:1fr 44px;gap:7px;margin-bottom:9px}.search{min-height:41px;padding:0 11px;border:1px solid var(--line);border-radius:12px;background:#f7f9fa}.filter-btn{border-radius:12px;background:var(--blue2);color:var(--blue);font-size:18px}
+.filters{display:none;margin-bottom:9px;padding:10px;border:1px solid var(--line);border-radius:14px;background:#f7f9fa}.filters.open{display:block}.filter-label{margin:0 0 6px;color:var(--muted);font-size:10px;font-weight:750}.chips{display:flex;flex-wrap:wrap;gap:6px}.chip{padding:6px 9px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--muted);font-size:10px}.chip.active{background:var(--orange2);border-color:#ffcda7;color:#e66e22;font-weight:750}
+.list{display:grid;gap:9px}.empty{padding:27px 18px;border-radius:17px;background:#f8fafb;text-align:center;color:var(--muted);font-size:12px;line-height:1.7}
+.card{display:grid;grid-template-columns:50px 1fr 34px;gap:9px;align-items:center;padding:11px;border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:0 5px 15px rgba(34,53,67,.05)}
+.badge{width:49px;height:49px;display:grid;place-items:center;border-radius:15px;background:var(--orange2);font-size:24px}.card-main{min-width:0}.card h3{margin:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.card p{margin:4px 0 0;color:var(--muted);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.tag{padding:3px 6px;border-radius:999px;background:#f1f5f7;color:#61717e;font-size:8px;white-space:nowrap}.open-card{width:34px;height:34px;border-radius:50%;background:var(--blue2);color:var(--blue);font-size:18px}
+.v-unverified{background:#f1f4f6;color:#6d7b86}.v-pending{background:var(--yellow2);color:var(--yellow)}.v-verified{background:var(--green2);color:var(--green)}.v-disputed{background:var(--red2);color:var(--red)}
+.review-note{margin-bottom:9px;padding:11px 12px;border-radius:14px;background:var(--yellow2);color:#866417;font-size:10px;line-height:1.65}.review-card{padding:12px;border:1px solid var(--line);border-radius:16px;background:#fff}.review-card h3{margin:0;font-size:13px}.review-card p{margin:6px 0 0;color:var(--muted);font-size:10px;line-height:1.55}.review-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}.confirm,.doubt{min-height:38px;border-radius:11px;font-size:11px;font-weight:750}.confirm{background:var(--green2);color:var(--green)}.doubt{background:var(--red2);color:var(--red)}
+.group{margin-bottom:10px;padding:12px;border:1px solid var(--line);border-radius:16px;background:#fff}.group h3{margin:0 0 9px;font-size:13px}.row{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:45px;border-top:1px solid var(--line)}.row:first-of-type{border-top:0}.copy b{display:block;font-size:11px}.copy span{display:block;margin-top:2px;color:var(--muted);font-size:9px}.switch{position:relative;width:44px;height:25px;border-radius:999px;background:#ccd5da}.switch:after{content:"";position:absolute;left:3px;top:3px;width:19px;height:19px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.15);transition:.2s}.switch.on{background:var(--green)}.switch.on:after{transform:translateX(19px)}
+.setting-btn{width:100%;min-height:41px;margin-top:7px;border-radius:12px;background:#f1f5f7;color:var(--ink);font-size:11px;font-weight:700}.setting-btn.danger{background:var(--red2);color:var(--red)}
+
+/* 弹层 */
+.mask{position:fixed;inset:0;z-index:1000;display:none;background:rgba(20,29,36,.36)}.mask.show{display:block}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:1010;max-height:90vh;display:none;flex-direction:column;border-radius:25px 25px 0 0;background:#fff;box-shadow:0 -18px 44px rgba(34,53,67,.24)}.sheet.show{display:flex}
+.grab{width:43px;height:5px;margin:9px auto 2px;border-radius:999px;background:#d7dfe4}.sheet-head{display:flex;align-items:center;justify-content:space-between;padding:9px 15px 10px;border-bottom:1px solid var(--line)}.sheet-head h2{margin:0;font-size:16px}.close{width:34px;height:34px;border-radius:50%;background:#f0f4f6;color:var(--muted);font-size:18px}
+.sheet-body{overflow-y:auto;padding:12px 14px 20px}.label{display:block;margin:11px 0 6px;font-size:11px;font-weight:750}.label:first-child{margin-top:0}
+.marker-options{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.marker-option{min-height:69px;padding:8px 4px;border:1px solid var(--line);border-radius:13px;background:#fafcfd;color:var(--muted);font-size:9px}.marker-option span{display:block;margin-bottom:5px;font-size:23px}.marker-option.selected{background:var(--orange2);border-color:#ffc99f;color:#e66e22;font-weight:750}
+.control{width:100%;min-height:42px;padding:9px 10px;border:1px solid var(--line);border-radius:12px;background:#f9fbfc;color:var(--ink);outline:none}textarea.control{min-height:76px;resize:vertical}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.photo-upload{display:grid;grid-template-columns:66px 1fr;gap:10px;align-items:center;padding:10px;border:1px dashed #ccd6dc;border-radius:14px;background:#fafcfd}.photo-preview{width:66px;height:66px;display:grid;place-items:center;overflow:hidden;border-radius:13px;background:#edf2f4;font-size:24px}.photo-preview img{width:100%;height:100%;object-fit:cover}.photo-copy b{display:block;font-size:11px}.photo-copy span{display:block;margin-top:4px;color:var(--muted);font-size:9px;line-height:1.45}
+.sheet-foot{display:grid;grid-template-columns:1fr 1.55fr;gap:8px;padding:9px 14px max(13px,calc(env(safe-area-inset-bottom) + 7px));border-top:1px solid var(--line)}.secondary,.save{min-height:46px;border-radius:14px;font-weight:800}.secondary{background:#eff3f5}.save{background:var(--orange);color:#fff}
+.detail-image{width:100%;max-height:210px;object-fit:cover;border-radius:15px;background:#eef3f5}.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}.detail-box{padding:9px;border-radius:12px;background:#f7f9fa}.detail-box span{display:block;color:var(--muted);font-size:9px}.detail-box b{display:block;margin-top:3px;font-size:11px}.detail-note{margin-top:9px;padding:10px;border-radius:12px;background:#f7f9fa;color:var(--muted);font-size:11px;line-height:1.6;white-space:pre-wrap}
+
+/* 地图标记 */
+.custom-marker{position:relative;width:37px;height:37px;display:grid;place-items:center;border:3px solid #fff;border-radius:13px 13px 13px 4px;background:var(--orange);box-shadow:0 7px 17px rgba(34,53,67,.25);font-size:20px}.custom-marker:after{content:"";position:absolute;right:-4px;top:-4px;width:10px;height:10px;border:2px solid #fff;border-radius:50%;background:#9aa7b1}.custom-marker.pending:after{background:var(--yellow)}.custom-marker.verified:after{background:var(--green)}.custom-marker.disputed:after{background:var(--red)}
+.toast{position:fixed;left:50%;bottom:max(24px,calc(env(safe-area-inset-bottom) + 18px));z-index:2000;max-width:min(88vw,460px);padding:11px 15px;border-radius:999px;background:rgba(38,50,61,.94);color:#fff;font-size:12px;text-align:center;transform:translate(-50%,24px);opacity:0;pointer-events:none;transition:.22s}
+.toast.show{transform:translate(-50%,0);opacity:1}.toast.success{background:rgba(11,117,108,.96)}.toast.error{background:rgba(190,62,62,.96)}
+
+/* 网页端 */
+@media(min-width:860px){
+ body{padding:22px}.shell{max-width:1240px;max-height:840px;margin:auto;border-radius:28px;box-shadow:0 24px 72px rgba(34,53,67,.24)}
+ .home-scroll{display:grid;grid-template-columns:1.35fr .85fr;grid-template-rows:1fr auto;gap:18px;padding:22px 28px 28px}.hero{grid-row:1/span 2;min-height:520px;display:flex;flex-direction:column;justify-content:center;padding:44px}.hero h2{font-size:52px}.features,.notice{margin:0}.home-cta{left:auto;right:42px;bottom:32px;width:360px;padding:0;background:transparent}
+ .workspace{grid-template-columns:54% 46%;grid-template-rows:100%}.map-zone{grid-column:1;border-bottom:0;border-right:1px solid var(--line)}.content{grid-column:2}
+ .sheet{left:50%;right:auto;bottom:50%;width:min(650px,calc(100vw - 60px));max-height:min(760px,calc(100vh - 70px));transform:translate(-50%,50%);border-radius:24px}.marker-options{grid-template-columns:repeat(6,1fr)}.sheet-foot{padding-bottom:13px}
+}
+</style>
+
+<style id="portfolio-back-style">
+  body { padding-top: 54px !important; }
+  .topbar, .header, .site-header { top: 54px !important; }
+  .portfolio-return-bar {
+    position: fixed;
+    z-index: 2147483647;
+    top: 0;
+    right: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    height: 54px;
+    padding: 0 14px;
+    border-bottom: 1px solid rgba(59, 74, 70, .14);
+    background: rgba(255, 255, 255, .96);
+    backdrop-filter: blur(14px);
+  }
+  .portfolio-back-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid rgba(59, 74, 70, .14);
+    border-radius: 999px;
+    color: #67505b;
+    background: #fff4f5;
+    font: 800 14px/1 "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .portfolio-back-link:active { transform: scale(.97); }
+</style>
+<style id="ai-lab-responsive-v2">
+  /* 全站响应式增强：宽屏保持网页版，移动设备自动切换 H5。 */
+  html, body { max-width: 100%; }
+  body { overflow-x: clip; }
+  img, video, svg { max-width: 100%; height: auto; }
+  canvas { max-width: 100%; }
+  table { max-width: 100%; }
+  .table-wrap, .table-responsive, .report-table, .admin-table-section { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  html.ai-lab-h5 { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  html.ai-lab-h5, html.ai-lab-h5 body { width: 100%; min-width: 0 !important; overflow-x: hidden !important; }
+  html.ai-lab-h5 body { overscroll-behavior-x: none; }
+  html.ai-lab-h5 .app-shell,
+  html.ai-lab-h5 .game-shell,
+  html.ai-lab-h5 .game-app,
+  html.ai-lab-h5 .shell,
+  html.ai-lab-h5 .container,
+  html.ai-lab-h5 .wrapper,
+  html.ai-lab-h5 .content,
+  html.ai-lab-h5 .main,
+  html.ai-lab-h5 main { width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin-right: auto !important; margin-left: auto !important; }
+
+  html.ai-lab-h5 .home-layout,
+  html.ai-lab-h5 .calendar-layout,
+  html.ai-lab-h5 .dashboard-grid,
+  html.ai-lab-h5 .manager-grid,
+  html.ai-lab-h5 .map-grid,
+  html.ai-lab-h5 .report-layout,
+  html.ai-lab-h5 .report-grid,
+  html.ai-lab-h5 .profile-grid,
+  html.ai-lab-h5 .content-grid,
+  html.ai-lab-h5 .detail-grid,
+  html.ai-lab-h5 .library-grid,
+  html.ai-lab-h5 .test-reader-grid,
+  html.ai-lab-h5 .tech-grid,
+  html.ai-lab-h5 .controls-guide-grid,
+  html.ai-lab-h5 .shop-layout,
+  html.ai-lab-h5 .login,
+  html.ai-lab-h5 .hero { grid-template-columns: minmax(0, 1fr) !important; }
+
+  html.ai-lab-h5 .form-grid,
+  html.ai-lab-h5 .admin-form,
+  html.ai-lab-h5 .stats-grid,
+  html.ai-lab-h5 .quick-grid,
+  html.ai-lab-h5 .book-grid,
+  html.ai-lab-h5 .person-grid,
+  html.ai-lab-h5 .region-grid,
+  html.ai-lab-h5 .rules-grid,
+  html.ai-lab-h5 .identity-role-grid,
+  html.ai-lab-h5 .grid-3,
+  html.ai-lab-h5 .rewards-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)) !important; }
+
+  html.ai-lab-h5 .header-actions,
+  html.ai-lab-h5 .hero-actions,
+  html.ai-lab-h5 .main-actions,
+  html.ai-lab-h5 .top-controls,
+  html.ai-lab-h5 .action-row,
+  html.ai-lab-h5 .modal-actions,
+  html.ai-lab-h5 .toolbar,
+  html.ai-lab-h5 .controls { max-width: 100%; flex-wrap: wrap !important; }
+
+  html.ai-lab-h5 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  html.ai-lab-h5 select,
+  html.ai-lab-h5 textarea { width: 100%; max-width: 100%; min-width: 0; font-size: 16px !important; }
+  html.ai-lab-h5 button,
+  html.ai-lab-h5 .btn,
+  html.ai-lab-h5 [role="button"] { min-height: 44px; touch-action: manipulation; }
+  html.ai-lab-h5 textarea { resize: vertical; }
+
+  html.ai-lab-h5 canvas { display: block; width: auto; height: auto; max-width: 100% !important; max-height: min(68vh, 680px); margin-right: auto; margin-left: auto; touch-action: none; }
+  html.ai-lab-h5 .canvas-container,
+  html.ai-lab-h5 .canvas-wrapper,
+  html.ai-lab-h5 .canvas-wrap,
+  html.ai-lab-h5 .canvas-box,
+  html.ai-lab-h5 .board-shell,
+  html.ai-lab-h5 .board-wrapper,
+  html.ai-lab-h5 .gamewrap { width: 100% !important; max-width: 100% !important; min-width: 0 !important; overflow: hidden; }
+
+  html.ai-lab-h5 .modal-backdrop { padding: 12px !important; }
+  html.ai-lab-h5 .modal,
+  html.ai-lab-h5 .modal-card,
+  html.ai-lab-h5 .redeem-panel { width: min(100%, calc(100vw - 24px)) !important; max-width: calc(100vw - 24px) !important; max-height: 88dvh; overflow-y: auto; }
+  html.ai-lab-h5 .bottom-nav { padding-bottom: max(7px, env(safe-area-inset-bottom)); }
+  html.ai-lab-h5 .portfolio-return-bar { min-height: 54px; padding-right: 10px; padding-left: 10px; }
+  html.ai-lab-h5 .portfolio-back { max-width: calc(100vw - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  @media (max-width: 520px) {
+    html.ai-lab-h5 .stats-grid,
+    html.ai-lab-h5 .quick-grid,
+    html.ai-lab-h5 .form-grid,
+    html.ai-lab-h5 .admin-form,
+    html.ai-lab-h5 .identity-role-grid { grid-template-columns: minmax(0, 1fr) !important; }
+    html.ai-lab-h5 .card-footer { align-items: flex-start; flex-direction: column; }
+  }
+</style>
+<script id="ai-lab-responsive-runtime">
+(() => {
+  const root = document.documentElement;
+  const mobileUa = /Android|webOS|iPhone|iPad|iPod|Mobile|IEMobile|Opera Mini/i.test(navigator.userAgent || "");
+  const coarsePointer = window.matchMedia?.("(hover: none) and (pointer: coarse)")?.matches || false;
+  const updateLayoutMode = () => {
+    const narrowScreen = window.innerWidth <= 768;
+    const touchTablet = coarsePointer && window.innerWidth <= 1024;
+    const mobileDevice = mobileUa && window.innerWidth <= 1180;
+    const useH5 = narrowScreen || touchTablet || mobileDevice;
+    root.classList.toggle("ai-lab-h5", useH5);
+    root.classList.toggle("ai-lab-web", !useH5);
+    root.dataset.layoutMode = useH5 ? "h5" : "web";
+  };
+  updateLayoutMode();
+  window.addEventListener("resize", updateLayoutMode, { passive: true });
+  window.addEventListener("orientationchange", updateLayoutMode, { passive: true });
+})();
+</script>
+</head>
+<body>
+<div class="portfolio-return-bar"><a class="portfolio-back-link" href="../cat-works.html" data-portfolio-back>← 返回流浪猫标记项目作品集</a></div>
+<!-- ==================== 修改内容：首页题目统一为“寻找流浪猫” ==================== -->
+<main class="shell">
+  <section id="home" class="view active">
+    <header class="header"><button class="icon-btn ghost">‹</button><h1>寻找流浪猫</h1><button id="helpBtn" class="icon-btn" aria-label="查看帮助">?</button></header>
+    <div class="home-scroll">
+      <article class="hero">
+        <span class="hero-chip">🐾 社区流浪猫信息工具</span>
+        <div class="hero-emoji">🐈</div>
+        <h2>寻找流浪猫</h2>
+        <p>先查看附近线索，再记录猫咪位置、出现时间、身体情况和照片证据。每条信息都可以继续核验和更新。</p>
+      </article>
+      <section class="features">
+        <article class="feature"><div>📍</div><b>丰富标记</b><span>单只、多只、幼猫、受伤、救助点等类型</span></article>
+        <article class="feature"><div>✅</div><b>信息核验</b><span>现场确认、提出存疑，显示可信状态</span></article>
+        <article class="feature"><div>🔎</div><b>筛选查找</b><span>按类型、状态和关键词快速查找</span></article>
+        <article class="feature"><div>⚙️</div><b>更多设置</b><span>定位、显示规则、统计和数据管理</span></article>
+      </section>
+      <aside class="notice">本版使用内置中文社区地图，不调用地图接口，也不加载第三方插件，所以不会出现瓦片白块。地图用于记录相对位置；请勿公开猫窝或幼猫的过于精确位置。</aside>
+    </div>
+    <div class="home-cta"><button id="openBtn" class="primary">打开地图，开始寻找</button></div>
+  </section>
+
+  <section id="main" class="view">
+    <header class="header"><button id="backBtn" class="icon-btn" aria-label="返回首页">‹</button><h1>寻找流浪猫</h1><button id="quickAdd" class="icon-btn" aria-label="快速添加标记">＋</button></header>
+    <div class="workspace">
+      <section class="map-zone">
+        <div id="map"><canvas id="mapCanvas" aria-label="中文社区地图"></canvas></div>
+        <div class="map-badge">中文社区地图 · 离线无白块</div>
+        <div class="map-top"><div id="mapTip" class="map-tip">点击地图位置，添加流浪猫信息</div><div style="display:flex;gap:8px;pointer-events:auto"><button id="zoomInBtn" class="locate" title="放大地图">＋</button><button id="zoomOutBtn" class="locate" title="缩小地图">－</button><button id="locateBtn" class="locate" title="定位">◎</button></div></div>
+        <button id="mapAdd" class="fab">＋ 添加标记</button>
+      </section>
+
+      <section class="content">
+        <div class="stats">
+          <div class="stat"><b id="totalStat">0</b><span>全部</span></div>
+          <div class="stat"><b id="verifiedStat">0</b><span>已确认</span></div>
+          <div class="stat"><b id="pendingStat">0</b><span>待核验</span></div>
+          <div class="stat"><b id="urgentStat">0</b><span>需帮助</span></div>
+        </div>
+
+        <nav class="tabs">
+          <button class="tab active" data-tab="places"><i>📍</i>标记</button>
+          <button class="tab" data-tab="review"><i>✅</i>核验</button>
+          <button class="tab" data-tab="summary"><i>📊</i>概况</button>
+          <button class="tab" data-tab="settings"><i>⚙️</i>设置</button>
+        </nav>
+
+        <div class="scroll">
+          <section id="placesPage" class="page active">
+            <div class="title"><h2>附近标记</h2><small id="resultCount">0 条</small></div>
+            <div class="search-row"><input id="search" class="search" placeholder="搜索地点、备注或猫咪特征"><button id="filterBtn" class="filter-btn">☷</button></div>
+            <div id="filters" class="filters">
+              <p class="filter-label">标记类型</p><div id="typeChips" class="chips"></div>
+              <p class="filter-label" style="margin-top:9px">核验状态</p><div id="verifyChips" class="chips"></div>
+            </div>
+            <div id="placesList" class="list"></div>
+          </section>
+
+          <section id="reviewPage" class="page">
+            <div class="title"><h2>信息核验</h2><small>共同判断真实性</small></div>
+            <div class="review-note">请只确认你亲眼看到、现场核实或有清楚照片证据的信息。不确定时请选择“存疑”。</div>
+            <div id="reviewList" class="list"></div>
+          </section>
+
+          <section id="summaryPage" class="page">
+            <div class="title"><h2>地图概况</h2><small>当前设备数据</small></div>
+            <div id="summaryContent"></div>
+          </section>
+
+          <section id="settingsPage" class="page">
+            <div class="title"><h2>设置</h2><small>调整使用方式</small></div>
+            <div class="group">
+              <h3>地图设置</h3>
+              <div class="row"><div class="copy"><b>进入后自动定位</b><span>自动移动到当前位置</span></div><button id="autoSwitch" class="switch"></button></div>
+              <div class="row"><div class="copy"><b>显示未核验信息</b><span>关闭后隐藏未核验标记</span></div><button id="showSwitch" class="switch"></button></div>
+              <div class="row"><div class="copy"><b>紧凑列表</b><span>减少卡片间距</span></div><button id="compactSwitch" class="switch"></button></div>
+            </div>
+            <div class="group">
+              <h3>数据管理</h3>
+              <button id="exportBtn" class="setting-btn">导出全部标记</button>
+              <button id="importBtn" class="setting-btn">导入标记文件</button>
+              <button id="restartBtn" class="setting-btn">重新开始使用</button>
+              <button id="clearBtn" class="setting-btn danger">清空全部数据</button>
+              <input id="fileInput" class="hidden" type="file" accept=".json">
+            </div>
+            <div class="group">
+              <h3>核验规则</h3>
+              <div style="color:var(--muted);font-size:10px;line-height:1.65">2次及以上确认且确认数高于存疑数，显示“已确认”；2次及以上存疑且存疑数高于确认数，显示“存疑”。多人真实核验仍需服务器。</div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </div>
+  </section>
+</main>
+
+<div id="mask" class="mask"></div>
+
+<section id="editSheet" class="sheet">
+  <div class="grab"></div>
+  <div class="sheet-head"><h2 id="editTitle">添加流浪猫标记</h2><button class="close" data-close>×</button></div>
+  <div class="sheet-body">
+    <label class="label">1. 选择标记类型</label><div id="markerOptions" class="marker-options"></div>
+    <label class="label">2. 地点名称</label><input id="titleInput" class="control" maxlength="40" placeholder="例如：3号楼旁边的花坛">
+    <label class="label">3. 猫咪信息</label>
+    <div class="two">
+      <select id="countInput" class="control"><option value="1">1只</option><option value="2">2只</option><option value="3">3只</option><option value="4">4只</option><option value="5+">5只以上</option></select>
+      <select id="healthInput" class="control"><option>看起来正常</option><option>较瘦弱</option><option>疑似受伤</option><option>需要紧急救助</option><option>不确定</option></select>
+    </div>
+    <div class="two" style="margin-top:8px">
+      <select id="temperInput" class="control"><option value="不确定">亲人程度：不确定</option><option>亲人</option><option>警惕</option><option>怕人</option></select>
+      <input id="seenInput" class="control" type="datetime-local">
+    </div>
+    <label class="label">4. 特征和备注</label><textarea id="noteInput" class="control" maxlength="400" placeholder="例如：橘白色，左耳有缺口，傍晚6点左右常出现。"></textarea>
+    <label class="label">5. 照片证据（可选）</label>
+    <label class="photo-upload"><div id="photoPreview" class="photo-preview">📷</div><div class="photo-copy"><b>点击选择照片</b><span>照片会压缩后保存在本机。</span></div><input id="photoInput" class="hidden" type="file" accept="image/*"></label>
+  </div>
+  <div class="sheet-foot"><button class="secondary" data-close>取消</button><button id="saveBtn" class="save">保存标记</button></div>
+</section>
+
+<section id="detailSheet" class="sheet">
+  <div class="grab"></div>
+  <div class="sheet-head"><h2>标记详情</h2><button class="close" data-close>×</button></div>
+  <div id="detailBody" class="sheet-body"></div>
+  <div class="sheet-foot"><button id="editCurrent" class="secondary">编辑信息</button><button id="confirmCurrent" class="save">我已现场确认</button></div>
+</section>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ==================== 数据保存：localStorage键名与安全读写 ==================== */
+const DATA_KEY="findStrayCatsPlacesV1";
+const SETTINGS_KEY="findStrayCatsSettingsV1";
+const LEGACY_KEYS=["strayCatMapEnhancedV2","savedCatPlaces"];
+
+const TYPES={
+  single:{label:"单只猫",emoji:"🐈"},
+  group:{label:"多只猫",emoji:"🐈‍⬛"},
+  kitten:{label:"幼猫",emoji:"🐱"},
+  injured:{label:"疑似受伤",emoji:"🩹"},
+  rescue:{label:"需要救助",emoji:"🆘"},
+  feeding:{label:"固定投喂点",emoji:"🥣"}
+};
+const V={
+  unverified:{label:"未核验",cls:"v-unverified",color:"#7a8885"},
+  pending:{label:"核验中",cls:"v-pending",color:"#c39118"},
+  verified:{label:"已确认",cls:"v-verified",color:"#0b756c"},
+  disputed:{label:"存疑",cls:"v-disputed",color:"#d84f4f"}
+};
+
+const $=id=>document.getElementById(id);
+const home=$("home"),main=$("main"),mask=$("mask");
+const editSheet=$("editSheet"),detailSheet=$("detailSheet"),search=$("search");
+let selectedLatLng=null,editingId=null,currentId=null,photoData="";
+let typeFilter="all",verifyFilter="all",toastTimer=null;
+
+function load(key,fallback){
+  try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}
+}
+function save(key,value){
+  try{localStorage.setItem(key,JSON.stringify(value));return true}
+  catch{showToast("保存失败：本机存储空间可能已满。","error");return false}
+}
+function esc(value){
+  return String(value??"").replace(/[&<>"']/g,char=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[char]))
+}
+function normalize(place){
+  return{
+    id:String(place.id||`${Date.now()}-${Math.random()}`),
+    lat:Number(place.lat),lng:Number(place.lng),
+    type:TYPES[place.type]?place.type:"single",
+    title:String(place.title||place.name||"未命名地点"),
+    count:String(place.count||"1"),
+    health:String(place.health||"不确定"),
+    temper:String(place.temper||"不确定"),
+    lastSeen:String(place.lastSeen||""),
+    note:String(place.note||""),
+    photo:String(place.photo||""),
+    confirmations:Number(place.confirmations||0),
+    doubts:Number(place.doubts||0),
+    status:String(place.status||"unverified"),
+    createdAt:String(place.createdAt||new Date().toISOString())
+  }
+}
+
+let rawPlaces=load(DATA_KEY,null);
+if(!Array.isArray(rawPlaces)){
+  for(const key of LEGACY_KEYS){
+    const legacy=load(key,null);
+    if(Array.isArray(legacy)){rawPlaces=legacy;break}
+  }
+}
+let places=(Array.isArray(rawPlaces)?rawPlaces:[])
+  .filter(place=>Number.isFinite(Number(place.lat))&&Number.isFinite(Number(place.lng)))
+  .map(normalize);
+let settings={autoLocate:true,showUnverified:true,compact:false,...load(SETTINGS_KEY,{})};
+
+function saveData(){save(DATA_KEY,places)}
+function saveSettings(){save(SETTINGS_KEY,settings)}
+function showToast(message,type="success"){
+  const toast=$("toast");
+  toast.textContent=message;
+  toast.className=`toast show ${type}`;
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>toast.className="toast",2200)
+}
+function calcStatus(place){
+  if(place.confirmations>=2&&place.confirmations>place.doubts)return"verified";
+  if(place.doubts>=2&&place.doubts>place.confirmations)return"disputed";
+  if(place.confirmations||place.doubts)return"pending";
+  return"unverified"
+}
+function visible(){
+  const query=search.value.trim().toLowerCase();
+  return places.filter(place=>{
+    if(!settings.showUnverified&&place.status==="unverified")return false;
+    if(typeFilter!=="all"&&place.type!==typeFilter)return false;
+    if(verifyFilter!=="all"&&place.status!==verifyFilter)return false;
+    return !query||[place.title,place.note,place.health,place.temper,TYPES[place.type].label]
+      .join(" ").toLowerCase().includes(query)
+  })
+}
+
+/* ==================== 核心功能：零依赖中文社区地图 ==================== */
+class CommunityMap{
+  constructor(canvas){
+    this.canvas=canvas;
+    this.ctx=canvas.getContext("2d");
+    this.origin={lat:31.2304,lng:121.4737};
+    this.center={x:0,y:0};
+    this.zoom=1;
+    this.minZoom=.62;
+    this.maxZoom=2.35;
+    this.user=null;
+    this.dragging=false;
+    this.moved=false;
+    this.hits=[];
+    this.bind()
+  }
+  bind(){
+    this.canvas.addEventListener("pointerdown",event=>{
+      this.canvas.setPointerCapture(event.pointerId);
+      this.dragging=true;this.moved=false;
+      this.start={x:event.clientX,y:event.clientY};
+      this.startCenter={...this.center}
+    });
+    this.canvas.addEventListener("pointermove",event=>{
+      if(!this.dragging)return;
+      const dx=event.clientX-this.start.x,dy=event.clientY-this.start.y;
+      if(Math.hypot(dx,dy)>5)this.moved=true;
+      this.center.x=this.startCenter.x-dx/this.zoom;
+      this.center.y=this.startCenter.y-dy/this.zoom;
+      this.draw()
+    });
+    this.canvas.addEventListener("pointerup",event=>{
+      if(!this.dragging)return;
+      this.dragging=false;
+      if(!this.moved)this.tap(event)
+    });
+    this.canvas.addEventListener("pointercancel",()=>this.dragging=false);
+    this.canvas.addEventListener("wheel",event=>{
+      event.preventDefault();
+      this.setZoom(this.zoom*(event.deltaY<0?1.12:.89))
+    },{passive:false})
+  }
+  resize(){
+    const rect=this.canvas.getBoundingClientRect();
+    const ratio=Math.min(window.devicePixelRatio||1,2);
+    this.canvas.width=Math.max(1,Math.round(rect.width*ratio));
+    this.canvas.height=Math.max(1,Math.round(rect.height*ratio));
+    this.ctx.setTransform(ratio,0,0,ratio,0,0);
+    this.width=rect.width;this.height=rect.height
+  }
+  setZoom(value){
+    this.zoom=Math.max(this.minZoom,Math.min(this.maxZoom,value));
+    this.draw()
+  }
+  latLngToWorld(lat,lng){
+    return{x:(lng-this.origin.lng)*92000,y:(this.origin.lat-lat)*111000}
+  }
+  worldToLatLng(x,y){
+    return{lat:this.origin.lat-y/111000,lng:this.origin.lng+x/92000}
+  }
+  worldToScreen(x,y){
+    return{x:(x-this.center.x)*this.zoom+this.width/2,y:(y-this.center.y)*this.zoom+this.height/2}
+  }
+  screenToWorld(x,y){
+    return{x:(x-this.width/2)/this.zoom+this.center.x,y:(y-this.height/2)/this.zoom+this.center.y}
+  }
+  centerOn(lat,lng,zoom=1.55){
+    this.center=this.latLngToWorld(lat,lng);
+    this.zoom=Math.max(this.minZoom,Math.min(this.maxZoom,zoom));
+    this.draw()
+  }
+  setUser(lat,lng){
+    this.user={lat,lng};
+    this.origin={lat,lng};
+    this.center={x:0,y:0};
+    this.zoom=1.55;
+    this.draw()
+  }
+  tap(event){
+    const rect=this.canvas.getBoundingClientRect();
+    const x=event.clientX-rect.left,y=event.clientY-rect.top;
+    const hit=this.hits.find(item=>Math.hypot(item.x-x,item.y-y)<=25);
+    if(hit){openDetail(hit.id);return}
+    const world=this.screenToWorld(x,y);
+    selectedLatLng=this.worldToLatLng(world.x,world.y);
+    openEdit()
+  }
+  roundedRect(x,y,w,h,r){
+    const ctx=this.ctx,rr=Math.min(r,w/2,h/2);
+    ctx.beginPath();ctx.moveTo(x+rr,y);
+    ctx.arcTo(x+w,y,x+w,y+h,rr);ctx.arcTo(x+w,y+h,x,y+h,rr);
+    ctx.arcTo(x,y+h,x,y,rr);ctx.arcTo(x,y,x+w,y,rr);ctx.closePath()
+  }
+  road(points,width,label){
+    const ctx=this.ctx,screen=points.map(point=>this.worldToScreen(point[0],point[1]));
+    ctx.save();ctx.lineCap="round";ctx.lineJoin="round";ctx.beginPath();
+    screen.forEach((point,index)=>index?ctx.lineTo(point.x,point.y):ctx.moveTo(point.x,point.y));
+    ctx.strokeStyle="#c7ceca";ctx.lineWidth=(width+7)*this.zoom;ctx.stroke();
+    ctx.strokeStyle="#fbfbf8";ctx.lineWidth=width*this.zoom;ctx.stroke();
+    ctx.setLineDash([13*this.zoom,13*this.zoom]);ctx.strokeStyle="#d9ddd9";ctx.lineWidth=1.5;ctx.stroke();
+    ctx.setLineDash([]);
+    if(label){
+      const mid=screen[Math.floor(screen.length/2)];
+      ctx.fillStyle="#74817c";ctx.font=`600 ${Math.max(9,11*this.zoom)}px sans-serif`;ctx.textAlign="center";
+      ctx.fillText(label,mid.x,mid.y-10*this.zoom)
+    }
+    ctx.restore()
+  }
+  building(x,y,w,h,label,color="#d5c5af"){
+    const ctx=this.ctx,point=this.worldToScreen(x,y),width=w*this.zoom,height=h*this.zoom;
+    ctx.save();ctx.shadowColor="rgba(43,64,56,.14)";ctx.shadowBlur=7*this.zoom;ctx.shadowOffsetY=4*this.zoom;
+    this.roundedRect(point.x,point.y,width,height,5*this.zoom);ctx.fillStyle=color;ctx.fill();
+    ctx.shadowColor="transparent";ctx.strokeStyle="#ad9e8b";ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle="rgba(89,104,100,.34)";
+    const cols=Math.max(2,Math.floor(w/34)),rows=Math.max(1,Math.floor(h/28));
+    for(let row=0;row<rows;row++)for(let col=0;col<cols;col++){
+      ctx.fillRect(point.x+(12+col*26)*this.zoom,point.y+(12+row*23)*this.zoom,9*this.zoom,8*this.zoom)
+    }
+    ctx.fillStyle="#4c5b56";ctx.font=`700 ${Math.max(9,10*this.zoom)}px sans-serif`;ctx.textAlign="center";
+    ctx.fillText(label,point.x+width/2,point.y+height+14*this.zoom);ctx.restore()
+  }
+  park(x,y,w,h,label){
+    const ctx=this.ctx,point=this.worldToScreen(x,y);
+    ctx.save();this.roundedRect(point.x,point.y,w*this.zoom,h*this.zoom,18*this.zoom);
+    ctx.fillStyle="#cfe2b2";ctx.fill();ctx.strokeStyle="#a9c68d";ctx.lineWidth=1.5;ctx.stroke();
+    for(let i=0;i<14;i++){
+      const px=point.x+(((i*47)%Math.max(20,w-24))+12)*this.zoom;
+      const py=point.y+(((i*31)%Math.max(20,h-24))+12)*this.zoom;
+      ctx.beginPath();ctx.arc(px,py,(5+i%3*2)*this.zoom,0,Math.PI*2);
+      ctx.fillStyle=i%2?"#78a65c":"#5f9856";ctx.fill()
+    }
+    ctx.fillStyle="#39723f";ctx.font=`700 ${Math.max(9,11*this.zoom)}px sans-serif`;ctx.textAlign="center";
+    ctx.fillText(label,point.x+w*this.zoom/2,point.y+h*this.zoom/2);ctx.restore()
+  }
+  draw(){
+    if(!this.width||!this.height)return;
+    const ctx=this.ctx;
+    ctx.clearRect(0,0,this.width,this.height);ctx.fillStyle="#e9eee8";ctx.fillRect(0,0,this.width,this.height);
+    const grid=44*this.zoom;
+    const offsetX=((-this.center.x*this.zoom+this.width/2)%grid+grid)%grid;
+    const offsetY=((-this.center.y*this.zoom+this.height/2)%grid+grid)%grid;
+    ctx.strokeStyle="rgba(112,131,121,.08)";ctx.lineWidth=1;
+    for(let x=offsetX;x<this.width;x+=grid){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,this.height);ctx.stroke()}
+    for(let y=offsetY;y<this.height;y+=grid){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(this.width,y);ctx.stroke()}
+
+    this.road([[-900,-150],[-420,-110],[0,-70],[430,-90],[900,-30]],62,"幸福路");
+    this.road([[-170,-800],[-120,-360],[-70,0],[-40,380],[10,820]],52,"友爱巷");
+    this.road([[-780,340],[-360,270],[40,260],[450,300],[830,380]],38,"银杏街");
+    this.road([[360,-780],[330,-360],[350,60],[310,420],[350,820]],34,"社区东路");
+    this.park(-620,-460,280,210,"中心绿地");
+    this.park(410,80,250,190,"安静花园");
+    this.park(-650,430,310,145,"河畔绿化带");
+    this.building(-550,-80,210,120,"1号楼");
+    this.building(80,-500,230,125,"2号楼","#d9cbbd");
+    this.building(420,-430,190,110,"3号楼","#cfbea8");
+    this.building(55,370,250,120,"5号楼","#d8c7b2");
+    this.building(430,420,200,105,"社区活动室","#c5d3d1");
+    this.building(-250,430,135,90,"便利店","#e1c7a5");
+
+    const parking=this.worldToScreen(-420,120);
+    ctx.save();ctx.fillStyle="#cbd2d1";ctx.fillRect(parking.x,parking.y,240*this.zoom,115*this.zoom);
+    ctx.strokeStyle="#fff";ctx.lineWidth=2;
+    for(let i=1;i<5;i++){ctx.beginPath();ctx.moveTo(parking.x+i*46*this.zoom,parking.y+10*this.zoom);ctx.lineTo(parking.x+i*46*this.zoom,parking.y+105*this.zoom);ctx.stroke()}
+    ctx.fillStyle="#53635e";ctx.font=`700 ${Math.max(9,11*this.zoom)}px sans-serif`;ctx.textAlign="center";
+    ctx.fillText("停车区",parking.x+120*this.zoom,parking.y+65*this.zoom);ctx.restore();
+
+    const bins=this.worldToScreen(500,-80);
+    ctx.save();this.roundedRect(bins.x,bins.y,105*this.zoom,65*this.zoom,7*this.zoom);
+    ctx.fillStyle="#ddd1bb";ctx.fill();ctx.fillStyle="#397748";ctx.fillRect(bins.x+18*this.zoom,bins.y+18*this.zoom,24*this.zoom,34*this.zoom);
+    ctx.fillStyle="#394a51";ctx.fillRect(bins.x+59*this.zoom,bins.y+18*this.zoom,24*this.zoom,34*this.zoom);
+    ctx.fillStyle="#5c5145";ctx.font=`700 ${Math.max(8,9*this.zoom)}px sans-serif`;ctx.textAlign="center";
+    ctx.fillText("垃圾分类点",bins.x+52*this.zoom,bins.y+78*this.zoom);ctx.restore();
+
+    this.hits=[];
+    visible().forEach(place=>{
+      const world=this.latLngToWorld(place.lat,place.lng),point=this.worldToScreen(world.x,world.y);
+      if(point.x<-40||point.x>this.width+40||point.y<-40||point.y>this.height+40)return;
+      ctx.save();ctx.shadowColor="rgba(20,60,57,.25)";ctx.shadowBlur=8;
+      ctx.beginPath();ctx.arc(point.x,point.y,18,0,Math.PI*2);ctx.fillStyle=V[place.status].color;ctx.fill();
+      ctx.shadowColor="transparent";ctx.lineWidth=3;ctx.strokeStyle="#fff";ctx.stroke();
+      ctx.font="19px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(TYPES[place.type].emoji,point.x,point.y+1);
+      ctx.restore();this.hits.push({id:place.id,x:point.x,y:point.y})
+    });
+    if(this.user){
+      const world=this.latLngToWorld(this.user.lat,this.user.lng),point=this.worldToScreen(world.x,world.y);
+      ctx.save();ctx.beginPath();ctx.arc(point.x,point.y,13,0,Math.PI*2);ctx.fillStyle="rgba(52,127,232,.2)";ctx.fill();
+      ctx.beginPath();ctx.arc(point.x,point.y,7,0,Math.PI*2);ctx.fillStyle="#347fe8";ctx.fill();ctx.lineWidth=3;ctx.strokeStyle="#fff";ctx.stroke();ctx.restore()
+    }
+    ctx.save();ctx.fillStyle="rgba(255,255,255,.9)";this.roundedRect(10,this.height-38,82,26,8);ctx.fill();
+    ctx.fillStyle="#465650";ctx.font="700 10px sans-serif";ctx.textAlign="left";ctx.fillText(`${Math.round(100/this.zoom)} 米`,22,this.height-21);
+    ctx.strokeStyle="#465650";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(20,this.height-29);ctx.lineTo(74,this.height-29);ctx.stroke();
+    ctx.font="800 12px sans-serif";ctx.textAlign="right";ctx.fillText("N ↑",this.width-14,this.height-18);ctx.restore()
+  }
+}
+const communityMap=new CommunityMap($("mapCanvas"));
+
+function showMain(on){
+  home.classList.toggle("active",!on);main.classList.toggle("active",on);
+  if(on)setTimeout(()=>{
+    communityMap.resize();communityMap.draw();
+    if(settings.autoLocate)locate(false)
+  },100)
+}
+function locate(showFailure=true){
+  if(!navigator.geolocation){
+    if(showFailure)showToast("浏览器不支持定位，已显示离线社区地图。","error");
+    return
+  }
+  showToast("正在获取当前位置…");
+  navigator.geolocation.getCurrentPosition(position=>{
+    const {latitude:lat,longitude:lng}=position.coords;
+    communityMap.setUser(lat,lng);showToast("已定位到当前位置。")
+  },error=>{
+    if(showFailure||error.code!==1){
+      const message={1:"没有获得定位权限。",2:"暂时无法获取位置。",3:"定位超时，请重试。"}[error.code]||"定位失败。";
+      showToast(`${message} 已显示离线社区地图。`,"error")
+    }
+  },{enableHighAccuracy:true,timeout:10000,maximumAge:30000})
+}
+
+function renderPlaces(){
+  const data=visible();$("resultCount").textContent=`${data.length} 条`;
+  $("placesList").innerHTML=data.length?data.map(place=>`
+    <article class="card">
+      <div class="badge">${TYPES[place.type].emoji}</div>
+      <div class="card-main"><h3>${esc(place.title)}</h3><p>${esc(place.note||"没有填写备注")}</p>
+        <div class="meta"><span class="tag">${TYPES[place.type].label}</span><span class="tag">${esc(place.count)}只</span><span class="tag ${V[place.status].cls}">${V[place.status].label}</span></div>
+      </div>
+      <button class="open-card" onclick="openDetail('${place.id}')" aria-label="查看详情">›</button>
+    </article>`).join("")
+    :`<div class="empty"><div style="font-size:38px">🐾</div>还没有符合条件的标记。<br>第一步：轻点地图上的位置。<br><button onclick="addAtCenter()" style="margin-top:9px;padding:8px 12px;border-radius:10px;background:#31a395;color:#fff">在地图中心添加</button></div>`
+}
+function renderReview(){
+  const data=places.filter(place=>place.status!=="verified");
+  $("reviewList").innerHTML=data.length?data.map(place=>`
+    <article class="review-card">
+      <div style="display:flex;justify-content:space-between;gap:8px"><div><h3>${TYPES[place.type].emoji} ${esc(place.title)}</h3><p>${esc(place.note||"没有填写备注")}</p></div><span class="tag ${V[place.status].cls}">${V[place.status].label}</span></div>
+      <div class="meta"><span class="tag">确认 ${place.confirmations}</span><span class="tag">存疑 ${place.doubts}</span><span class="tag">${esc(place.health)}</span></div>
+      <div class="review-actions"><button class="confirm" onclick="vote('${place.id}','confirm')">我已现场确认</button><button class="doubt" onclick="vote('${place.id}','doubt')">信息可能不准</button></div>
+    </article>`).join("")
+    :`<div class="empty"><div style="font-size:38px">✅</div>当前没有需要核验的信息。</div>`
+}
+function renderSummary(){
+  const rows=Object.entries(TYPES).map(([key,type])=>`<div class="row"><div class="copy"><b>${type.emoji} ${type.label}</b><span>当前设备中的标记数量</span></div><b>${places.filter(place=>place.type===key).length}</b></div>`).join("");
+  $("summaryContent").innerHTML=`<div class="group"><h3>标记类型分布</h3>${rows}</div><div class="group"><h3>可信状态</h3>${Object.entries(V).map(([key,value])=>`<div class="row"><div class="copy"><b>${value.label}</b><span>当前状态数量</span></div><b>${places.filter(place=>place.status===key).length}</b></div>`).join("")}</div>`
+}
+function renderTop(){
+  $("totalStat").textContent=places.length;
+  $("verifiedStat").textContent=places.filter(place=>place.status==="verified").length;
+  $("pendingStat").textContent=places.filter(place=>["unverified","pending"].includes(place.status)).length;
+  $("urgentStat").textContent=places.filter(place=>["injured","rescue"].includes(place.type)||["疑似受伤","需要紧急救助"].includes(place.health)).length
+}
+function renderChips(){
+  $("typeChips").innerHTML=[["all","全部"],...Object.entries(TYPES).map(([key,type])=>[key,`${type.emoji} ${type.label}`])].map(([key,label])=>`<button class="chip ${typeFilter===key?"active":""}" onclick="setType('${key}')">${label}</button>`).join("");
+  $("verifyChips").innerHTML=[["all","全部"],...Object.entries(V).map(([key,value])=>[key,value.label])].map(([key,label])=>`<button class="chip ${verifyFilter===key?"active":""}" onclick="setVerify('${key}')">${label}</button>`).join("")
+}
+function applySettings(){
+  [["autoSwitch","autoLocate"],["showSwitch","showUnverified"],["compactSwitch","compact"]].forEach(([id,key])=>$(id).classList.toggle("on",settings[key]));
+  document.querySelectorAll(".list").forEach(list=>list.style.gap=settings.compact?"4px":"9px");
+  document.querySelectorAll(".card").forEach(card=>card.style.padding=settings.compact?"7px 9px":"11px")
+}
+function renderAll(){
+  places.forEach(place=>place.status=calcStatus(place));
+  renderPlaces();renderReview();renderSummary();renderTop();renderChips();applySettings();communityMap.draw()
+}
+
+function renderOptions(selected="single"){
+  $("markerOptions").innerHTML=Object.entries(TYPES).map(([key,type])=>`<button class="marker-option ${selected===key?"selected":""}" data-type="${key}"><span>${type.emoji}</span>${type.label}</button>`).join("");
+  document.querySelectorAll(".marker-option").forEach(button=>button.onclick=()=>{
+    document.querySelectorAll(".marker-option").forEach(item=>item.classList.remove("selected"));button.classList.add("selected")
+  })
+}
+function openSheet(sheet){mask.classList.add("show");sheet.classList.add("show")}
+function closeSheets(){mask.classList.remove("show");editSheet.classList.remove("show");detailSheet.classList.remove("show")}
+function preview(){$("photoPreview").innerHTML=photoData?`<img src="${photoData}" alt="现场照片">`:"📷"}
+function openEdit(place=null){
+  editingId=place?place.id:null;photoData=place?place.photo:"";$("editTitle").textContent=place?"编辑流浪猫信息":"添加流浪猫标记";renderOptions(place?place.type:"single");
+  $("titleInput").value=place?place.title:"";$("countInput").value=place?place.count:"1";$("healthInput").value=place?place.health:"看起来正常";$("temperInput").value=place?place.temper:"不确定";$("seenInput").value=place?place.lastSeen:new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,16);$("noteInput").value=place?place.note:"";preview();
+  if(!place&&!selectedLatLng){
+    selectedLatLng=communityMap.worldToLatLng(communityMap.center.x,communityMap.center.y);
+    showToast("已使用地图中心位置。")
+  }
+  openSheet(editSheet);setTimeout(()=>$("titleInput").focus(),100)
+}
+function savePlace(){
+  const selected=document.querySelector(".marker-option.selected"),title=$("titleInput").value.trim();
+  if(!title){showToast("请填写地点名称。","error");$("titleInput").focus();return}
+  const wasEditing=Boolean(editingId);
+  const data={type:selected?selected.dataset.type:"single",title,count:$("countInput").value,health:$("healthInput").value,temper:$("temperInput").value,lastSeen:$("seenInput").value,note:$("noteInput").value.trim(),photo:photoData};
+  if(editingId){
+    const target=places.find(place=>place.id===editingId);
+    if(!target){showToast("没有找到要编辑的标记。","error");return}
+    Object.assign(target,data)
+  }else{
+    places.unshift({id:`${Date.now()}-${Math.random()}`,lat:selectedLatLng.lat,lng:selectedLatLng.lng,...data,confirmations:0,doubts:0,status:"unverified",createdAt:new Date().toISOString()})
+  }
+  saveData();closeSheets();selectedLatLng=null;editingId=null;renderAll();
+  showToast(wasEditing?"标记已更新。":"标记已保存到本机。")
+}
+function formatDate(value){
+  if(!value)return"未填写";const date=new Date(value);
+  return Number.isNaN(date.getTime())?value:date.toLocaleString("zh-CN",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"})
+}
+window.openDetail=id=>{
+  const place=places.find(item=>item.id===id);if(!place)return;currentId=id;communityMap.centerOn(place.lat,place.lng,1.7);
+  $("detailBody").innerHTML=`${place.photo?`<img class="detail-image" src="${place.photo}" alt="现场照片">`:`<div class="empty">📷 暂无现场照片</div>`}<div class="meta" style="margin-top:10px"><span class="tag">${TYPES[place.type].emoji} ${TYPES[place.type].label}</span><span class="tag ${V[place.status].cls}">${V[place.status].label}</span></div><h2 style="margin:10px 0 0;font-size:18px">${esc(place.title)}</h2><div class="detail-grid"><div class="detail-box"><span>猫咪数量</span><b>${esc(place.count)}只</b></div><div class="detail-box"><span>健康情况</span><b>${esc(place.health)}</b></div><div class="detail-box"><span>亲人程度</span><b>${esc(place.temper)}</b></div><div class="detail-box"><span>最后出现</span><b>${esc(formatDate(place.lastSeen))}</b></div><div class="detail-box"><span>确认次数</span><b>${place.confirmations}</b></div><div class="detail-box"><span>存疑次数</span><b>${place.doubts}</b></div></div><div class="detail-note">${esc(place.note||"没有填写备注")}</div><div class="review-actions"><button class="confirm" onclick="vote('${place.id}','confirm')">我已现场确认</button><button class="doubt" onclick="vote('${place.id}','doubt')">信息可能不准</button></div><button onclick="removePlace('${place.id}')" style="width:100%;min-height:40px;margin-top:9px;border-radius:12px;background:#fff0f0;color:#e65757;font-weight:750">删除标记</button>`;
+  openSheet(detailSheet)
+};
+window.vote=(id,action)=>{
+  const place=places.find(item=>item.id===id);if(!place)return;
+  action==="confirm"?place.confirmations++:place.doubts++;place.status=calcStatus(place);saveData();renderAll();
+  if(currentId===id&&detailSheet.classList.contains("show"))openDetail(id);
+  showToast(action==="confirm"?"已记录一次现场确认。":"已记录一次存疑。")
+};
+window.removePlace=id=>{
+  if(!confirm("确定删除这个标记吗？删除后无法恢复。"))return;
+  places=places.filter(place=>place.id!==id);saveData();closeSheets();renderAll();showToast("标记已删除。")
+};
+window.setType=value=>{typeFilter=value;renderAll()};
+window.setVerify=value=>{verifyFilter=value;renderAll()};
+window.addAtCenter=()=>{
+  selectedLatLng=communityMap.worldToLatLng(communityMap.center.x,communityMap.center.y);openEdit()
+};
+
+function fitVisible(){
+  const data=visible();
+  if(data.length)communityMap.centerOn(data[0].lat,data[0].lng,1.45)
+}
+function setTab(tab){
+  document.querySelectorAll(".tab").forEach(button=>button.classList.toggle("active",button.dataset.tab===tab));
+  document.querySelectorAll(".page").forEach(page=>page.classList.remove("active"));$(tab+"Page").classList.add("active")
+}
+function compress(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>{
+      const image=new Image();
+      image.onload=()=>{
+        let width=image.width,height=image.height,max=900;
+        if(width>height&&width>max){height=Math.round(height*max/width);width=max}
+        else if(height>=width&&height>max){width=Math.round(width*max/height);height=max}
+        const canvas=document.createElement("canvas");canvas.width=width;canvas.height=height;
+        canvas.getContext("2d").drawImage(image,0,0,width,height);resolve(canvas.toDataURL("image/jpeg",.72))
+      };
+      image.onerror=reject;image.src=reader.result
+    };
+    reader.onerror=reject;reader.readAsDataURL(file)
+  })
+}
+function exportData(){
+  if(!places.length){showToast("现在还没有可以导出的标记。","error");return}
+  const blob=new Blob([JSON.stringify(places,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),link=document.createElement("a");
+  link.href=url;link.download="寻找流浪猫_标记数据.json";document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url);showToast("标记文件已导出。")
+}
+function importData(file){
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const data=JSON.parse(reader.result);if(!Array.isArray(data))throw 0;
+      const imported=data.filter(place=>Number.isFinite(Number(place.lat))&&Number.isFinite(Number(place.lng))).map(normalize);
+      if(!imported.length)throw 0;
+      places=imported;saveData();renderAll();fitVisible();showToast(`成功导入 ${places.length} 条标记。`)
+    }catch{showToast("导入失败，请选择本程序导出的JSON文件。","error")}
+  };
+  reader.onerror=()=>showToast("文件读取失败。","error");reader.readAsText(file)
+}
+
+$("openBtn").onclick=()=>showMain(true);$("backBtn").onclick=()=>showMain(false);$("locateBtn").onclick=()=>locate(true);
+$("zoomInBtn").onclick=()=>communityMap.setZoom(communityMap.zoom*1.2);
+$("zoomOutBtn").onclick=()=>communityMap.setZoom(communityMap.zoom/1.2);
+$("mapAdd").onclick=$("quickAdd").onclick=addAtCenter;
+$("filterBtn").onclick=()=>$("filters").classList.toggle("open");search.oninput=renderAll;
+document.querySelectorAll(".tab").forEach(button=>button.onclick=()=>setTab(button.dataset.tab));
+document.querySelectorAll("[data-close]").forEach(button=>button.onclick=closeSheets);mask.onclick=closeSheets;$("saveBtn").onclick=savePlace;
+$("photoInput").onchange=async event=>{
+  const file=event.target.files[0];if(!file)return;
+  if(file.size>12*1024*1024){showToast("照片太大，请选择12MB以内的图片。","error");event.target.value="";return}
+  try{photoData=await compress(file);preview();showToast("照片已压缩并添加。")}catch{showToast("照片处理失败。","error")}
+  event.target.value=""
+};
+$("editCurrent").onclick=()=>{
+  const place=places.find(item=>item.id===currentId);if(!place)return;
+  closeSheets();selectedLatLng={lat:place.lat,lng:place.lng};setTimeout(()=>openEdit(place),70)
+};
+$("confirmCurrent").onclick=()=>currentId&&vote(currentId,"confirm");
+[["autoSwitch","autoLocate"],["showSwitch","showUnverified"],["compactSwitch","compact"]].forEach(([id,key])=>$(id).onclick=()=>{
+  settings[key]=!settings[key];saveSettings();renderAll();showToast("设置已保存。")
+});
+$("exportBtn").onclick=exportData;$("importBtn").onclick=()=>$("fileInput").click();
+$("fileInput").onchange=event=>{if(event.target.files[0])importData(event.target.files[0]);event.target.value=""};
+$("restartBtn").onclick=()=>{
+  typeFilter="all";verifyFilter="all";search.value="";$("filters").classList.remove("open");setTab("places");
+  communityMap.center={x:0,y:0};communityMap.zoom=1;renderAll();showMain(false);showToast("已回到第一步，原有标记仍然保留。")
+};
+$("clearBtn").onclick=()=>{
+  if(!places.length){showToast("现在还没有标记。","error");return}
+  if(confirm("确定清空全部数据吗？此操作无法恢复。")){places=[];saveData();renderAll();showToast("全部标记已清空。")}
+};
+$("helpBtn").onclick=()=>alert("使用方法：\\n1. 点击“打开地图”。\\n2. 轻点地图上的猫咪位置。\\n3. 填写出现时间、身体情况和证据。\\n4. 保存后可继续核验、编辑、筛选或导出。");
+window.addEventListener("resize",()=>{if(main.classList.contains("active")){communityMap.resize();communityMap.draw()}});
+window.addEventListener("keydown",event=>{if(event.key==="Escape")closeSheets()});
+renderOptions();renderAll();
+
+</script>
+
+<script id="portfolio-back-bridge">
+  document.querySelector('[data-portfolio-back]').addEventListener('click', function (event) {
+    if (window.parent === window) return;
+    event.preventDefault();
+    window.parent.postMessage({ type: 'ai-lab-full-preview-nav', href: './cat-works.html' }, '*');
+  });
+</script>
+</body>
+</html>

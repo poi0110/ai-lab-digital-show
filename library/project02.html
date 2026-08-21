@@ -1,0 +1,3987 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#49a66f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="format-detection" content="telephone=no">
+  <title>森林图书馆｜线下借书系统</title>
+  <style>
+    /* ==================== 页面样式：修改颜色、布局和字号的位置 ==================== */
+    :root {
+      --green-900: #173f2b;
+      --green-700: #2f7650;
+      --green-600: #3f9364;
+      --green-500: #55ad77;
+      --green-100: #e6f5e9;
+      --green-50: #f4fbf5;
+      --yellow: #ffd96a;
+      --yellow-soft: #fff5c9;
+      --orange: #ff9d68;
+      --blue: #78bde8;
+      --paper: #fffdf7;
+      --white: #ffffff;
+      --ink: #26342c;
+      --muted: #6f7f75;
+      --line: #dbe8dd;
+      --danger: #dc5d5d;
+      --shadow: 0 14px 36px rgba(32, 77, 51, 0.12);
+      --radius-lg: 26px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 8%, rgba(255, 217, 106, 0.28), transparent 24rem),
+        radial-gradient(circle at 90% 30%, rgba(120, 189, 232, 0.16), transparent 25rem),
+        var(--green-50);
+      font-family: "Microsoft YaHei", "PingFang SC", system-ui, -apple-system, sans-serif;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      min-height: 46px;
+      border: 0;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 3px solid rgba(63, 147, 100, 0.28);
+      outline-offset: 2px;
+    }
+
+    .app-shell {
+      width: min(1180px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 20px 22px 96px;
+    }
+
+    .login-screen {
+      position: fixed;
+      z-index: 200;
+      inset: 0;
+      display: grid;
+      overflow-y: auto;
+      padding: 22px;
+      place-items: center;
+      background:
+        radial-gradient(circle at 15% 12%, rgba(255, 217, 106, 0.42), transparent 22rem),
+        radial-gradient(circle at 88% 82%, rgba(120, 189, 232, 0.28), transparent 24rem),
+        #edf8ef;
+    }
+
+    .login-card {
+      width: min(560px, 100%);
+      padding: 30px;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 24px 70px rgba(32, 77, 51, 0.18);
+    }
+
+    .login-logo {
+      display: grid;
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 14px;
+      place-items: center;
+      border-radius: 23px;
+      background: var(--green-700);
+      box-shadow: 0 12px 26px rgba(47, 118, 80, 0.25);
+      font-size: 38px;
+    }
+
+    .login-card h1 {
+      margin: 0;
+      color: var(--green-900);
+      text-align: center;
+      font-size: clamp(28px, 6vw, 38px);
+    }
+
+    .login-intro {
+      margin: 10px auto 22px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    .onsite-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 18px;
+      padding: 13px 14px;
+      border-radius: 15px;
+      color: #725916;
+      background: var(--yellow-soft);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .login-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .admin-entry {
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      text-align: center;
+    }
+
+    .admin-password-wrap {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .admin-password-wrap input {
+      width: 100%;
+      min-width: 0;
+      min-height: 52px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      color: var(--ink);
+      background: white;
+    }
+
+    .admin-password-hint {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .test-reader-entry {
+      margin-top: 18px;
+      padding: 14px;
+      border: 1px dashed #b8d9c1;
+      border-radius: 16px;
+      background: var(--green-50);
+    }
+
+    .test-reader-entry > strong {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--green-900);
+      text-align: center;
+    }
+
+    .test-reader-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .test-reader-btn {
+      min-height: 48px;
+      padding: 7px;
+      border-radius: 12px;
+      color: var(--green-700);
+      background: white;
+      border: 1px solid var(--line);
+      font-weight: 900;
+    }
+
+    .test-reader-btn small {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    body.user-role [data-view="admin"] {
+      display: none;
+    }
+
+    body.admin-role [data-view]:not([data-view="admin"]),
+    body.admin-role #rewardBtn,
+    body.admin-role #noticeBtn,
+    body.admin-role #profileBtn {
+      display: none;
+    }
+
+    body.admin-role .bottom-nav {
+      display: none;
+    }
+
+    .topbar {
+      position: sticky;
+      z-index: 20;
+      top: 0;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: -20px -22px 22px;
+      padding: 16px max(22px, calc((100vw - 1180px) / 2 + 22px));
+      border-bottom: 1px solid rgba(219, 232, 221, 0.76);
+      background: rgba(244, 251, 245, 0.9);
+      backdrop-filter: blur(16px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      gap: 10px;
+      color: var(--green-900);
+      font-weight: 900;
+      font-size: 20px;
+      letter-spacing: 0.02em;
+    }
+
+    .back-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.42;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border-radius: 15px;
+      background: var(--green-700);
+      box-shadow: 0 8px 18px rgba(47, 118, 80, 0.22);
+      font-size: 24px;
+    }
+
+    .desktop-nav {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 10px;
+    }
+
+    .nav-btn {
+      min-height: 42px;
+      padding: 0 15px;
+      border-radius: 14px;
+      color: var(--muted);
+      background: transparent;
+      font-weight: 800;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.active {
+      color: var(--green-900);
+      background: var(--white);
+      box-shadow: 0 6px 18px rgba(32, 77, 51, 0.08);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+    }
+
+    .icon-btn,
+    .points-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-width: 46px;
+      padding: 0 13px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      color: var(--ink);
+      background: var(--white);
+      font-weight: 900;
+    }
+
+    .points-chip {
+      border-color: #f0d46f;
+      background: var(--yellow-soft);
+    }
+
+    .notification-dot {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 9px;
+      height: 9px;
+      border: 2px solid white;
+      border-radius: 50%;
+      background: var(--orange);
+    }
+
+    .notification-wrap {
+      position: relative;
+    }
+
+    .view {
+      display: none;
+      animation: enter 0.28s ease both;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    @keyframes enter {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 26px;
+      min-height: 280px;
+      overflow: hidden;
+      padding: 30px;
+      border-radius: 34px;
+      color: white;
+      background: linear-gradient(135deg, #2c704d, #53a873);
+      box-shadow: var(--shadow);
+    }
+
+    .hero::before,
+    .hero::after {
+      position: absolute;
+      content: "";
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .hero::before {
+      width: 260px;
+      height: 260px;
+      right: -80px;
+      top: -80px;
+    }
+
+    .hero::after {
+      width: 160px;
+      height: 160px;
+      left: 45%;
+      bottom: -100px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      gap: 7px;
+      margin: 0 0 12px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.15);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .hero h1 {
+      max-width: 620px;
+      margin: 0;
+      font-size: clamp(31px, 5vw, 52px);
+      line-height: 1.14;
+      letter-spacing: -0.04em;
+    }
+
+    .hero p {
+      max-width: 590px;
+      margin: 16px 0 24px;
+      color: rgba(255, 255, 255, 0.84);
+      font-size: 16px;
+      line-height: 1.8;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .primary-btn,
+    .secondary-btn,
+    .ghost-btn,
+    .danger-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 50px;
+      padding: 0 20px;
+      border-radius: 15px;
+      font-weight: 900;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    .primary-btn {
+      color: var(--green-900);
+      background: var(--yellow);
+      box-shadow: 0 9px 20px rgba(95, 72, 6, 0.18);
+    }
+
+    .primary-btn.green {
+      color: white;
+      background: var(--green-700);
+      box-shadow: 0 9px 20px rgba(47, 118, 80, 0.22);
+    }
+
+    .secondary-btn {
+      color: var(--green-900);
+      border: 1px solid var(--line);
+      background: white;
+    }
+
+    .hero .secondary-btn {
+      color: white;
+      border-color: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .ghost-btn {
+      color: var(--green-700);
+      background: var(--green-100);
+    }
+
+    .danger-btn {
+      color: white;
+      background: var(--danger);
+    }
+
+    .primary-btn:hover,
+    .secondary-btn:hover,
+    .ghost-btn:hover,
+    .danger-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .hero-art {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      min-height: 200px;
+      place-items: center;
+    }
+
+    .book-stack {
+      position: relative;
+      width: 250px;
+      height: 245px;
+    }
+
+    .tree {
+      position: absolute;
+      top: 2px;
+      left: 70px;
+      font-size: 132px;
+      filter: drop-shadow(0 12px 10px rgba(10, 50, 28, 0.25));
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .book {
+      position: absolute;
+      left: 18px;
+      width: 205px;
+      height: 42px;
+      border: 4px solid rgba(255, 255, 255, 0.45);
+      border-radius: 10px 15px 15px 10px;
+      box-shadow: 0 8px 14px rgba(21, 58, 37, 0.16);
+    }
+
+    .book.one { bottom: 20px; background: #ffd96a; transform: rotate(-4deg); }
+    .book.two { bottom: 60px; left: 32px; background: #ff9871; transform: rotate(3deg); }
+    .book.three { bottom: 102px; left: 20px; background: #8bc7ed; transform: rotate(-1deg); }
+
+    @keyframes float {
+      50% { transform: translateY(-8px) rotate(2deg); }
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .stat-card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.86);
+    }
+
+    .stat-card span {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .stat-card strong {
+      color: var(--green-900);
+      font-size: 26px;
+    }
+
+    .section {
+      margin-top: 34px;
+    }
+
+    .due-board {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 9px 28px rgba(32, 77, 51, 0.06);
+    }
+
+    .home-due-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .home-due-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: var(--green-50);
+    }
+
+    .home-due-card .mini-cover {
+      display: grid;
+      width: 48px;
+      height: 58px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 11px;
+      font-size: 27px;
+    }
+
+    .home-due-card h3 {
+      overflow: hidden;
+      margin: 0 0 5px;
+      color: var(--green-900);
+      font-size: 15px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .home-due-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .reward-steps {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+      counter-reset: reward-step;
+    }
+
+    .reward-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: white;
+      color: var(--green-900);
+      font-weight: 800;
+    }
+
+    .reward-step::before {
+      display: grid;
+      width: 28px;
+      height: 28px;
+      flex: 0 0 auto;
+      place-items: center;
+      counter-increment: reward-step;
+      content: counter(reward-step);
+      border-radius: 50%;
+      color: white;
+      background: var(--green-600);
+      font-size: 13px;
+    }
+
+    .quiz-options {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .quiz-option {
+      width: 100%;
+      min-height: 52px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      color: var(--ink);
+      background: white;
+      text-align: left;
+      font-weight: 800;
+    }
+
+    .quiz-option:hover {
+      border-color: var(--green-600);
+      background: var(--green-100);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .section-head h2,
+    .page-heading h1 {
+      margin: 0;
+      color: var(--green-900);
+      font-size: clamp(24px, 4vw, 32px);
+    }
+
+    .section-head p,
+    .page-heading p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .text-btn {
+      min-height: 42px;
+      padding: 0 6px;
+      color: var(--green-700);
+      background: transparent;
+      font-weight: 900;
+    }
+
+    .book-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .book-card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--white);
+      box-shadow: 0 8px 24px rgba(32, 77, 51, 0.06);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .book-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+    }
+
+    .book-cover {
+      position: relative;
+      display: grid;
+      height: 154px;
+      place-items: center;
+      overflow: hidden;
+      font-size: 66px;
+    }
+
+    .book-cover::after {
+      position: absolute;
+      right: 12px;
+      bottom: 10px;
+      content: "森林藏书";
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+    }
+
+    .book-body {
+      padding: 16px;
+    }
+
+    .book-body h3 {
+      margin: 0;
+      color: var(--green-900);
+      font-size: 17px;
+    }
+
+    .book-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin: 8px 0 15px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .card-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .small-btn {
+      min-height: 42px;
+      padding: 0 9px;
+      border-radius: 12px;
+      color: var(--green-700);
+      background: var(--green-100);
+      font-weight: 900;
+    }
+
+    .small-btn.solid {
+      color: white;
+      background: var(--green-700);
+    }
+
+    .small-btn:disabled {
+      cursor: not-allowed;
+      color: #9aa79f;
+      background: #edf1ee;
+    }
+
+    .page-heading {
+      margin: 12px 0 22px;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 170px;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box span {
+      position: absolute;
+      top: 50%;
+      left: 16px;
+      transform: translateY(-50%);
+    }
+
+    .search-box input,
+    .toolbar select,
+    .field input,
+    .field select {
+      width: 100%;
+      min-height: 52px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      color: var(--ink);
+      background: white;
+    }
+
+    .search-box input {
+      padding: 0 16px 0 46px;
+    }
+
+    .toolbar select,
+    .field input,
+    .field select {
+      padding: 0 14px;
+    }
+
+    .two-column {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
+      gap: 18px;
+    }
+
+    .panel {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 9px 28px rgba(32, 77, 51, 0.06);
+    }
+
+    .panel h2,
+    .panel h3 {
+      margin-top: 0;
+      color: var(--green-900);
+    }
+
+    .reading-panel {
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+      background: linear-gradient(150deg, white, #f0faef);
+    }
+
+    .timer-ring {
+      display: grid;
+      width: 210px;
+      height: 210px;
+      margin: 22px auto;
+      place-items: center;
+      border: 14px solid var(--green-100);
+      border-top-color: var(--green-600);
+      border-radius: 50%;
+      box-shadow: inset 0 0 0 8px white, 0 12px 34px rgba(32, 77, 51, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .timer-ring.running {
+      animation: breathe 2s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      50% { transform: scale(1.025); }
+    }
+
+    .timer-value {
+      color: var(--green-900);
+      font-size: 44px;
+      font-weight: 950;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timer-label {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .timer-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .plan-picker {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 14px 0;
+    }
+
+    .minute-btn {
+      min-width: 58px;
+      min-height: 44px;
+      border-radius: 12px;
+      color: var(--muted);
+      background: #eef4ef;
+      font-weight: 900;
+    }
+
+    .minute-btn.active {
+      color: white;
+      background: var(--green-700);
+    }
+
+    .streak-row {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 7px;
+      margin-top: 16px;
+    }
+
+    .day-dot {
+      display: grid;
+      min-width: 0;
+      aspect-ratio: 1;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--muted);
+      background: #edf3ee;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .day-dot.done {
+      color: white;
+      background: var(--green-600);
+    }
+
+    .tip-card {
+      padding: 18px;
+      border-radius: var(--radius-md);
+      background: var(--yellow-soft);
+    }
+
+    .tip-card + .tip-card {
+      margin-top: 12px;
+    }
+
+    .tip-card strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #6c5310;
+    }
+
+    .tip-card p {
+      margin: 0;
+      color: #7d692f;
+      line-height: 1.6;
+    }
+
+    .loan-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .loan-card {
+      display: grid;
+      grid-template-columns: 58px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: white;
+    }
+
+    .loan-icon {
+      display: grid;
+      width: 58px;
+      height: 68px;
+      place-items: center;
+      border-radius: 13px;
+      font-size: 30px;
+    }
+
+    .loan-info {
+      min-width: 0;
+    }
+
+    .loan-info h3 {
+      overflow: hidden;
+      margin: 0 0 5px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .loan-info p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .loan-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      margin-top: 7px;
+      padding: 0 9px;
+      border-radius: 999px;
+      color: var(--green-700);
+      background: var(--green-100);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .status.warning {
+      color: #8a5c00;
+      background: #fff0bd;
+    }
+
+    .status.danger {
+      color: #a83d3d;
+      background: #ffe0e0;
+    }
+
+    .empty-state {
+      padding: 48px 18px;
+      border: 2px dashed var(--line);
+      border-radius: var(--radius-lg);
+      color: var(--muted);
+      text-align: center;
+      background: rgba(255, 255, 255, 0.55);
+    }
+
+    .empty-state .emoji {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 50px;
+    }
+
+    .empty-state h3 {
+      margin: 8px 0;
+      color: var(--green-900);
+    }
+
+    .admin-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .admin-stat {
+      padding: 18px;
+      border-radius: var(--radius-md);
+      background: white;
+      border: 1px solid var(--line);
+    }
+
+    .admin-stat span {
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .admin-stat strong {
+      display: block;
+      margin-top: 8px;
+      color: var(--green-900);
+      font-size: 29px;
+    }
+
+    .reminder-panel {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      border-left: 7px solid var(--green-600);
+    }
+
+    .reminder-panel.warning {
+      border-left-color: #e7a620;
+      background: #fffaf0;
+    }
+
+    .reminder-panel.danger {
+      border-left-color: var(--danger);
+      background: #fff4f4;
+    }
+
+    .reminder-message {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .reminder-message > span {
+      font-size: 30px;
+    }
+
+    .reminder-message h2 {
+      margin: 0 0 5px;
+      color: var(--green-900);
+      font-size: 21px;
+    }
+
+    .reminder-message p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .notice-count {
+      display: grid;
+      min-width: 22px;
+      height: 22px;
+      place-items: center;
+      border-radius: 999px;
+      color: white;
+      background: var(--orange);
+      font-size: 11px;
+    }
+
+    .admin-table-section {
+      margin: 18px 0;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .admin-table-section h2 {
+      margin: 0 0 6px;
+      color: var(--green-900);
+      font-size: 22px;
+    }
+
+    .admin-table-section > p {
+      margin: 0 0 14px;
+      color: var(--muted);
+    }
+
+    .empty-table-cell {
+      padding: 28px 16px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: white;
+    }
+
+    table {
+      width: 100%;
+      min-width: 720px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      color: var(--green-900);
+      background: var(--green-100);
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .bottom-nav {
+      display: none;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      z-index: 60;
+      inset: 0;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(18, 44, 29, 0.42);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      width: min(520px, 100%);
+      max-height: min(82vh, 760px);
+      overflow-y: auto;
+      padding: 24px;
+      border-radius: 26px 26px 20px 20px;
+      background: var(--paper);
+      box-shadow: 0 26px 80px rgba(17, 52, 30, 0.26);
+      animation: modalUp 0.24s ease both;
+    }
+
+    @keyframes modalUp {
+      from { transform: translateY(24px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .modal-head h2 {
+      margin: 0;
+      color: var(--green-900);
+    }
+
+    .close-btn {
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+      border-radius: 14px;
+      color: var(--muted);
+      background: #edf3ee;
+      font-size: 20px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .field {
+      margin: 14px 0;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--green-900);
+      font-weight: 900;
+    }
+
+    .sms-compose {
+      width: 100%;
+      min-height: 150px;
+      resize: vertical;
+      padding: 14px;
+      border: 2px solid #d8e6dc;
+      border-radius: 16px;
+      color: var(--green-900);
+      background: #fbfefc;
+      font: inherit;
+      line-height: 1.7;
+      outline: none;
+    }
+
+    .sms-compose:focus {
+      border-color: var(--green-500);
+      box-shadow: 0 0 0 4px rgba(82, 153, 101, 0.12);
+    }
+
+    .notice-list,
+    .reward-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .notice-item,
+    .reward-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      border-radius: 16px;
+      background: white;
+      border: 1px solid var(--line);
+    }
+
+    .notice-item .notice-icon,
+    .reward-item .reward-icon {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+      place-items: center;
+      border-radius: 14px;
+      background: var(--green-100);
+      font-size: 23px;
+    }
+
+    .notice-item p,
+    .reward-item p {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .reward-item button {
+      margin-left: auto;
+    }
+
+    .switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .switch {
+      position: relative;
+      width: 54px;
+      height: 30px;
+      flex-shrink: 0;
+      border-radius: 999px;
+      background: #cdd8d0;
+    }
+
+    .switch::after {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 22px;
+      height: 22px;
+      content: "";
+      border-radius: 50%;
+      background: white;
+      transition: transform 0.2s ease;
+    }
+
+    .switch.on {
+      background: var(--green-600);
+    }
+
+    .switch.on::after {
+      transform: translateX(24px);
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 100;
+      left: 50%;
+      bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      width: max-content;
+      max-width: calc(100vw - 32px);
+      padding: 13px 18px;
+      border-radius: 15px;
+      color: white;
+      background: var(--green-900);
+      box-shadow: 0 15px 40px rgba(17, 52, 30, 0.28);
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 18px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      font-weight: 800;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .toast.error {
+      background: #9b3d3d;
+    }
+
+    .confetti {
+      position: fixed;
+      z-index: 120;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .confetti span {
+      position: absolute;
+      top: -40px;
+      font-size: 25px;
+      animation: fall 1.8s ease-in forwards;
+    }
+
+    @keyframes fall {
+      to { transform: translateY(110vh) rotate(540deg); opacity: 0; }
+    }
+
+    @media (max-width: 900px) {
+      .desktop-nav {
+        display: none;
+      }
+
+      .hero {
+        grid-template-columns: 1fr 0.62fr;
+        padding: 30px;
+      }
+
+      .book-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .two-column {
+        grid-template-columns: 1fr;
+      }
+
+      .home-due-list {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 650px) {
+      .login-screen {
+        padding: 12px;
+      }
+
+      .login-card {
+        padding: 22px 18px;
+        border-radius: 24px;
+      }
+
+      .login-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .test-reader-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .app-shell {
+        padding: 12px 14px 96px;
+      }
+
+      .topbar {
+        gap: 7px;
+        margin: -12px -14px 16px;
+        padding: 11px 14px;
+      }
+
+      .top-actions {
+        gap: 5px;
+      }
+
+      .top-actions .icon-btn,
+      .top-actions .points-chip {
+        min-width: 40px;
+        padding-right: 8px;
+        padding-left: 8px;
+      }
+
+      .brand span:last-child {
+        display: none;
+      }
+
+      .back-label,
+      .notice-label {
+        display: none;
+      }
+
+      .brand-mark {
+        width: 40px;
+        height: 40px;
+      }
+
+      .points-chip {
+        padding: 0 10px;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+        min-height: 0;
+        padding: 25px 22px;
+        border-radius: 26px;
+      }
+
+      .hero-art {
+        min-height: 164px;
+      }
+
+      .book-stack {
+        width: 210px;
+        height: 170px;
+        transform: scale(0.8);
+        transform-origin: center;
+      }
+
+      .tree {
+        top: -50px;
+      }
+
+      .book.one { bottom: -10px; }
+      .book.two { bottom: 30px; }
+      .book.three { bottom: 72px; }
+
+      .hero-actions > button {
+        flex: 1 1 140px;
+      }
+
+      .book-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 11px;
+      }
+
+      .home-due-list {
+        grid-template-columns: 1fr;
+      }
+
+      .book-cover {
+        height: 128px;
+        font-size: 52px;
+      }
+
+      .book-body {
+        padding: 13px;
+      }
+
+      .book-body h3 {
+        font-size: 15px;
+      }
+
+      .book-meta {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .card-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        padding: 17px;
+      }
+
+      .timer-ring {
+        width: 184px;
+        height: 184px;
+      }
+
+      .loan-card {
+        grid-template-columns: 50px minmax(0, 1fr);
+      }
+
+      .reminder-panel {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .reminder-panel > button {
+        width: 100%;
+      }
+
+      .loan-icon {
+        width: 50px;
+        height: 60px;
+      }
+
+      .loan-actions {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .admin-summary {
+        grid-template-columns: 1fr;
+      }
+
+      .bottom-nav {
+        position: fixed;
+        z-index: 40;
+        right: 10px;
+        bottom: max(10px, env(safe-area-inset-bottom));
+        left: 10px;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        padding: 7px;
+        border: 1px solid rgba(219, 232, 221, 0.9);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: 0 14px 36px rgba(32, 77, 51, 0.18);
+        backdrop-filter: blur(14px);
+      }
+
+      .bottom-nav .nav-btn {
+        display: grid;
+        min-width: 0;
+        min-height: 50px;
+        padding: 4px 2px;
+        place-items: center;
+        border-radius: 15px;
+        font-size: 10px;
+      }
+
+      .bottom-nav .nav-btn span {
+        display: block;
+        font-size: 20px;
+        line-height: 1;
+      }
+
+      .modal-backdrop {
+        padding: 10px;
+      }
+
+      .modal-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .brand {
+        display: none;
+      }
+
+      .book-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .stat-card {
+        padding: 14px;
+      }
+    }
+
+    /* ==================== 小程序优先适配：手机小程序样式，随后扩展网页端 ==================== */
+    .stat-button {
+      width: 100%;
+      min-height: 0;
+      color: inherit;
+      text-align: left;
+    }
+
+    @media (max-width: 899px) {
+      body {
+        background: #f5f7f6;
+      }
+
+      .app-shell {
+        width: 100%;
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 0 12px calc(92px + env(safe-area-inset-bottom));
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        height: calc(58px + env(safe-area-inset-top));
+        margin: 0 -12px 14px;
+        padding: env(safe-area-inset-top) 12px 0;
+        border-bottom: 1px solid #e7ece8;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 4px 16px rgba(32, 77, 51, 0.05);
+      }
+
+      .desktop-nav {
+        display: none;
+      }
+
+      .brand {
+        position: absolute;
+        left: 50%;
+        display: flex !important;
+        gap: 7px;
+        transform: translateX(-50%);
+        font-size: 16px;
+        white-space: nowrap;
+      }
+
+      .brand-mark {
+        width: 30px;
+        height: 30px;
+        border-radius: 10px;
+        box-shadow: none;
+        font-size: 18px;
+      }
+
+      .brand span:last-child {
+        display: inline !important;
+      }
+
+      .top-actions {
+        margin-left: auto;
+      }
+
+      #rewardBtn,
+      #noticeBtn,
+      body.user-role #logoutBtn {
+        display: none;
+      }
+
+      #profileBtn {
+        min-width: 58px;
+        height: 36px;
+        min-height: 36px;
+        border-radius: 999px;
+        letter-spacing: 2px;
+      }
+
+      .back-btn {
+        min-width: 42px;
+        height: 42px;
+        min-height: 42px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        font-size: 23px;
+      }
+
+      .back-label {
+        display: none;
+      }
+
+      .hero {
+        min-height: 0;
+        padding: 20px 18px;
+        border-radius: 20px;
+        grid-template-columns: 1fr;
+      }
+
+      .hero-art {
+        display: none;
+      }
+
+      .hero h1 {
+        font-size: clamp(27px, 8vw, 36px);
+      }
+
+      .hero p {
+        margin: 12px 0 18px;
+        font-size: 14px;
+        line-height: 1.7;
+      }
+
+      .hero-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .hero-actions > button {
+        width: 100%;
+        min-width: 0;
+        padding: 0 10px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .stat-card {
+        min-height: 86px;
+        padding: 14px;
+        border-radius: 16px;
+        background: white;
+      }
+
+      .stat-card strong {
+        font-size: 23px;
+      }
+
+      .stat-button:active {
+        background: var(--green-100);
+      }
+
+      .section {
+        margin-top: 20px;
+      }
+
+      .section-head {
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .section-head h2,
+      .page-heading h1 {
+        font-size: 23px;
+      }
+
+      .due-board,
+      .panel,
+      .admin-table-section {
+        padding: 16px;
+        border-radius: 18px;
+        box-shadow: none;
+      }
+
+      .book-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .book-card {
+        border-radius: 17px;
+        box-shadow: none;
+      }
+
+      .book-cover {
+        height: 122px;
+      }
+
+      .toolbar {
+        position: sticky;
+        z-index: 8;
+        top: calc(62px + env(safe-area-inset-top));
+        gap: 8px;
+        padding: 8px 0;
+        background: #f5f7f6;
+      }
+
+      .search-box input,
+      .toolbar select {
+        min-height: 48px;
+        border-radius: 14px;
+      }
+
+      body.user-role .bottom-nav {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .bottom-nav {
+        right: 0;
+        bottom: 0;
+        left: 0;
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+        border-right: 0;
+        border-bottom: 0;
+        border-left: 0;
+        border-radius: 20px 20px 0 0;
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 -8px 28px rgba(32, 77, 51, 0.1);
+      }
+
+      .bottom-nav .nav-btn {
+        min-height: 55px;
+        border-radius: 14px;
+      }
+
+      .bottom-nav .nav-btn.active {
+        color: var(--green-700);
+        background: var(--green-100);
+        box-shadow: none;
+      }
+
+      .bottom-nav .nav-btn span {
+        font-size: 21px;
+      }
+
+      .modal-backdrop {
+        align-items: flex-end;
+        padding: 0;
+      }
+
+      .modal {
+        width: min(720px, 100%);
+        max-height: 88vh;
+        padding: 22px 18px calc(18px + env(safe-area-inset-bottom));
+        border-radius: 24px 24px 0 0;
+      }
+
+      .login-screen {
+        align-items: start;
+        padding: max(18px, env(safe-area-inset-top)) 12px 18px;
+      }
+
+      .login-card {
+        width: min(460px, 100%);
+        margin-top: 3vh;
+        padding: 22px 18px;
+        border-radius: 24px;
+        box-shadow: 0 14px 44px rgba(32, 77, 51, 0.13);
+      }
+
+      .admin-summary {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .admin-stat {
+        padding: 13px 10px;
+      }
+
+      .admin-stat strong {
+        font-size: 24px;
+      }
+
+      /* ==================== 页面样式：首页缩小体积、按钮放大，减少手机误触 ==================== */
+      #view-home .hero {
+        padding: 16px;
+      }
+
+      #view-home .eyebrow {
+        margin-bottom: 8px;
+        padding: 6px 10px;
+      }
+
+      #view-home .hero h1 {
+        font-size: clamp(23px, 7vw, 30px);
+      }
+
+      #view-home .hero p {
+        margin: 8px 0 14px;
+        line-height: 1.55;
+      }
+
+      #view-home .hero-actions {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      #view-home .hero-actions > button {
+        min-height: 58px;
+        padding: 0 16px;
+        font-size: 16px;
+      }
+
+      #view-home .stats-grid {
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      #view-home .stat-card {
+        min-height: 72px;
+        padding: 10px 12px;
+      }
+
+      #view-home .stat-card strong {
+        font-size: 20px;
+      }
+
+      #view-home .section {
+        margin-top: 14px;
+      }
+
+      .small-btn {
+        min-height: 48px;
+        padding: 0 14px;
+        font-size: 15px;
+        touch-action: manipulation;
+      }
+
+      .card-actions,
+      .loan-actions {
+        gap: 12px;
+      }
+
+      .admin-password-wrap {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (min-width: 900px) {
+      .app-shell {
+        width: min(1180px, 100%);
+        padding: 20px 22px 96px;
+      }
+
+      .desktop-nav {
+        display: flex;
+      }
+
+      .bottom-nav {
+        display: none !important;
+      }
+
+      .stat-button:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+      }
+
+      /* ==================== 页面样式：电脑网页端扩展布局 ==================== */
+      .topbar {
+        min-height: 74px;
+      }
+
+      .hero {
+        grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.65fr);
+      }
+
+      .page-heading {
+        margin: 18px 0 26px;
+      }
+
+      .primary-btn,
+      .secondary-btn,
+      .ghost-btn,
+      .danger-btn {
+        min-height: 50px;
+      }
+
+      .admin-table-section,
+      .due-board,
+      .panel {
+        box-shadow: 0 10px 30px rgba(32, 77, 51, 0.07);
+      }
+    }
+
+    /* ==================== 页面样式：最终小程序优先适配 ==================== */
+    @media (max-width: 899px) {
+      :root {
+        --radius-lg: 20px;
+        --radius-md: 16px;
+      }
+
+      body {
+        background: #f3f6f4;
+      }
+
+      button {
+        touch-action: manipulation;
+      }
+
+      .app-shell {
+        max-width: 560px;
+        padding-right: 12px;
+        padding-left: 12px;
+      }
+
+      .topbar {
+        z-index: 60;
+        height: calc(56px + env(safe-area-inset-top));
+        margin-bottom: 12px;
+        border-bottom-color: #e5ebe6;
+        background: rgba(255, 255, 255, 0.98);
+      }
+
+      .brand {
+        font-size: 16px;
+      }
+
+      .brand-mark {
+        width: 28px;
+        height: 28px;
+        border-radius: 9px;
+        font-size: 17px;
+      }
+
+      #profileBtn {
+        min-width: 52px;
+        min-height: 40px;
+        border-color: #e1e8e3;
+        background: #f7faf8;
+      }
+
+      .view {
+        padding-bottom: 6px;
+      }
+
+      .page-heading {
+        margin: 12px 2px 16px;
+      }
+
+      .page-heading h1,
+      .section-head h2 {
+        font-size: 22px;
+      }
+
+      .page-heading p,
+      .section-head p {
+        font-size: 13px;
+      }
+
+      .hero {
+        border-radius: 18px;
+        box-shadow: 0 8px 22px rgba(32, 77, 51, 0.12);
+      }
+
+      #view-home .hero h1 {
+        max-width: 420px;
+        letter-spacing: -0.02em;
+      }
+
+      #view-home .hero-actions {
+        gap: 10px;
+      }
+
+      #view-home .hero-actions > button {
+        min-height: 56px;
+        border-radius: 15px;
+      }
+
+      .stats-grid {
+        gap: 8px;
+      }
+
+      .stat-card {
+        border-color: #e5ece7;
+        box-shadow: none;
+      }
+
+      .reminder-panel,
+      .due-board,
+      .panel,
+      .admin-table-section {
+        border: 1px solid #e3ebe5;
+        background: #fff;
+      }
+
+      .reminder-panel {
+        gap: 14px;
+      }
+
+      .reminder-panel > button {
+        min-height: 52px;
+      }
+
+      .section-head {
+        gap: 10px;
+      }
+
+      .text-btn {
+        min-width: 74px;
+        min-height: 48px;
+      }
+
+      .book-grid {
+        gap: 10px;
+      }
+
+      .book-cover {
+        height: 112px;
+        font-size: 48px;
+      }
+
+      .book-body {
+        padding: 12px;
+      }
+
+      .book-body h3 {
+        overflow: hidden;
+        font-size: 16px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .book-meta {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 4px 8px;
+        margin: 7px 0 12px;
+      }
+
+      .book-meta span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .book-meta span:last-child {
+        display: none;
+      }
+
+      .card-actions {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .small-btn {
+        min-height: 50px;
+        padding: 0 8px;
+        border-radius: 13px;
+        font-size: 14px;
+      }
+
+      .home-due-card,
+      .loan-card {
+        border-color: #e3ebe5;
+        background: #fff;
+        box-shadow: none;
+      }
+
+      .timer-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .timer-actions > button {
+        width: 100%;
+        min-height: 52px;
+      }
+
+      #finishReading {
+        grid-column: 1 / -1;
+      }
+
+      .bottom-nav {
+        max-width: 560px;
+        min-height: calc(68px + env(safe-area-inset-bottom));
+        padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+        border-radius: 18px 18px 0 0;
+      }
+
+      .bottom-nav .nav-btn {
+        min-height: 56px;
+        border-radius: 13px;
+        font-size: 11px;
+      }
+
+      .bottom-nav .nav-btn span {
+        margin-bottom: 2px;
+        font-size: 22px;
+      }
+
+      .modal-actions {
+        gap: 10px;
+      }
+
+      .modal-actions > button {
+        min-height: 52px;
+      }
+
+      .login-card {
+        border-radius: 22px;
+      }
+
+      .login-actions > button,
+      .admin-password-wrap button,
+      .test-reader-btn {
+        min-height: 52px;
+      }
+    }
+
+    @media (min-width: 600px) and (max-width: 899px) {
+      .app-shell,
+      .bottom-nav {
+        max-width: 720px;
+      }
+
+      #allBooks {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .home-due-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 380px) {
+      .app-shell {
+        padding-right: 10px;
+        padding-left: 10px;
+      }
+
+      .topbar {
+        margin-right: -10px;
+        margin-left: -10px;
+        padding-right: 10px;
+        padding-left: 10px;
+      }
+
+      .brand span:last-child {
+        display: inline !important;
+      }
+
+      .book-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .card-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        gap: 6px;
+      }
+
+      #view-home .stat-card {
+        padding: 9px 10px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+<style id="portfolio-return-style">
+  body { padding-top: 54px !important; }
+  .topbar, .app-header, .site-header { top: 54px !important; }
+  .portfolio-return-bar { position: fixed; inset: 0 0 auto 0; z-index: 2147483647; min-height: 54px; display: flex; align-items: center; padding: 8px 14px; background: rgba(255,255,255,.96); border-bottom: 1px solid rgba(23,59,104,.14); box-shadow: 0 5px 18px rgba(28,45,78,.08); backdrop-filter: blur(12px); }
+  .portfolio-back { display: inline-flex; min-height: 38px; align-items: center; gap: 7px; padding: 7px 13px; border: 1px solid rgba(23,59,104,.16); border-radius: 999px; color: #173b68 !important; background: #fff; font: 700 14px/1.2 "Microsoft YaHei","PingFang SC",system-ui,sans-serif; text-decoration: none !important; box-shadow: 0 3px 10px rgba(23,59,104,.07); }
+  .portfolio-back:hover { transform: translateY(-1px); }
+</style>
+<style id="ai-lab-responsive-v2">
+  /* 全站响应式增强：宽屏保持网页版，移动设备自动切换 H5。 */
+  html, body { max-width: 100%; }
+  body { overflow-x: clip; }
+  img, video, svg { max-width: 100%; height: auto; }
+  canvas { max-width: 100%; }
+  table { max-width: 100%; }
+  .table-wrap, .table-responsive, .report-table, .admin-table-section { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  html.ai-lab-h5 { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  html.ai-lab-h5, html.ai-lab-h5 body { width: 100%; min-width: 0 !important; overflow-x: hidden !important; }
+  html.ai-lab-h5 body { overscroll-behavior-x: none; }
+  html.ai-lab-h5 .app-shell,
+  html.ai-lab-h5 .game-shell,
+  html.ai-lab-h5 .game-app,
+  html.ai-lab-h5 .shell,
+  html.ai-lab-h5 .container,
+  html.ai-lab-h5 .wrapper,
+  html.ai-lab-h5 .content,
+  html.ai-lab-h5 .main,
+  html.ai-lab-h5 main { width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin-right: auto !important; margin-left: auto !important; }
+
+  html.ai-lab-h5 .home-layout,
+  html.ai-lab-h5 .calendar-layout,
+  html.ai-lab-h5 .dashboard-grid,
+  html.ai-lab-h5 .manager-grid,
+  html.ai-lab-h5 .map-grid,
+  html.ai-lab-h5 .report-layout,
+  html.ai-lab-h5 .report-grid,
+  html.ai-lab-h5 .profile-grid,
+  html.ai-lab-h5 .content-grid,
+  html.ai-lab-h5 .detail-grid,
+  html.ai-lab-h5 .library-grid,
+  html.ai-lab-h5 .test-reader-grid,
+  html.ai-lab-h5 .tech-grid,
+  html.ai-lab-h5 .controls-guide-grid,
+  html.ai-lab-h5 .shop-layout,
+  html.ai-lab-h5 .login,
+  html.ai-lab-h5 .hero { grid-template-columns: minmax(0, 1fr) !important; }
+
+  html.ai-lab-h5 .form-grid,
+  html.ai-lab-h5 .admin-form,
+  html.ai-lab-h5 .stats-grid,
+  html.ai-lab-h5 .quick-grid,
+  html.ai-lab-h5 .book-grid,
+  html.ai-lab-h5 .person-grid,
+  html.ai-lab-h5 .region-grid,
+  html.ai-lab-h5 .rules-grid,
+  html.ai-lab-h5 .identity-role-grid,
+  html.ai-lab-h5 .grid-3,
+  html.ai-lab-h5 .rewards-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)) !important; }
+
+  html.ai-lab-h5 .header-actions,
+  html.ai-lab-h5 .hero-actions,
+  html.ai-lab-h5 .main-actions,
+  html.ai-lab-h5 .top-controls,
+  html.ai-lab-h5 .action-row,
+  html.ai-lab-h5 .modal-actions,
+  html.ai-lab-h5 .toolbar,
+  html.ai-lab-h5 .controls { max-width: 100%; flex-wrap: wrap !important; }
+
+  html.ai-lab-h5 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  html.ai-lab-h5 select,
+  html.ai-lab-h5 textarea { width: 100%; max-width: 100%; min-width: 0; font-size: 16px !important; }
+  html.ai-lab-h5 button,
+  html.ai-lab-h5 .btn,
+  html.ai-lab-h5 [role="button"] { min-height: 44px; touch-action: manipulation; }
+  html.ai-lab-h5 textarea { resize: vertical; }
+
+  html.ai-lab-h5 canvas { display: block; width: auto; height: auto; max-width: 100% !important; max-height: min(68vh, 680px); margin-right: auto; margin-left: auto; touch-action: none; }
+  html.ai-lab-h5 .canvas-container,
+  html.ai-lab-h5 .canvas-wrapper,
+  html.ai-lab-h5 .canvas-wrap,
+  html.ai-lab-h5 .canvas-box,
+  html.ai-lab-h5 .board-shell,
+  html.ai-lab-h5 .board-wrapper,
+  html.ai-lab-h5 .gamewrap { width: 100% !important; max-width: 100% !important; min-width: 0 !important; overflow: hidden; }
+
+  html.ai-lab-h5 .modal-backdrop { padding: 12px !important; }
+  html.ai-lab-h5 .modal,
+  html.ai-lab-h5 .modal-card,
+  html.ai-lab-h5 .redeem-panel { width: min(100%, calc(100vw - 24px)) !important; max-width: calc(100vw - 24px) !important; max-height: 88dvh; overflow-y: auto; }
+  html.ai-lab-h5 .bottom-nav { padding-bottom: max(7px, env(safe-area-inset-bottom)); }
+  html.ai-lab-h5 .portfolio-return-bar { min-height: 54px; padding-right: 10px; padding-left: 10px; }
+  html.ai-lab-h5 .portfolio-back { max-width: calc(100vw - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  @media (max-width: 520px) {
+    html.ai-lab-h5 .stats-grid,
+    html.ai-lab-h5 .quick-grid,
+    html.ai-lab-h5 .form-grid,
+    html.ai-lab-h5 .admin-form,
+    html.ai-lab-h5 .identity-role-grid { grid-template-columns: minmax(0, 1fr) !important; }
+    html.ai-lab-h5 .card-footer { align-items: flex-start; flex-direction: column; }
+  }
+</style>
+<script id="ai-lab-responsive-runtime">
+(() => {
+  const root = document.documentElement;
+  const mobileUa = /Android|webOS|iPhone|iPad|iPod|Mobile|IEMobile|Opera Mini/i.test(navigator.userAgent || "");
+  const coarsePointer = window.matchMedia?.("(hover: none) and (pointer: coarse)")?.matches || false;
+  const updateLayoutMode = () => {
+    const narrowScreen = window.innerWidth <= 768;
+    const touchTablet = coarsePointer && window.innerWidth <= 1024;
+    const mobileDevice = mobileUa && window.innerWidth <= 1180;
+    const useH5 = narrowScreen || touchTablet || mobileDevice;
+    root.classList.toggle("ai-lab-h5", useH5);
+    root.classList.toggle("ai-lab-web", !useH5);
+    root.dataset.layoutMode = useH5 ? "h5" : "web";
+  };
+  updateLayoutMode();
+  window.addEventListener("resize", updateLayoutMode, { passive: true });
+  window.addEventListener("orientationchange", updateLayoutMode, { passive: true });
+})();
+</script>
+</head>
+<body>
+<div class="portfolio-return-bar"><a class="portfolio-back" href="../library-works.html" data-portfolio-back>← 返回图书馆借阅作品集</a></div>
+  <section class="login-screen" id="loginScreen" aria-labelledby="loginTitle">
+    <div class="login-card">
+      <div class="login-logo">🌲</div>
+      <h1 id="loginTitle">森林图书馆</h1>
+      <p class="login-intro">图书馆现场借书、还书和阅读记录系统</p>
+      <div class="onsite-note">
+        <span>📍</span>
+        <span><strong>这是线下借书系统。</strong><br>读者可登记借书；还书必须把实体书交给管理员现场验收。</span>
+      </div>
+      <div class="field">
+        <label for="loginName">读者姓名</label>
+        <input id="loginName" maxlength="12" placeholder="请输入姓名">
+      </div>
+      <div class="field">
+        <label for="loginPhone">联系电话（必填）</label>
+        <input id="loginPhone" inputmode="tel" maxlength="20" required placeholder="方便到期时联系">
+      </div>
+      <div class="login-actions">
+        <button class="primary-btn green" id="readerLoginBtn">📚 读者进入</button>
+        <button class="secondary-btn" id="clearLoginBtn">清空填写</button>
+      </div>
+      <div class="test-reader-entry">
+        <strong>测试读者快速进入</strong>
+        <div class="test-reader-grid">
+          <button class="test-reader-btn" data-test-reader="reader-1">林小雨<small>正常借阅</small></button>
+          <button class="test-reader-btn" data-test-reader="reader-2">陈明宇<small>快到期</small></button>
+          <button class="test-reader-btn" data-test-reader="reader-3">王可欣<small>有逾期</small></button>
+        </div>
+      </div>
+      <div class="admin-entry">
+        <p style="margin:0 0 10px;color:var(--muted)">图书馆工作人员入口</p>
+        <div class="admin-password-wrap">
+          <input id="adminPassword" type="password" inputmode="numeric" maxlength="12" autocomplete="current-password" placeholder="请输入管理员密码">
+          <button class="ghost-btn" id="adminLoginBtn">🧑‍💼 管理员进入</button>
+        </div>
+        <p class="admin-password-hint">演示密码：123456</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <button class="icon-btn back-btn" id="backBtn" aria-label="返回上一页" disabled>← <span class="back-label">返回</span></button>
+      <div class="brand" aria-label="森林图书馆">
+        <div class="brand-mark">🌲</div>
+        <span>森林图书馆</span>
+      </div>
+      <nav class="desktop-nav" aria-label="主导航">
+        <button class="nav-btn active" data-view="home">首页</button>
+        <button class="nav-btn" data-view="books">找书</button>
+        <button class="nav-btn" data-view="reading">阅读计划</button>
+        <button class="nav-btn" data-view="loans">借阅记录</button>
+        <button class="nav-btn" data-view="admin">管理员</button>
+      </nav>
+      <div class="top-actions">
+        <button class="points-chip" id="rewardBtn" aria-label="打开积分礼品">
+          ⭐ <span id="pointsText">0</span>
+        </button>
+        <div class="notification-wrap">
+          <button class="icon-btn" id="noticeBtn" aria-label="查看提醒">🔔 <span class="notice-label">提醒</span><b class="notice-count" id="noticeCount">0</b></button>
+          <i class="notification-dot" id="noticeDot" hidden></i>
+        </div>
+        <button class="icon-btn" id="profileBtn" aria-label="打开更多功能">•••</button>
+        <button class="icon-btn" id="logoutBtn" aria-label="退出系统">退出</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="view active" id="view-home">
+        <div class="hero">
+          <div style="position:relative;z-index:2">
+            <div class="eyebrow">📍 图书馆现场借阅</div>
+            <h1><span id="helloName">小读者</span>，开启今天的阅读冒险吧！</h1>
+            <p>请在图书馆现场选择一本书并登记借阅。系统会记住借阅时间，并在还书前清楚提醒你。</p>
+            <div class="hero-actions">
+              <button class="primary-btn" data-go="books">🔎 第一步：去找书</button>
+              <button class="secondary-btn" data-go="reading">⏱ 开始15分钟阅读</button>
+            </div>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="book-stack">
+              <div class="tree">🌳</div>
+              <div class="book one"></div>
+              <div class="book two"></div>
+              <div class="book three"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-grid" aria-label="阅读数据">
+          <article class="stat-card"><span>正在借阅</span><strong id="homeLoanCount">0 本</strong></article>
+          <article class="stat-card"><span>累计阅读</span><strong id="homeReadCount">0 天</strong></article>
+          <article class="stat-card"><span>连续打卡</span><strong id="homeStreak">0 天</strong></article>
+          <button class="stat-card stat-button" id="homeRewardBtn"><span>森林积分</span><strong id="homePoints">0 分</strong></button>
+        </div>
+
+        <section class="section panel reminder-panel" id="homeReminderPanel">
+          <div class="reminder-message">
+            <span id="homeReminderIcon">🔔</span>
+            <div>
+              <h2>到期提醒</h2>
+              <p id="homeReminderText">系统正在检查你的借阅记录。</p>
+            </div>
+          </div>
+          <button class="primary-btn green" id="homeReminderBtn">查看全部提醒</button>
+        </section>
+
+        <section class="section due-board">
+          <div class="section-head">
+            <div>
+              <h2>待还书</h2>
+              <p>归还日期一眼看清，快到期时会变成黄色提醒。</p>
+            </div>
+            <button class="text-btn" data-go="loans">借书记录 →</button>
+          </div>
+          <div class="home-due-list" id="homeDueList"></div>
+          <div class="empty-state" id="homeDueEmpty">
+            <span class="emoji">📖</span>
+            <h3>目前没有待还图书</h3>
+            <p>第一步：去书架选择一本喜欢的书。</p>
+            <button class="primary-btn green" data-go="books">去找书</button>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h2>为你推荐</h2>
+              <p>适合9—14岁学生的有趣好书</p>
+            </div>
+            <button class="text-btn" data-go="books">查看全部 →</button>
+          </div>
+          <div class="book-grid" id="homeBooks"></div>
+        </section>
+      </section>
+
+      <section class="view" id="view-books">
+        <div class="page-heading">
+          <h1>找一本想读的书 📚</h1>
+          <p>可以按书名、作者搜索，也可以选择喜欢的分类。</p>
+        </div>
+        <div class="toolbar">
+          <label class="search-box">
+            <span>🔎</span>
+            <input id="bookSearch" type="search" placeholder="搜索书名或作者" aria-label="搜索图书">
+          </label>
+          <select id="categoryFilter" aria-label="图书分类">
+            <option value="全部">全部分类</option>
+            <option value="文学">文学故事</option>
+            <option value="科普">自然科普</option>
+            <option value="历史">历史人文</option>
+            <option value="成长">成长励志</option>
+          </select>
+        </div>
+        <div class="book-grid" id="allBooks"></div>
+        <div class="empty-state" id="booksEmpty" hidden>
+          <span class="emoji">🔍</span>
+          <h3>暂时没找到这本书</h3>
+          <p>换一个关键词或分类试试看。</p>
+          <button class="ghost-btn" id="clearSearch">清除搜索</button>
+        </div>
+      </section>
+
+      <section class="view" id="view-reading">
+        <div class="page-heading">
+          <h1>今日阅读计划 ⏱</h1>
+          <p>每天专心读一点，完成后获得10积分。</p>
+        </div>
+        <div class="two-column">
+          <section class="panel reading-panel">
+            <h2>专注阅读计时</h2>
+            <p id="todayStatus">今天还没有完成阅读打卡</p>
+            <div class="plan-picker" aria-label="选择阅读时长">
+              <button class="minute-btn" data-minutes="5">5分</button>
+              <button class="minute-btn active" data-minutes="15">15分</button>
+              <button class="minute-btn" data-minutes="25">25分</button>
+            </div>
+            <div class="timer-ring" id="timerRing">
+              <div>
+                <div class="timer-value" id="timerValue">15:00</div>
+                <span class="timer-label" id="timerLabel">准备好了吗？</span>
+              </div>
+            </div>
+            <div class="timer-actions">
+              <button class="primary-btn green" id="timerStart">▶ 开始阅读</button>
+              <button class="secondary-btn" id="timerReset">↻ 重新开始</button>
+              <button class="ghost-btn" id="finishReading" disabled>🔒 完成计时后解锁</button>
+            </div>
+          </section>
+          <aside>
+            <section class="panel">
+              <h3>最近7天</h3>
+              <div class="streak-row" id="streakRow"></div>
+              <p style="color:var(--muted);line-height:1.7">完成一次阅读计划，就会点亮一片小森林。</p>
+            </section>
+            <div class="tip-card" style="margin-top:14px">
+              <strong>🌱 阅读小技巧</strong>
+              <p>把手机调成静音，读完一小节后，用一句话说出最有趣的内容。</p>
+            </div>
+            <div class="tip-card">
+              <strong>🎁 今日奖励</strong>
+              <p>完成阅读并答对一个小问题，可获得10积分。</p>
+            </div>
+            <section class="panel" style="margin-top:14px">
+              <h3>读书奖励获得方法</h3>
+              <div class="reward-steps">
+                <div class="reward-step">选择阅读时间并开始</div>
+                <div class="reward-step">完成后回答一个小问题</div>
+                <div class="reward-step">领取积分并兑换礼品</div>
+              </div>
+            </section>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" id="view-loans">
+        <div class="page-heading">
+          <h1>我的借阅记录 🗓️</h1>
+          <p>系统会显示归还日期；还书需带实体书到图书馆，由管理员验收登记。</p>
+        </div>
+        <div class="loan-list" id="loanList"></div>
+        <div class="empty-state" id="loansEmpty">
+          <span class="emoji">🦉</span>
+          <h3>还没有借书记录</h3>
+          <p>先去书架选一本喜欢的书吧。</p>
+          <button class="primary-btn green" data-go="books">去找书</button>
+        </div>
+      </section>
+
+      <section class="view" id="view-admin">
+        <div class="page-heading">
+          <h1>管理员看板 🧑‍💼</h1>
+          <p>在图书馆现场登记归还，并查看当前借阅、即将到期、逾期和读者联系方式。</p>
+        </div>
+        <div class="admin-summary">
+          <article class="admin-stat"><span>当前借阅</span><strong id="adminActive">0</strong></article>
+          <article class="admin-stat"><span>3天内到期</span><strong id="adminSoon">0</strong></article>
+          <article class="admin-stat"><span>已经逾期</span><strong id="adminOverdue">0</strong></article>
+        </div>
+
+        <section class="admin-table-section">
+          <div class="section-head">
+            <div>
+              <h2>👥 测试读者用户</h2>
+              <p>共3位，分别覆盖正常、快到期和逾期状态。</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>读者姓名</th>
+                  <th>联系电话</th>
+                  <th>用户状态</th>
+                  <th>当前借阅</th>
+                  <th>测试说明</th>
+                </tr>
+              </thead>
+              <tbody id="adminReadersTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="admin-table-section">
+          <h2>⏰ 快到期表格</h2>
+          <p>显示3天内需要归还的图书，管理员可以根据电话联系读者。</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>读者姓名</th>
+                  <th>联系电话</th>
+                  <th>图书</th>
+                  <th>应还日期</th>
+                  <th>剩余时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="adminSoonTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="admin-table-section">
+          <h2>⚠️ 已到期表格</h2>
+          <p>显示超过归还日期、仍未归还的图书。</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>读者姓名</th>
+                  <th>联系电话</th>
+                  <th>图书</th>
+                  <th>应还日期</th>
+                  <th>逾期时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="adminOverdueTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <div class="section-head" style="margin-top:26px">
+          <div>
+            <h2>全部借阅记录</h2>
+            <p>可以按读者姓名、电话或书名搜索。</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="search-box">
+            <span>🔎</span>
+            <input id="adminSearch" type="search" placeholder="搜索读者、电话或书名" aria-label="搜索借阅记录">
+          </label>
+          <select id="adminFilter" aria-label="借阅状态">
+            <option value="全部">全部状态</option>
+            <option value="正常">正常借阅</option>
+            <option value="即将到期">即将到期</option>
+            <option value="已逾期">已逾期</option>
+            <option value="已归还">已归还</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>读者</th>
+                <th>联系电话</th>
+                <th>图书</th>
+                <th>借书日期</th>
+                <th>应还日期</th>
+                <th>状态</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="adminTable"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="adminEmpty" hidden>
+          <span class="emoji">📋</span>
+          <h3>没有符合条件的记录</h3>
+          <p>学生借书后，记录会自动出现在这里。</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="bottom-nav" aria-label="手机端导航">
+    <button class="nav-btn active" data-view="home"><span>🏠</span>首页</button>
+    <button class="nav-btn" data-view="books"><span>📚</span>找书</button>
+    <button class="nav-btn" data-view="reading"><span>⏱</span>阅读</button>
+    <button class="nav-btn" data-view="loans"><span>🗓</span>借阅</button>
+    <button class="nav-btn" data-view="admin"><span>🧑‍💼</span>管理</button>
+  </nav>
+
+  <div class="modal-backdrop" id="modalBackdrop" role="presentation">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <h2 id="modalTitle">提示</h2>
+        <button class="close-btn" id="modalClose" aria-label="关闭弹窗">✕</button>
+      </div>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+  <script>
+    /* ==================== 修改内容：图书、借阅天数和奖励规则可在这里调整 ==================== */
+    const BOOKS = [
+      { id: 1, title: "昆虫记", author: "法布尔", category: "科普", emoji: "🦋", color: "#80c99b", age: "9—14岁", desc: "跟着法布尔观察昆虫世界，发现小生命的大秘密。", sample: "清晨的草丛里，昆虫们已经开始了忙碌的一天。仔细观察，每一片叶子下面都可能藏着新发现。" },
+      { id: 2, title: "小王子", author: "圣埃克苏佩里", category: "文学", emoji: "🪐", color: "#7bb8e8", age: "10—14岁", desc: "一段关于友谊、成长和责任的星球旅行。", sample: "小王子离开自己的小星球，去认识不同的人。他慢慢明白，真正重要的东西要用心去看。" },
+      { id: 3, title: "西游记", author: "吴承恩", category: "文学", emoji: "🐒", color: "#f0a76f", age: "9—14岁", desc: "师徒四人一路降妖除魔，向着目标勇敢前进。", sample: "孙悟空举起金箍棒，仔细观察前方的山路。无论遇到多少困难，他们都没有忘记共同的目标。" },
+      { id: 4, title: "十万个为什么", author: "少年科普编写组", category: "科普", emoji: "🚀", color: "#706bd3", age: "9—13岁", desc: "从地球到宇宙，用有趣的问题打开科学大门。", sample: "为什么天空看起来是蓝色的？阳光看似透明，其实由许多颜色组成。光线经过空气时，会发生奇妙的变化。" },
+      { id: 5, title: "故宫里的大怪兽", author: "常怡", category: "历史", emoji: "🏯", color: "#df7467", age: "9—13岁", desc: "在古老建筑中展开一场奇妙的历史冒险。", sample: "夜色中的故宫安静极了，屋脊上的神兽却悄悄睁开了眼睛。一个新的故事，正从红墙后开始。" },
+      { id: 6, title: "夏洛的网", author: "E·B·怀特", category: "文学", emoji: "🕸️", color: "#e497bd", age: "9—14岁", desc: "一只蜘蛛用智慧与真心守护朋友的故事。", sample: "谷仓里住着许多动物。夏洛虽然个子很小，却愿意用自己的办法帮助朋友，让大家看见友谊的力量。" },
+      { id: 7, title: "中国历史故事", author: "林汉达", category: "历史", emoji: "📜", color: "#d7a63d", age: "10—14岁", desc: "用生动故事认识历史人物与重要事件。", sample: "历史不是一串冷冰冰的年份，而是许多人作出的选择。每一个故事背后，都藏着值得思考的原因。" },
+      { id: 8, title: "海底两万里", author: "儒勒·凡尔纳", category: "文学", emoji: "🐋", color: "#348eaa", age: "10—14岁", desc: "乘坐鹦鹉螺号，探索神秘壮丽的海底世界。", sample: "潜艇慢慢进入深海，窗外闪过从未见过的鱼群。黑暗并不可怕，因为好奇心正照亮前方。" },
+      { id: 9, title: "少年读史记", author: "张嘉骅", category: "历史", emoji: "🛡️", color: "#8a765f", age: "10—14岁", desc: "从人物命运中读懂勇气、选择和担当。", sample: "一个人的决定，有时会改变许多人的命运。读历史人物的故事，也是在学习怎样面对自己的选择。" },
+      { id: 10, title: "草房子", author: "曹文轩", category: "成长", emoji: "🏡", color: "#caa959", age: "10—14岁", desc: "在温暖的校园故事里体会成长与善意。", sample: "阳光照在金色的草房子上，校园里又传来了笑声。那些普通的日子，后来都成了珍贵的记忆。" },
+      { id: 11, title: "假如给我三天光明", author: "海伦·凯勒", category: "成长", emoji: "🌤️", color: "#edaa5a", age: "11—14岁", desc: "在困难中保持勇气，发现学习和生活的光亮。", sample: "只要愿意继续学习，黑暗中也能找到方向。每一次小小的进步，都在告诉我们不要轻易放弃。" },
+      { id: 12, title: "森林报", author: "维·比安基", category: "科普", emoji: "🦉", color: "#559c6b", age: "9—13岁", desc: "像看报纸一样，追踪森林一年四季的新鲜事。", sample: "春天的森林苏醒了。鸟儿传来第一条新闻，河面上的冰也开始悄悄变化，大自然每天都有新故事。" }
+    ];
+
+    const STORAGE_KEY = "forestLibraryData_v1";
+    const SESSION_KEY = "forestLibrarySession_v1";
+    const ADMIN_PASSWORD = "123456";
+    const TEST_READERS = [
+      { id: "reader-1", name: "林小雨", phone: "13800001111", note: "正常借阅用户" },
+      { id: "reader-2", name: "陈明宇", phone: "13800002222", note: "有图书快到期" },
+      { id: "reader-3", name: "王可欣", phone: "13800003333", note: "有图书已经逾期" }
+    ];
+    const DEFAULT_STATE = {
+      profile: { name: "小读者", phone: "", points: 0 },
+      readers: [],
+      loans: [],
+      checkins: [],
+      redemptions: [],
+      smsLogs: [],
+      settings: { reminder: true, planMinutes: 15 },
+      readingTimer: { remainingSeconds: null, runningSince: null },
+      testDataVersion: 0
+    };
+
+    let state = loadState();
+    let session = loadSession();
+    let currentView = "home";
+    let viewTrail = [];
+    let timerId = null;
+    let timerSeconds = Number.isFinite(state.readingTimer?.remainingSeconds)
+      ? Math.max(0, state.readingTimer.remainingSeconds)
+      : state.settings.planMinutes * 60;
+    let timerRunning = Boolean(state.readingTimer?.runningSince);
+    let toastTimer = null;
+
+    /* ==================== 数据保存：所有个人数据保存在浏览器 localStorage ==================== */
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return saved ? {
+          ...structuredClone(DEFAULT_STATE),
+          ...saved,
+          profile: { ...DEFAULT_STATE.profile, ...(saved.profile || {}) },
+          settings: { ...DEFAULT_STATE.settings, ...(saved.settings || {}) },
+          readingTimer: { ...DEFAULT_STATE.readingTimer, ...(saved.readingTimer || {}) }
+        } : structuredClone(DEFAULT_STATE);
+      } catch (error) {
+        return structuredClone(DEFAULT_STATE);
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (error) {
+        showToast("保存失败，请检查浏览器是否允许本地存储", true);
+      }
+    }
+
+    function loadSession() {
+      try {
+        const savedSession = JSON.parse(localStorage.getItem(SESSION_KEY));
+        if (savedSession?.role === "admin" && savedSession.adminVerified !== true) return null;
+        return savedSession;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function saveSession() {
+      if (session) {
+        localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+      } else {
+        localStorage.removeItem(SESSION_KEY);
+      }
+    }
+
+    function ensureTestData(force = false) {
+      const existingTests = state.loans.filter(loan => String(loan.id).startsWith("test-loan-"));
+      if (!force && state.testDataVersion === 1 && existingTests.length === 10 && state.readers?.length === 3) return;
+
+      const day = offset => localDateKey(addDays(new Date(), offset));
+      state.readers = structuredClone(TEST_READERS);
+      state.loans = state.loans.filter(loan => !String(loan.id).startsWith("test-loan-"));
+      state.loans.push(
+        { id: "test-loan-1", bookId: 1, readerName: "林小雨", readerPhone: "13800001111", borrowedAt: day(-2), dueDate: day(12), returnedAt: null, renewed: false },
+        { id: "test-loan-2", bookId: 2, readerName: "林小雨", readerPhone: "13800001111", borrowedAt: day(-6), dueDate: day(8), returnedAt: null, renewed: false },
+        { id: "test-loan-3", bookId: 3, readerName: "陈明宇", readerPhone: "13800002222", borrowedAt: day(-11), dueDate: day(3), returnedAt: null, renewed: false },
+        { id: "test-loan-4", bookId: 4, readerName: "陈明宇", readerPhone: "13800002222", borrowedAt: day(-13), dueDate: day(1), returnedAt: null, renewed: false },
+        { id: "test-loan-5", bookId: 5, readerName: "陈明宇", readerPhone: "13800002222", borrowedAt: day(-14), dueDate: day(0), returnedAt: null, renewed: false },
+        { id: "test-loan-6", bookId: 6, readerName: "王可欣", readerPhone: "13800003333", borrowedAt: day(-15), dueDate: day(-1), returnedAt: null, renewed: false },
+        { id: "test-loan-7", bookId: 7, readerName: "王可欣", readerPhone: "13800003333", borrowedAt: day(-21), dueDate: day(-7), returnedAt: null, renewed: false },
+        { id: "test-loan-8", bookId: 8, readerName: "林小雨", readerPhone: "13800001111", borrowedAt: day(-20), dueDate: day(-6), returnedAt: day(-7), renewed: false },
+        { id: "test-loan-9", bookId: 9, readerName: "王可欣", readerPhone: "13800003333", borrowedAt: day(-25), dueDate: day(-11), returnedAt: day(-8), renewed: false },
+        { id: "test-loan-10", bookId: 10, readerName: "陈明宇", readerPhone: "13800002222", borrowedAt: day(-16), dueDate: day(5), returnedAt: null, renewed: true }
+      );
+      state.testDataVersion = 1;
+      saveState();
+    }
+
+    function loginAsTestReader(readerId) {
+      const reader = TEST_READERS.find(item => item.id === readerId);
+      if (!reader) return showToast("没有找到测试读者", true);
+      document.getElementById("loginName").value = reader.name;
+      document.getElementById("loginPhone").value = reader.phone;
+      readerLogin();
+    }
+
+    function localDateKey(date = new Date()) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function addDays(date, days) {
+      const copy = new Date(date);
+      copy.setDate(copy.getDate() + days);
+      return copy;
+    }
+
+    function parseDate(value) {
+      return new Date(`${value}T12:00:00`);
+    }
+
+    function formatDate(value) {
+      const date = typeof value === "string" ? parseDate(value) : value;
+      return `${date.getMonth() + 1}月${date.getDate()}日`;
+    }
+
+    function daysUntil(dateString) {
+      const today = parseDate(localDateKey());
+      const target = parseDate(dateString);
+      return Math.ceil((target - today) / 86400000);
+    }
+
+    function bookById(id) {
+      return BOOKS.find(book => book.id === Number(id));
+    }
+
+    function activeLoans() {
+      return state.loans.filter(loan => !loan.returnedAt);
+    }
+
+    function readerLoans() {
+      const phone = state.profile.phone;
+      const name = state.profile.name;
+      return state.loans.filter(loan => {
+        if (phone && loan.readerPhone) return loan.readerPhone === phone;
+        return (loan.readerName || name) === name;
+      });
+    }
+
+    function activeReaderLoans() {
+      return readerLoans().filter(loan => !loan.returnedAt);
+    }
+
+    function loanStatus(loan) {
+      if (loan.returnedAt) return { label: "已归还", className: "" };
+      const left = daysUntil(loan.dueDate);
+      if (left < 0) return { label: `已逾期${Math.abs(left)}天`, short: "已逾期", className: "danger" };
+      if (left <= 3) return { label: left === 0 ? "今天到期" : `${left}天后到期`, short: "即将到期", className: "warning" };
+      return { label: `${left}天后到期`, short: "正常", className: "" };
+    }
+
+    function getStreak() {
+      const dates = new Set(state.checkins.map(item => item.date));
+      let streak = 0;
+      let cursor = new Date();
+      if (!dates.has(localDateKey(cursor))) cursor = addDays(cursor, -1);
+      while (dates.has(localDateKey(cursor))) {
+        streak += 1;
+        cursor = addDays(cursor, -1);
+      }
+      return streak;
+    }
+
+    function todayDone() {
+      return state.checkins.some(item => item.date === localDateKey());
+    }
+
+    /* ==================== 核心功能：页面切换、借还书、提醒、阅读计时和积分 ==================== */
+    function switchView(viewName, recordHistory = true) {
+      if (session?.role === "admin" && viewName !== "admin") viewName = "admin";
+      if (session?.role !== "admin" && viewName === "admin") {
+        return showToast("请先退出读者端，再从管理员入口进入", true);
+      }
+      if (recordHistory && currentView && currentView !== viewName) {
+        viewTrail.push(currentView);
+      }
+      currentView = viewName;
+      document.querySelectorAll(".view").forEach(view => view.classList.toggle("active", view.id === `view-${viewName}`));
+      document.querySelectorAll("[data-view]").forEach(button => button.classList.toggle("active", button.dataset.view === viewName));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      renderAll();
+      updateBackButton();
+    }
+
+    function updateBackButton() {
+      const button = document.getElementById("backBtn");
+      button.disabled = !session || session.role === "admin" || viewTrail.length === 0;
+      button.title = button.disabled ? "当前没有上一页" : "返回刚才的页面";
+    }
+
+    function goBack() {
+      if (!session || session.role === "admin" || viewTrail.length === 0) {
+        updateBackButton();
+        return showToast("已经是当前入口的第一页", true);
+      }
+      const previousView = viewTrail.pop();
+      switchView(previousView, false);
+    }
+
+    function applySession() {
+      const loggedIn = Boolean(session);
+      document.getElementById("loginScreen").hidden = loggedIn;
+      document.body.classList.toggle("user-role", session?.role === "user");
+      document.body.classList.toggle("admin-role", session?.role === "admin");
+      if (!loggedIn) {
+        document.body.style.overflow = "hidden";
+        document.getElementById("loginName").value = state.profile.name === "小读者" ? "" : state.profile.name;
+        document.getElementById("loginPhone").value = state.profile.phone || "";
+        updateBackButton();
+        return;
+      }
+      document.body.style.overflow = "";
+      switchView(session.role === "admin" ? "admin" : "home", false);
+    }
+
+    function readerLogin() {
+      const name = document.getElementById("loginName").value.trim();
+      const phone = document.getElementById("loginPhone").value.trim();
+      if (!name) return showToast("请先填写读者姓名", true);
+      if (!phone) return showToast("请填写联系电话，方便到期提醒", true);
+      state.profile.name = name;
+      state.profile.phone = phone;
+      session = { role: "user", enteredAt: Date.now() };
+      viewTrail = [];
+      saveState();
+      saveSession();
+      applySession();
+      showToast(`欢迎你，${name}！请先选择一本现场图书`);
+    }
+
+    function adminLogin() {
+      const password = document.getElementById("adminPassword").value;
+      if (!password) return showToast("请输入管理员密码", true);
+      if (password !== ADMIN_PASSWORD) {
+        document.getElementById("adminPassword").select();
+        return showToast("管理员密码不正确", true);
+      }
+      session = { role: "admin", adminVerified: true, enteredAt: Date.now() };
+      viewTrail = [];
+      saveSession();
+      applySession();
+      document.getElementById("adminPassword").value = "";
+      showToast("已进入管理员现场登记页面");
+    }
+
+    function confirmLogout() {
+      openModal("退出系统", `
+        <p>确定退出当前页面吗？借阅记录、阅读记录和积分都会继续保留。</p>
+        <div class="modal-actions">
+          <button class="secondary-btn" data-close-modal>继续使用</button>
+          <button class="danger-btn" id="confirmLogoutBtn">确定退出</button>
+        </div>`);
+    }
+
+    function logoutSystem() {
+      if (timerRunning) {
+        syncTimerFromClock();
+        state.readingTimer = { remainingSeconds: timerSeconds, runningSince: null };
+        saveState();
+      }
+      clearInterval(timerId);
+      timerRunning = false;
+      session = null;
+      viewTrail = [];
+      saveSession();
+      closeModal();
+      applySession();
+      showToast("已安全退出，借阅记录没有被删除");
+    }
+
+    function bookCard(book) {
+      const borrowed = activeLoans().some(loan => loan.bookId === book.id);
+      return `
+        <article class="book-card">
+          <div class="book-cover" style="background:${book.color}">${book.emoji}</div>
+          <div class="book-body">
+            <h3>${book.title}</h3>
+            <div class="book-meta">
+              <span>${book.author}</span>
+              <span>${book.category}</span>
+            </div>
+            <div class="card-actions">
+              <button class="small-btn" data-detail="${book.id}">看看介绍</button>
+              <button class="small-btn solid" data-borrow="${book.id}" ${borrowed ? "disabled" : ""}>${borrowed ? "已借阅" : "借这本"}</button>
+            </div>
+          </div>
+        </article>`;
+    }
+
+    function renderBooks() {
+      document.getElementById("homeBooks").innerHTML = BOOKS.slice(0, 4).map(bookCard).join("");
+      const keyword = document.getElementById("bookSearch").value.trim().toLowerCase();
+      const category = document.getElementById("categoryFilter").value;
+      const filtered = BOOKS.filter(book => {
+        const textMatch = `${book.title}${book.author}`.toLowerCase().includes(keyword);
+        const categoryMatch = category === "全部" || book.category === category;
+        return textMatch && categoryMatch;
+      });
+      document.getElementById("allBooks").innerHTML = filtered.map(bookCard).join("");
+      document.getElementById("booksEmpty").hidden = filtered.length > 0;
+    }
+
+    function renderStats() {
+      const active = activeReaderLoans().length;
+      document.getElementById("helloName").textContent = state.profile.name || "小读者";
+      document.getElementById("pointsText").textContent = state.profile.points;
+      document.getElementById("homeLoanCount").textContent = `${active} 本`;
+      document.getElementById("homeReadCount").textContent = `${state.checkins.length} 天`;
+      document.getElementById("homeStreak").textContent = `${getStreak()} 天`;
+      document.getElementById("homePoints").textContent = `${state.profile.points} 分`;
+    }
+
+    function renderHomeDue() {
+      const loans = activeReaderLoans()
+        .sort((a, b) => a.dueDate.localeCompare(b.dueDate))
+        .slice(0, 3);
+      const container = document.getElementById("homeDueList");
+      document.getElementById("homeDueEmpty").hidden = loans.length > 0;
+      container.innerHTML = loans.map(loan => {
+        const book = bookById(loan.bookId);
+        if (!book) return "";
+        const status = loanStatus(loan);
+        return `
+          <article class="home-due-card">
+            <div class="mini-cover" style="background:${book.color}">${book.emoji}</div>
+            <div style="min-width:0">
+              <h3>${book.title}</h3>
+              <p>${formatDate(loan.dueDate)}前归还</p>
+              <span class="status ${status.className}">${status.label}</span>
+            </div>
+          </article>`;
+      }).join("");
+    }
+
+    function renderLoans() {
+      const container = document.getElementById("loanList");
+      const loans = [...readerLoans()].sort((a, b) => (b.borrowedAt || "").localeCompare(a.borrowedAt || ""));
+      document.getElementById("loansEmpty").hidden = loans.length > 0;
+      container.innerHTML = loans.map(loan => {
+        const book = bookById(loan.bookId);
+        if (!book) return "";
+        const status = loanStatus(loan);
+        return `
+          <article class="loan-card">
+            <div class="loan-icon" style="background:${book.color}">${book.emoji}</div>
+            <div class="loan-info">
+              <h3>${book.title}</h3>
+              <p>${formatDate(loan.borrowedAt)}借出 · ${loan.returnedAt ? `${formatDate(loan.returnedAt)}归还` : `${formatDate(loan.dueDate)}前归还`}</p>
+              <span class="status ${status.className}">${status.label}</span>
+            </div>
+            <div class="loan-actions">
+              ${loan.returnedAt
+                ? `<button class="small-btn" data-borrow="${book.id}">再次借阅</button>`
+                : `<button class="small-btn" data-renew="${loan.id}" ${loan.renewed ? "disabled" : ""}>${loan.renewed ? "已续借" : "续借7天"}</button>
+                   <div class="onsite-note" style="grid-column:1/-1;margin:0">
+                     <span>📍</span><span>请把实体书带到图书馆，由管理员验收后登记归还。</span>
+                   </div>`}
+            </div>
+          </article>`;
+      }).join("");
+    }
+
+    function renderReading() {
+      const done = todayDone();
+      const timerFinished = timerSeconds <= 0;
+      document.getElementById("todayStatus").textContent = done
+        ? "🎉 今天的阅读计划已完成"
+        : timerFinished
+          ? "计时完成，可以回答小问题了"
+          : "需要完成全部计时才能打卡";
+      document.getElementById("finishReading").disabled = done || !timerFinished;
+      document.getElementById("finishReading").textContent = done
+        ? "✓ 今日已完成"
+        : timerFinished
+          ? "✓ 完成并答题"
+          : "🔒 完成计时后解锁";
+      document.getElementById("timerStart").disabled = done || timerFinished;
+      document.querySelectorAll(".minute-btn").forEach(button => {
+        button.classList.toggle("active", Number(button.dataset.minutes) === state.settings.planMinutes);
+        button.disabled = timerRunning;
+      });
+      const row = document.getElementById("streakRow");
+      const dates = new Set(state.checkins.map(item => item.date));
+      const labels = ["日", "一", "二", "三", "四", "五", "六"];
+      row.innerHTML = Array.from({ length: 7 }, (_, index) => {
+        const date = addDays(new Date(), index - 6);
+        const key = localDateKey(date);
+        return `<div class="day-dot ${dates.has(key) ? "done" : ""}" title="${formatDate(date)}">${dates.has(key) ? "✓" : labels[date.getDay()]}</div>`;
+      }).join("");
+      updateTimerDisplay();
+      updateTimerControls();
+    }
+
+    function renderAdmin() {
+      const query = document.getElementById("adminSearch").value.trim().toLowerCase();
+      const filter = document.getElementById("adminFilter").value;
+      const active = activeLoans();
+      const soon = active.filter(loan => {
+        const d = daysUntil(loan.dueDate);
+        return d >= 0 && d <= 3;
+      });
+      const overdue = active.filter(loan => daysUntil(loan.dueDate) < 0);
+      document.getElementById("adminActive").textContent = active.length;
+      document.getElementById("adminSoon").textContent = soon.length;
+      document.getElementById("adminOverdue").textContent = overdue.length;
+
+      document.getElementById("adminReadersTable").innerHTML = state.readers.map(reader => {
+        const readerLoans = active.filter(loan => loan.readerPhone === reader.phone);
+        const hasOverdue = readerLoans.some(loan => daysUntil(loan.dueDate) < 0);
+        const hasSoon = readerLoans.some(loan => {
+          const left = daysUntil(loan.dueDate);
+          return left >= 0 && left <= 3;
+        });
+        const status = hasOverdue
+          ? { text: "有逾期", className: "danger" }
+          : hasSoon
+            ? { text: "快到期", className: "warning" }
+            : { text: "正常", className: "" };
+        return `<tr>
+          <td><strong>${escapeHtml(reader.name)}</strong></td>
+          <td>${escapeHtml(reader.phone)}</td>
+          <td><span class="status ${status.className}">${status.text}</span></td>
+          <td>${readerLoans.length} 本</td>
+          <td>${escapeHtml(reader.note)}</td>
+        </tr>`;
+      }).join("");
+
+      const priorityRows = loans => loans.length ? loans.map(loan => {
+        const book = bookById(loan.bookId);
+        const status = loanStatus(loan);
+        return `<tr>
+          <td>${escapeHtml(loan.readerName || state.profile.name)}</td>
+          <td><strong>${escapeHtml(loan.readerPhone || state.profile.phone) || "未填写"}</strong></td>
+          <td>${book ? book.title : "未知图书"}</td>
+          <td>${formatDate(loan.dueDate)}</td>
+          <td><span class="status ${status.className}">${status.label}</span></td>
+          <td>
+            <div class="loan-actions">
+              <button class="small-btn" data-edit-due="${loan.id}">改日期</button>
+              <button class="small-btn" data-sms-loan="${loan.id}">发短信</button>
+              <button class="small-btn solid" data-return="${loan.id}">登记归还</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join("") : `<tr><td colspan="6" class="empty-table-cell">目前没有记录</td></tr>`;
+      document.getElementById("adminSoonTable").innerHTML = priorityRows(soon);
+      document.getElementById("adminOverdueTable").innerHTML = priorityRows(overdue);
+
+      const rows = [...state.loans].reverse().filter(loan => {
+        const book = bookById(loan.bookId);
+        const status = loanStatus(loan);
+        const normalized = loan.returnedAt ? "已归还" : (status.short || "正常借阅");
+        const readerName = loan.readerName || state.profile.name;
+        const readerPhone = loan.readerPhone || state.profile.phone;
+        const matchText = `${readerName}${readerPhone}${book?.title || ""}`.toLowerCase().includes(query);
+        return matchText && (filter === "全部" || filter === normalized);
+      });
+      document.getElementById("adminEmpty").hidden = rows.length > 0;
+      document.getElementById("adminTable").innerHTML = rows.map(loan => {
+        const book = bookById(loan.bookId);
+        const status = loanStatus(loan);
+        return `<tr>
+          <td>${escapeHtml(loan.readerName || state.profile.name)}</td>
+          <td>${escapeHtml(loan.readerPhone || state.profile.phone) || "未填写"}</td>
+          <td>${book ? book.title : "未知图书"}</td>
+          <td>${formatDate(loan.borrowedAt)}</td>
+          <td>${formatDate(loan.dueDate)}</td>
+          <td><span class="status ${status.className}">${status.label}</span></td>
+          <td>${loan.returnedAt ? "—" : `
+            <div class="loan-actions">
+              <button class="small-btn" data-edit-due="${loan.id}">改日期</button>
+              <button class="small-btn" data-sms-loan="${loan.id}">发短信</button>
+              <button class="small-btn solid" data-return="${loan.id}">登记归还</button>
+            </div>`}</td>
+        </tr>`;
+      }).join("");
+    }
+
+    function renderNotices() {
+      const notices = getNotices();
+      document.getElementById("noticeDot").hidden = !state.settings.reminder || notices.length === 0;
+      document.getElementById("noticeCount").textContent = notices.length;
+
+      const panel = document.getElementById("homeReminderPanel");
+      const text = document.getElementById("homeReminderText");
+      const icon = document.getElementById("homeReminderIcon");
+      const active = activeReaderLoans().sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+      panel.classList.remove("warning", "danger");
+      if (!active.length) {
+        icon.textContent = "✅";
+        text.textContent = "目前没有待还图书。借书后，这里会显示归还日期和提醒。";
+        return;
+      }
+      const nearest = active[0];
+      const book = bookById(nearest.bookId);
+      const left = daysUntil(nearest.dueDate);
+      if (left < 0) {
+        panel.classList.add("danger");
+        icon.textContent = "⚠️";
+        text.textContent = `《${book?.title || "图书"}》已经逾期${Math.abs(left)}天，请尽快到图书馆归还。`;
+      } else if (left <= 3) {
+        panel.classList.add("warning");
+        icon.textContent = "⏰";
+        text.textContent = left === 0
+          ? `《${book?.title || "图书"}》今天到期，请记得带到图书馆。`
+          : `《${book?.title || "图书"}》还有${left}天到期，请准备归还。`;
+      } else {
+        icon.textContent = "🔔";
+        text.textContent = `最近应还：《${book?.title || "图书"}》，${formatDate(nearest.dueDate)}前归还。剩3天时会重点提醒。`;
+      }
+    }
+
+    function renderAll() {
+      renderBooks();
+      renderStats();
+      renderHomeDue();
+      renderLoans();
+      renderReading();
+      renderAdmin();
+      renderNotices();
+    }
+
+    function openModal(title, html) {
+      document.getElementById("modalTitle").textContent = title;
+      document.getElementById("modalContent").innerHTML = html;
+      document.getElementById("modalBackdrop").classList.add("open");
+      document.body.style.overflow = "hidden";
+      setTimeout(() => document.getElementById("modalClose").focus(), 0);
+    }
+
+    function closeModal() {
+      document.getElementById("modalBackdrop").classList.remove("open");
+      document.body.style.overflow = "";
+      if ("speechSynthesis" in window) speechSynthesis.cancel();
+    }
+
+    function showBookDetail(bookId) {
+      const book = bookById(bookId);
+      if (!book) return showToast("没有找到这本书", true);
+      openModal(book.title, `
+        <div style="display:flex;gap:16px;align-items:center;margin-bottom:18px">
+          <div class="loan-icon" style="width:72px;height:90px;background:${book.color};font-size:40px">${book.emoji}</div>
+          <div><strong>${book.author}</strong><p style="margin:5px 0;color:var(--muted)">${book.category} · 适读${book.age}</p></div>
+        </div>
+        <p style="line-height:1.8">${book.desc}</p>
+        <div class="tip-card"><strong>试听片段</strong><p>${book.sample}</p></div>
+        <div class="modal-actions">
+          <button class="secondary-btn" data-listen="${book.id}">🔊 听一小段</button>
+          <button class="primary-btn green" data-borrow="${book.id}">借这本书</button>
+        </div>`);
+    }
+
+    function confirmBorrow(bookId) {
+      const book = bookById(bookId);
+      if (!book) return showToast("没有找到这本书", true);
+      if (activeLoans().some(loan => loan.bookId === book.id)) {
+        closeModal();
+        return showToast("这本书已经在你的借阅中", true);
+      }
+      if (activeReaderLoans().length >= 5) {
+        closeModal();
+        return showToast("一次最多借5本，请先归还一本", true);
+      }
+      const dueDate = localDateKey(addDays(new Date(), 14));
+      openModal("确认借书", `
+        <p>要借阅《<strong>${book.title}</strong>》吗？</p>
+        <div class="onsite-note"><span>📍</span><span>请确认你正在图书馆现场，并且已经拿到这本实体书。</span></div>
+        <div class="tip-card"><strong>📅 归还日期</strong><p>${formatDate(dueDate)}前归还，共14天。到期前3天会提醒你。</p></div>
+        <div class="modal-actions">
+          <button class="secondary-btn" data-close-modal>再想想</button>
+          <button class="primary-btn green" data-confirm-borrow="${book.id}">确认借阅</button>
+        </div>`);
+    }
+
+    function borrowBook(bookId) {
+      const book = bookById(bookId);
+      if (!book || activeLoans().some(loan => loan.bookId === book.id)) {
+        closeModal();
+        return showToast("借阅失败，请刷新后再试", true);
+      }
+      const now = new Date();
+      state.loans.push({
+        id: `loan-${Date.now()}`,
+        bookId: book.id,
+        readerName: state.profile.name,
+        readerPhone: state.profile.phone,
+        borrowedAt: localDateKey(now),
+        dueDate: localDateKey(addDays(now, 14)),
+        returnedAt: null,
+        renewed: false
+      });
+      saveState();
+      closeModal();
+      renderAll();
+      showToast(`借阅成功！请在${formatDate(addDays(now, 14))}前归还`);
+    }
+
+    function returnBook(loanId) {
+      if (session?.role !== "admin") {
+        return showToast("还书需要管理员现场验收，请把实体书带到图书馆", true);
+      }
+      const loan = state.loans.find(item => item.id === loanId);
+      if (!loan || loan.returnedAt) return showToast("这条记录已经归还", true);
+      const book = bookById(loan.bookId);
+      openModal("确认还书", `
+        <p>确认已经把《<strong>${book?.title || "这本书"}</strong>》归还到图书馆了吗？</p>
+        <div class="tip-card"><strong>🌟 按时归还奖励</strong><p>按时归还可以获得5积分。</p></div>
+        <div class="modal-actions">
+          <button class="secondary-btn" data-close-modal>取消</button>
+          <button class="primary-btn green" data-confirm-return="${loan.id}">确认已归还</button>
+        </div>`);
+    }
+
+    function completeReturn(loanId) {
+      if (session?.role !== "admin") {
+        closeModal();
+        return showToast("只有管理员可以登记归还", true);
+      }
+      const loan = state.loans.find(item => item.id === loanId);
+      if (!loan || loan.returnedAt) return showToast("还书状态没有改变", true);
+      const onTime = daysUntil(loan.dueDate) >= 0;
+      loan.returnedAt = localDateKey();
+      if (onTime) state.profile.points += 5;
+      saveState();
+      closeModal();
+      renderAll();
+      showToast(onTime ? "还书成功，按时归还奖励5积分！" : "还书成功，下次记得留意到期提醒哦");
+    }
+
+    function renewLoan(loanId) {
+      const loan = state.loans.find(item => item.id === loanId);
+      if (!loan || loan.returnedAt || loan.renewed) return showToast("这条记录不能再次续借", true);
+      if (daysUntil(loan.dueDate) < 0) return showToast("逾期图书不能续借，请先归还", true);
+      loan.dueDate = localDateKey(addDays(parseDate(loan.dueDate), 7));
+      loan.renewed = true;
+      saveState();
+      renderAll();
+      showToast(`续借成功，新的归还日期是${formatDate(loan.dueDate)}`);
+    }
+
+    function editDueDate(loanId) {
+      const loan = state.loans.find(item => item.id === loanId);
+      const book = loan ? bookById(loan.bookId) : null;
+      if (!loan || loan.returnedAt) return showToast("这条记录不能修改", true);
+      openModal("修改归还日期", `
+        <p>正在修改《<strong>${book?.title || "图书"}</strong>》的归还日期。</p>
+        <div class="field">
+          <label for="newDueDate">新的应还日期</label>
+          <input id="newDueDate" type="date" value="${loan.dueDate}">
+        </div>
+        <p style="color:var(--muted);line-height:1.6">设置为3天内会进入“快到期表格”；设置为过去日期会进入“已到期表格”。</p>
+        <div class="modal-actions">
+          <button class="secondary-btn" data-close-modal>取消</button>
+          <button class="primary-btn green" data-save-due="${loan.id}">保存日期</button>
+        </div>`);
+    }
+
+    function saveDueDate(loanId) {
+      const loan = state.loans.find(item => item.id === loanId);
+      const value = document.getElementById("newDueDate")?.value;
+      if (!loan || !value) return showToast("请选择新的归还日期", true);
+      loan.dueDate = value;
+      saveState();
+      closeModal();
+      renderAll();
+      showToast(`归还日期已改为${formatDate(value)}，提醒表格已更新`);
+    }
+
+    /* ==================== 核心功能：还书短信提醒 ==================== */
+    function buildSmsMessage(loan) {
+      const book = bookById(loan.bookId);
+      const readerName = loan.readerName || state.profile.name || "读者";
+      const left = daysUntil(loan.dueDate);
+      const dueText = left < 0
+        ? `目前已逾期${Math.abs(left)}天`
+        : left === 0
+          ? "今天到期"
+          : `还有${left}天到期`;
+      return `【森林图书馆】${readerName}您好，您借阅的《${book?.title || "图书"}》应于${formatDate(loan.dueDate)}归还，${dueText}。请到图书馆归还或办理续借，谢谢！`;
+    }
+
+    function showSmsReminder(loanId) {
+      const loan = state.loans.find(item => item.id === loanId);
+      if (!loan || loan.returnedAt) return showToast("这条记录不需要发送还书提醒", true);
+      const phone = loan.readerPhone || state.profile.phone;
+      if (!phone) return showToast("读者没有填写手机号，暂时不能发送短信", true);
+      openModal("短信提醒还书", `
+        <div class="tip-card">
+          <strong>📱 收件人：${escapeHtml(loan.readerName || state.profile.name || "读者")}</strong>
+          <p>${escapeHtml(phone)}</p>
+        </div>
+        <div class="field">
+          <label for="smsMessageText">短信内容（可以修改）</label>
+          <textarea class="sms-compose" id="smsMessageText" maxlength="300">${escapeHtml(buildSmsMessage(loan))}</textarea>
+        </div>
+        <p style="color:var(--muted);line-height:1.7">手机端会打开系统短信应用，并自动填好号码和内容；请在短信应用中确认发送。电脑端可先复制短信。</p>
+        <div class="modal-actions">
+          <button class="secondary-btn" data-copy-sms="${loan.id}">复制短信</button>
+          <button class="primary-btn green" data-open-sms="${loan.id}">打开短信应用</button>
+        </div>`);
+    }
+
+    async function copySmsMessage(loanId) {
+      const loan = state.loans.find(item => item.id === loanId);
+      const message = document.getElementById("smsMessageText")?.value.trim();
+      if (!loan || !message) return showToast("短信内容不能为空", true);
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(message);
+        } else {
+          const helper = document.createElement("textarea");
+          helper.value = message;
+          helper.setAttribute("readonly", "");
+          helper.style.position = "fixed";
+          helper.style.opacity = "0";
+          document.body.appendChild(helper);
+          helper.select();
+          document.execCommand("copy");
+          helper.remove();
+        }
+        showToast("短信内容已复制");
+      } catch (error) {
+        showToast("复制失败，请长按短信内容手动复制", true);
+      }
+    }
+
+    function openSmsApp(loanId) {
+      const loan = state.loans.find(item => item.id === loanId);
+      const phone = (loan?.readerPhone || state.profile.phone || "").replace(/[^\d+]/g, "");
+      const message = document.getElementById("smsMessageText")?.value.trim();
+      if (!loan || loan.returnedAt) return showToast("这条记录不需要发送还书提醒", true);
+      if (!phone) return showToast("读者手机号为空", true);
+      if (!message) return showToast("短信内容不能为空", true);
+
+      /* ==================== 数据保存：记录打开短信应用的操作，不记录为已发送 ==================== */
+      state.smsLogs.push({
+        id: `sms-${Date.now()}`,
+        loanId: loan.id,
+        phone,
+        message,
+        openedAt: new Date().toISOString(),
+        status: "待用户确认发送"
+      });
+      saveState();
+      showToast("正在打开短信应用，请确认发送");
+      setTimeout(() => {
+        window.location.href = `sms:${phone}?body=${encodeURIComponent(message)}`;
+      }, 120);
+    }
+
+    function setPlanMinutes(minutes) {
+      if (timerRunning) return showToast("计时中不能修改时长", true);
+      state.settings.planMinutes = minutes;
+      timerSeconds = minutes * 60;
+      state.readingTimer = { remainingSeconds: timerSeconds, runningSince: null };
+      saveState();
+      updateTimerDisplay();
+      renderReading();
+      showToast(`今日计划已设为${minutes}分钟`);
+    }
+
+    /* ==================== 核心功能：按真实时间计时，刷新页面后仍保留进度 ==================== */
+    function syncTimerFromClock() {
+      if (!timerRunning || !state.readingTimer.runningSince) return;
+      const startedAt = Number(state.readingTimer.runningSince);
+      const startedWith = Number(state.readingTimer.remainingSeconds);
+      const elapsed = Math.max(0, Math.floor((Date.now() - startedAt) / 1000));
+      timerSeconds = Math.max(0, startedWith - elapsed);
+    }
+
+    function savePausedTimer() {
+      state.readingTimer = { remainingSeconds: timerSeconds, runningSince: null };
+      saveState();
+    }
+
+    function updateTimerControls() {
+      const done = todayDone();
+      const finished = timerSeconds <= 0;
+      const startButton = document.getElementById("timerStart");
+      startButton.disabled = done || finished;
+      startButton.textContent = timerRunning ? "⏸ 暂停一下" : "▶ 继续阅读";
+      if (!timerRunning && timerSeconds === state.settings.planMinutes * 60) {
+        startButton.textContent = "▶ 开始阅读";
+      }
+      document.getElementById("timerRing").classList.toggle("running", timerRunning);
+      document.getElementById("timerLabel").textContent = done
+        ? "今天已完成"
+        : finished
+          ? "计时完成！"
+          : timerRunning
+            ? "专心读书中…"
+            : timerSeconds < state.settings.planMinutes * 60
+              ? "已暂停"
+              : "准备好了吗？";
+    }
+
+    function handleTimerComplete() {
+      clearInterval(timerId);
+      timerId = null;
+      timerRunning = false;
+      timerSeconds = 0;
+      savePausedTimer();
+      updateTimerDisplay();
+      updateTimerControls();
+      renderReading();
+      showToast("阅读计时完成！现在可以回答小问题");
+    }
+
+    function startTimerInterval() {
+      clearInterval(timerId);
+      timerId = window.setInterval(() => {
+        syncTimerFromClock();
+        updateTimerDisplay();
+        if (timerSeconds <= 0) handleTimerComplete();
+      }, 500);
+    }
+
+    function restoreReadingTimer() {
+      if (timerRunning) {
+        syncTimerFromClock();
+        if (timerSeconds <= 0) {
+          timerRunning = false;
+          savePausedTimer();
+        } else {
+          startTimerInterval();
+        }
+      }
+      updateTimerDisplay();
+      updateTimerControls();
+    }
+
+    function toggleTimer() {
+      if (todayDone()) return showToast("今天已经完成啦，明天再来！", true);
+      if (timerSeconds <= 0) return finishTodayReading();
+      if (timerRunning) {
+        syncTimerFromClock();
+        timerRunning = false;
+        clearInterval(timerId);
+        timerId = null;
+        savePausedTimer();
+        showToast("计时已暂停，进度已保存");
+      } else {
+        timerRunning = true;
+        state.readingTimer = { remainingSeconds: timerSeconds, runningSince: Date.now() };
+        saveState();
+        startTimerInterval();
+        showToast("阅读计时已开始");
+      }
+      updateTimerDisplay();
+      updateTimerControls();
+      renderReading();
+    }
+
+    function resetTimer(showMessage = true) {
+      clearInterval(timerId);
+      timerId = null;
+      timerRunning = false;
+      timerSeconds = state.settings.planMinutes * 60;
+      savePausedTimer();
+      updateTimerDisplay();
+      updateTimerControls();
+      renderReading();
+      if (showMessage) showToast("计时器已经重新开始");
+    }
+
+    function updateTimerDisplay() {
+      const safeSeconds = Math.max(0, Math.ceil(timerSeconds));
+      const minutes = Math.floor(safeSeconds / 60);
+      const seconds = safeSeconds % 60;
+      document.getElementById("timerValue").textContent = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }
+
+    function finishTodayReading() {
+      if (todayDone()) return showToast("今天的10积分已经领取过啦", true);
+      if (timerSeconds > 0) {
+        const minutesLeft = Math.ceil(timerSeconds / 60);
+        return showToast(`还需要阅读约${minutesLeft}分钟，完成计时后才能打卡`, true);
+      }
+      clearInterval(timerId);
+      timerId = null;
+      timerRunning = false;
+      savePausedTimer();
+      updateTimerControls();
+      renderReading();
+      openModal("完成阅读小问答", `
+        <p>读完书后，下面哪一种做法是正确的？答对就能领取<strong>10积分</strong>。</p>
+        <div class="quiz-options">
+          <button class="quiz-option" data-quiz-answer="wrong">A. 把归还日期忘掉</button>
+          <button class="quiz-option" data-quiz-answer="correct">B. 爱护图书，并记住最有趣的内容</button>
+          <button class="quiz-option" data-quiz-answer="wrong">C. 借完书一直不归还</button>
+        </div>`);
+    }
+
+    function answerReadingQuiz(answer) {
+      if (answer !== "correct") {
+        showToast("再想一想：阅读后应该爱护图书并记住内容", true);
+        return;
+      }
+      if (todayDone()) {
+        closeModal();
+        return showToast("今天的奖励已经领取过啦", true);
+      }
+      state.checkins.push({ date: localDateKey(), minutes: state.settings.planMinutes });
+      state.profile.points += 10;
+      saveState();
+      resetTimer(false);
+      closeModal();
+      renderAll();
+      celebrate();
+      showToast("回答正确！获得10积分，森林又长大了一点");
+    }
+
+    function getNotices() {
+      const notices = activeReaderLoans().map(loan => {
+        const book = bookById(loan.bookId);
+        const left = daysUntil(loan.dueDate);
+        if (left < 0) return { icon: "⚠️", title: `《${book?.title}》已逾期`, text: `已超过归还日期${Math.abs(left)}天，请尽快归还。` };
+        if (left <= 3) return { icon: "⏰", title: `《${book?.title}》快到期`, text: left === 0 ? "今天是归还日，请记得带到图书馆。" : `还有${left}天到期，可以归还或续借。` };
+        return null;
+      }).filter(Boolean);
+      if (!todayDone()) notices.push({ icon: "🌱", title: "今日阅读计划", text: `完成${state.settings.planMinutes}分钟阅读并答对问题，可得10积分。` });
+      return notices;
+    }
+
+    function showNotices() {
+      const notices = getNotices();
+      openModal("我的提醒", notices.length ? `
+        <div class="notice-list">
+          ${notices.map(item => `<div class="notice-item"><div class="notice-icon">${item.icon}</div><div><strong>${item.title}</strong><p>${item.text}</p></div></div>`).join("")}
+        </div>
+        <div class="switch-row">
+          <div><strong>到期提醒</strong><p style="margin:4px 0 0;color:var(--muted);font-size:13px">开启后在首页显示提醒小圆点</p></div>
+          <button class="switch ${state.settings.reminder ? "on" : ""}" id="reminderSwitch" aria-label="切换到期提醒"></button>
+        </div>` : `
+        <div class="empty-state"><span class="emoji">✅</span><h3>现在没有新提醒</h3><p>所有事情都安排得很好！</p></div>`);
+    }
+
+    function showRewards() {
+      const rewards = [
+        { icon: "🔖", name: "森林书签", points: 30 },
+        { icon: "✏️", name: "动物铅笔", points: 50 },
+        { icon: "📓", name: "阅读笔记本", points: 80 }
+      ];
+      openModal("森林积分礼品", `
+        <p>你有 <strong style="color:var(--green-700)">${state.profile.points}积分</strong>。兑换后，请向图书管理员出示记录。</p>
+        <div class="reward-list">${rewards.map((reward, index) => `
+          <div class="reward-item">
+            <div class="reward-icon">${reward.icon}</div>
+            <div><strong>${reward.name}</strong><p>${reward.points}积分兑换</p></div>
+            <button class="small-btn solid" data-redeem="${index}" ${state.profile.points < reward.points ? "disabled" : ""}>兑换</button>
+          </div>`).join("")}</div>`);
+    }
+
+    function redeemReward(index) {
+      const rewards = [
+        { icon: "🔖", name: "森林书签", points: 30 },
+        { icon: "✏️", name: "动物铅笔", points: 50 },
+        { icon: "📓", name: "阅读笔记本", points: 80 }
+      ];
+      const reward = rewards[index];
+      if (!reward || state.profile.points < reward.points) return showToast("积分还不够，再读几天就可以啦", true);
+      state.profile.points -= reward.points;
+      state.redemptions.push({ name: reward.name, points: reward.points, date: localDateKey() });
+      saveState();
+      closeModal();
+      renderAll();
+      celebrate();
+      showToast(`兑换成功：${reward.name}，请向管理员出示记录`);
+    }
+
+    function showProfile() {
+      openModal("个人设置", `
+        <div class="field"><label for="profileName">读者名字</label><input id="profileName" maxlength="12" value="${escapeHtml(state.profile.name)}" placeholder="请输入名字"></div>
+        <div class="field"><label for="profilePhone">联系电话（必填）</label><input id="profilePhone" inputmode="tel" maxlength="20" required value="${escapeHtml(state.profile.phone)}" placeholder="用于管理员联系"></div>
+        <div class="switch-row">
+          <div><strong>到期提醒</strong><p style="margin:4px 0 0;color:var(--muted);font-size:13px">显示即将到期和逾期提示</p></div>
+          <button class="switch ${state.settings.reminder ? "on" : ""}" id="reminderSwitch" aria-label="切换到期提醒"></button>
+        </div>
+        <div class="modal-actions">
+          <button class="secondary-btn" id="profileRewardBtn">⭐ 积分礼品</button>
+          <button class="secondary-btn" id="profileLogoutBtn">退出当前账号</button>
+        </div>
+        <div class="modal-actions">
+          <button class="danger-btn" id="resetDataBtn">清空并重新开始</button>
+          <button class="primary-btn green" id="saveProfileBtn">保存设置</button>
+        </div>`);
+    }
+
+    function saveProfile() {
+      const name = document.getElementById("profileName").value.trim();
+      const phone = document.getElementById("profilePhone").value.trim();
+      if (!name) return showToast("请先填写读者名字", true);
+      if (!phone) return showToast("请填写联系电话，方便到期提醒", true);
+      state.profile.name = name;
+      state.profile.phone = phone;
+      saveState();
+      closeModal();
+      renderAll();
+      showToast("个人设置已保存");
+    }
+
+    function confirmReset() {
+      openModal("确定重新开始吗？", `
+        <p>这会清除本设备上的借阅记录、阅读打卡和积分，清除后无法恢复。</p>
+        <div class="modal-actions">
+          <button class="secondary-btn" data-close-modal>取消</button>
+          <button class="danger-btn" id="confirmResetBtn">确定清空</button>
+        </div>`);
+    }
+
+    function resetData() {
+      localStorage.removeItem(STORAGE_KEY);
+      state = structuredClone(DEFAULT_STATE);
+      viewTrail = [];
+      resetTimer(false);
+      closeModal();
+      renderAll();
+      switchView("home");
+      showToast("数据已清空，可以重新开始啦");
+    }
+
+    function speakBook(bookId) {
+      const book = bookById(bookId);
+      if (!book || !("speechSynthesis" in window)) return showToast("当前浏览器不支持语音朗读", true);
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(`${book.title}。${book.sample}`);
+      utterance.lang = "zh-CN";
+      utterance.rate = 0.88;
+      utterance.onstart = () => showToast("正在朗读，关闭窗口可停止");
+      utterance.onerror = () => showToast("朗读失败，请检查设备声音设置", true);
+      speechSynthesis.speak(utterance);
+    }
+
+    function toggleReminder() {
+      state.settings.reminder = !state.settings.reminder;
+      saveState();
+      const button = document.getElementById("reminderSwitch");
+      if (button) button.classList.toggle("on", state.settings.reminder);
+      renderNotices();
+      showToast(state.settings.reminder ? "到期提醒已开启" : "到期提醒已关闭");
+    }
+
+    function showToast(message, isError = false) {
+      const toast = document.getElementById("toast");
+      clearTimeout(toastTimer);
+      toast.textContent = `${isError ? "⚠️" : "✓"} ${message}`;
+      toast.className = `toast show${isError ? " error" : ""}`;
+      toastTimer = setTimeout(() => toast.className = "toast", 2800);
+    }
+
+    function celebrate() {
+      const container = document.getElementById("confetti");
+      const pieces = ["🍃", "⭐", "📚", "🌼", "✨"];
+      container.innerHTML = Array.from({ length: 24 }, (_, index) =>
+        `<span style="left:${Math.random() * 100}%;animation-delay:${Math.random() * 0.4}s">${pieces[index % pieces.length]}</span>`
+      ).join("");
+      setTimeout(() => container.innerHTML = "", 2300);
+    }
+
+    function escapeHtml(value) {
+      const div = document.createElement("div");
+      div.textContent = value || "";
+      return div.innerHTML;
+    }
+
+    document.addEventListener("click", event => {
+      const target = event.target.closest("button");
+      if (!target) return;
+      if (target.dataset.view) switchView(target.dataset.view);
+      if (target.dataset.go) switchView(target.dataset.go);
+      if (target.dataset.detail) showBookDetail(target.dataset.detail);
+      if (target.dataset.borrow) confirmBorrow(Number(target.dataset.borrow));
+      if (target.dataset.confirmBorrow) borrowBook(Number(target.dataset.confirmBorrow));
+      if (target.dataset.return) returnBook(target.dataset.return);
+      if (target.dataset.confirmReturn) completeReturn(target.dataset.confirmReturn);
+      if (target.dataset.renew) renewLoan(target.dataset.renew);
+      if (target.dataset.editDue) editDueDate(target.dataset.editDue);
+      if (target.dataset.saveDue) saveDueDate(target.dataset.saveDue);
+      if (target.dataset.smsLoan) showSmsReminder(target.dataset.smsLoan);
+      if (target.dataset.copySms) copySmsMessage(target.dataset.copySms);
+      if (target.dataset.openSms) openSmsApp(target.dataset.openSms);
+      if (target.dataset.minutes) setPlanMinutes(Number(target.dataset.minutes));
+      if (target.dataset.listen) speakBook(Number(target.dataset.listen));
+      if (target.dataset.redeem) redeemReward(Number(target.dataset.redeem));
+      if (target.dataset.quizAnswer) answerReadingQuiz(target.dataset.quizAnswer);
+      if (target.dataset.testReader) loginAsTestReader(target.dataset.testReader);
+      if (target.hasAttribute("data-close-modal")) closeModal();
+      if (target.id === "noticeBtn" || target.id === "homeReminderBtn") showNotices();
+      if (target.id === "rewardBtn") showRewards();
+      if (target.id === "profileBtn") showProfile();
+      if (target.id === "profileRewardBtn" || target.id === "homeRewardBtn") showRewards();
+      if (target.id === "profileLogoutBtn") confirmLogout();
+      if (target.id === "backBtn") goBack();
+      if (target.id === "logoutBtn") confirmLogout();
+      if (target.id === "confirmLogoutBtn") logoutSystem();
+      if (target.id === "readerLoginBtn") readerLogin();
+      if (target.id === "adminLoginBtn") adminLogin();
+      if (target.id === "clearLoginBtn") {
+        document.getElementById("loginName").value = "";
+        document.getElementById("loginPhone").value = "";
+        document.getElementById("adminPassword").value = "";
+        document.getElementById("loginName").focus();
+      }
+      if (target.id === "modalClose") closeModal();
+      if (target.id === "timerStart") toggleTimer();
+      if (target.id === "timerReset") resetTimer();
+      if (target.id === "finishReading") finishTodayReading();
+      if (target.id === "clearSearch") {
+        document.getElementById("bookSearch").value = "";
+        document.getElementById("categoryFilter").value = "全部";
+        renderBooks();
+      }
+      if (target.id === "reminderSwitch") toggleReminder();
+      if (target.id === "saveProfileBtn") saveProfile();
+      if (target.id === "resetDataBtn") confirmReset();
+      if (target.id === "confirmResetBtn") resetData();
+    });
+
+    document.getElementById("bookSearch").addEventListener("input", renderBooks);
+    document.getElementById("categoryFilter").addEventListener("change", renderBooks);
+    document.getElementById("adminSearch").addEventListener("input", renderAdmin);
+    document.getElementById("adminFilter").addEventListener("change", renderAdmin);
+    document.getElementById("adminPassword").addEventListener("keydown", event => {
+      if (event.key === "Enter") adminLogin();
+    });
+    document.getElementById("modalBackdrop").addEventListener("click", event => {
+      if (event.target.id === "modalBackdrop") closeModal();
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeModal();
+    });
+    window.addEventListener("beforeunload", () => clearInterval(timerId));
+
+    ensureTestData();
+    restoreReadingTimer();
+    renderAll();
+    applySession();
+  </script>
+<script>
+document.addEventListener("click", function (event) {
+  const link = event.target.closest("[data-portfolio-back]");
+  if (!link) return;
+  if (window.parent !== window) {
+    event.preventDefault();
+    parent.postMessage({ type: "ai-lab-full-preview-nav", href: "./library-works.html" }, "*");
+  }
+});
+</script>
+</body>
+</html>

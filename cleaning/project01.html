@@ -1,0 +1,1423 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#5b7cfa">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>保洁快跑｜卫生问题快报</title>
+    <style>
+      :root {
+        --ink: #243044;
+        --muted: #6f7a8d;
+        --line: #e8ecf4;
+        --surface: #ffffff;
+        --page: #f5f6f8;
+        --primary: #5b7cfa;
+        --primary-dark: #3f5fe0;
+        --primary-soft: #edf1ff;
+        --mint: #39c69b;
+        --mint-soft: #e7faf4;
+        --sun: #ffbd4a;
+        --sun-soft: #fff6dd;
+        --coral: #ff716d;
+        --coral-soft: #fff0ef;
+        --shadow: 0 6px 20px rgba(63, 78, 126, .08);
+        --radius: 17px;
+      }
+
+      * { box-sizing: border-box; }
+      html { min-width: 320px; background: var(--page); }
+      body {
+        margin: 0;
+        min-width: 320px;
+        min-height: 100vh;
+        overflow-x: hidden;
+        color: var(--ink);
+        background: var(--page);
+        font-family: "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      button, input, textarea, select { font: inherit; }
+      button { min-height: 48px; cursor: pointer; touch-action: manipulation; }
+      button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+        outline: 3px solid rgba(91, 124, 250, .28);
+        outline-offset: 2px;
+      }
+      [hidden] { display: none !important; }
+
+      .app-shell { min-height: 100vh; padding-bottom: calc(74px + env(safe-area-inset-bottom)); }
+      .topbar {
+        position: sticky;
+        z-index: 20;
+        top: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        min-height: calc(56px + env(safe-area-inset-top));
+        padding: env(safe-area-inset-top) 12px 0;
+        border-bottom: 1px solid rgba(232, 236, 244, .85);
+        background: rgba(255, 255, 255, .96);
+        backdrop-filter: blur(18px);
+      }
+      .brand { display: flex; min-width: 0; align-items: center; gap: 8px; font-weight: 800; letter-spacing: -.02em; }
+      .brand-mark {
+        display: grid; flex: 0 0 36px; width: 36px; height: 36px; place-items: center;
+        border-radius: 12px; background: linear-gradient(145deg, #6f8cff, #526fe9);
+        color: white; box-shadow: 0 5px 14px rgba(91, 124, 250, .22); font-size: 19px;
+      }
+      .brand-copy { min-width: 0; }
+      .brand-copy strong { display: block; overflow: hidden; font-size: 16px; line-height: 1.15; text-overflow: ellipsis; white-space: nowrap; }
+      .brand-copy small { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .04em; }
+      .role-select {
+        min-height: 40px; max-width: 118px; padding: 0 28px 0 10px; border: 1px solid var(--line);
+        border-radius: 999px; color: var(--ink); background: var(--surface); font-size: 13px; font-weight: 800;
+      }
+      .desktop-nav { display: none; align-items: center; gap: 6px; margin-left: auto; }
+      .desktop-nav button {
+        min-height: 42px; padding: 0 15px; border: 0; border-radius: 13px;
+        color: var(--muted); background: transparent; font-weight: 700;
+      }
+      .desktop-nav button.active { color: var(--primary-dark); background: var(--primary-soft); }
+
+      main { width: calc(100% - 24px); max-width: 1120px; margin: 0 auto; padding: 12px 0 24px; }
+      .view { animation: pageIn .3s ease; }
+      @keyframes pageIn { from { opacity: 0; transform: translateY(6px); } }
+      .eyebrow { margin: 0 0 7px; color: var(--primary-dark); font-size: 13px; font-weight: 900; letter-spacing: .12em; }
+      h1, h2, h3, p { overflow-wrap: anywhere; }
+      h1 { margin: 0; font-size: clamp(26px, 8vw, 34px); line-height: 1.14; letter-spacing: -.04em; }
+      h2 { margin: 0; font-size: clamp(21px, 6vw, 26px); letter-spacing: -.03em; }
+      h3 { margin: 0; font-size: 17px; }
+      .muted { color: var(--muted); }
+      .section-head { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin: 22px 0 11px; }
+      .section-head p { margin: 6px 0 0; }
+
+      .hero {
+        position: relative; overflow: hidden; min-height: 270px; display: flex; align-items: end;
+        padding: 24px 20px; border: 1px solid rgba(255,255,255,.8); border-radius: 20px;
+        background-image:
+          radial-gradient(circle at 82% 28%, rgba(104, 184, 255, .34), transparent 28%),
+          radial-gradient(circle at 73% 78%, rgba(106, 229, 190, .18), transparent 34%),
+          linear-gradient(125deg, #18233d 0%, #243a62 56%, #31517c 100%);
+        background-position: 58% center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        box-shadow: var(--shadow);
+      }
+      .hero::after { content: none; }
+      .hero-copy { position: relative; z-index: 1; max-width: 660px; }
+      .hero h1 { color: white; text-shadow: 0 3px 18px rgba(9, 16, 31, .28); }
+      .hero p { max-width: 540px; margin: 11px 0 18px; color: rgba(255,255,255,.88); font-size: 14px; line-height: 1.65; }
+      .hero-badge {
+        display: inline-flex; align-items: center; gap: 8px; margin-bottom: 14px; padding: 7px 11px;
+        border: 1px solid rgba(255,255,255,.26); border-radius: 999px;
+        color: white; background: rgba(255,255,255,.17); backdrop-filter: blur(9px); font-size: 13px; font-weight: 800;
+      }
+      .hero-art {
+        position: absolute; z-index: 1; right: 5%; bottom: 22px; display: none;
+        width: 190px; height: 190px;
+      }
+      .bubble { position: absolute; border-radius: 50%; background: white; box-shadow: var(--shadow); }
+      .bubble.main { inset: 23px; display: grid; place-items: center; font-size: 72px; transform: rotate(-5deg); }
+      .bubble.one { width: 34px; height: 34px; top: 0; right: 7px; }
+      .bubble.two { width: 22px; height: 22px; left: 1px; bottom: 22px; }
+
+      .primary-btn, .secondary-btn, .danger-btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+        min-height: 50px; padding: 0 18px; border: 0; border-radius: 14px; font-weight: 900;
+        transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+      }
+      .primary-btn { color: white; background: var(--primary); box-shadow: 0 10px 24px rgba(91, 124, 250, .25); }
+      .primary-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+      .hero .primary-btn { color: #334eb8; background: white; box-shadow: 0 12px 28px rgba(8, 17, 36, .25); }
+      .hero .primary-btn:hover { color: #243da5; background: #f5f7ff; }
+      .primary-btn:active, .secondary-btn:active, .danger-btn:active { transform: scale(.98); }
+      .secondary-btn { color: var(--primary-dark); background: var(--primary-soft); }
+      .danger-btn { color: #c64242; background: var(--coral-soft); }
+      .full-btn { width: 100%; }
+      .text-btn { min-height: 44px; padding: 0 5px; border: 0; color: var(--primary-dark); background: transparent; font-weight: 800; }
+
+      .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+      .stat-card {
+        padding: 14px 6px; border: 1px solid var(--line); border-radius: 14px;
+        background: var(--surface); text-align: center; box-shadow: 0 8px 24px rgba(63,78,126,.05);
+      }
+      .stat-card strong { display: block; font-size: 22px; }
+      .stat-card span { color: var(--muted); font-size: 11px; }
+
+      .quick-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+      .quick-card {
+        display: flex; align-items: center; gap: 12px; width: 100%; min-height: 76px; padding: 14px;
+        border: 1px solid var(--line); border-radius: 16px; color: var(--ink);
+        background: var(--surface); text-align: left; box-shadow: 0 8px 24px rgba(63,78,126,.05);
+      }
+      .quick-card:hover { border-color: #ccd6ff; transform: translateY(-1px); }
+      .quick-icon {
+        display: grid; flex: 0 0 46px; width: 46px; height: 46px; place-items: center;
+        border-radius: 14px; font-size: 22px;
+      }
+      .quick-card:nth-child(1) .quick-icon { background: var(--sun-soft); }
+      .quick-card:nth-child(2) .quick-icon { background: var(--primary-soft); }
+      .quick-card:nth-child(3) .quick-icon { background: var(--mint-soft); }
+      .quick-card span { display: block; margin-top: 4px; color: var(--muted); font-size: 13px; }
+      .quick-arrow { margin-left: auto; color: #9ba5b8; font-size: 23px; }
+
+      .panel { padding: 18px 15px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); }
+      .form-intro { margin: 5px 2px 18px; }
+      .form-intro p { margin: 7px 0 0; line-height: 1.6; }
+      .step-row { display: flex; align-items: center; gap: 9px; margin: 0 0 12px; font-weight: 900; }
+      .step-num {
+        display: grid; width: 28px; height: 28px; place-items: center; border-radius: 10px;
+        color: white; background: var(--primary); font-size: 14px;
+      }
+      .field-group { margin: 0 0 25px; }
+      .choice-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .choice {
+        position: relative; display: flex; align-items: center; justify-content: center; gap: 8px;
+        min-height: 56px; padding: 10px; border: 2px solid var(--line); border-radius: 17px;
+        background: white; color: var(--ink); font-weight: 800; text-align: center;
+      }
+      .choice.selected { border-color: var(--primary); color: var(--primary-dark); background: var(--primary-soft); }
+      .choice.selected::after {
+        content: "✓"; position: absolute; top: -7px; right: -5px; display: grid; width: 22px; height: 22px;
+        place-items: center; border: 2px solid white; border-radius: 50%; color: white; background: var(--primary); font-size: 12px;
+      }
+      .urgency-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+      .urgency-btn { min-height: 52px; border: 2px solid var(--line); border-radius: 16px; background: white; color: var(--ink); font-weight: 800; }
+      .urgency-btn.selected[data-level="普通"] { border-color: var(--mint); background: var(--mint-soft); color: #26785f; }
+      .urgency-btn.selected[data-level="较急"] { border-color: var(--sun); background: var(--sun-soft); color: #9b6b0e; }
+      .urgency-btn.selected[data-level="紧急"] { border-color: var(--coral); background: var(--coral-soft); color: #bd4a46; }
+      textarea {
+        width: 100%; min-height: 100px; resize: vertical; padding: 14px 15px; border: 2px solid var(--line);
+        border-radius: 17px; color: var(--ink); background: white; line-height: 1.6;
+      }
+      .char-count { margin: 7px 2px 0; color: var(--muted); font-size: 12px; text-align: right; }
+      .form-error {
+        display: flex; align-items: center; gap: 8px; margin: -8px 0 16px; padding: 12px 14px;
+        border-radius: 14px; color: #a93e3b; background: var(--coral-soft); font-size: 14px; font-weight: 700;
+      }
+
+      .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 18px 0; }
+      .manager-bonus-banner {
+        display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 0 0 14px;
+        padding: 15px; border: 1px solid #efd682; border-radius: 16px;
+        color: #735000; background: linear-gradient(135deg, #fff9e7, #fff1bd);
+      }
+      .manager-bonus-banner strong { display: block; }
+      .manager-bonus-banner span { display: block; margin-top: 4px; font-size: 12px; line-height: 1.5; }
+      .manager-bonus-banner .secondary-btn { flex: 0 0 auto; color: #8a5a00; background: white; }
+      .filter-btn {
+        min-height: 42px; padding: 0 14px; border: 1px solid var(--line); border-radius: 13px;
+        color: var(--muted); background: white; font-weight: 800;
+      }
+      .filter-btn.active { border-color: var(--primary); color: var(--primary-dark); background: var(--primary-soft); }
+      .task-list { display: grid; gap: 12px; }
+      .task-card { padding: 15px; border: 1px solid var(--line); border-radius: 16px; background: white; box-shadow: 0 5px 16px rgba(63,78,126,.05); }
+      .task-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+      .task-title { display: flex; align-items: center; gap: 9px; }
+      .task-meta { margin: 10px 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+      .issue-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+      .tag { padding: 5px 9px; border-radius: 999px; color: #566179; background: #f1f3f8; font-size: 12px; font-weight: 700; }
+      .status {
+        flex: 0 0 auto; padding: 6px 9px; border-radius: 999px; font-size: 12px; font-weight: 900; white-space: nowrap;
+      }
+      .status.pending { color: #9b6b0e; background: var(--sun-soft); }
+      .status.doing { color: var(--primary-dark); background: var(--primary-soft); }
+      .status.done { color: #26785f; background: var(--mint-soft); }
+      .task-actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 12px; border-top: 1px solid var(--line); }
+      .mini-btn { flex: 1; min-width: 105px; min-height: 44px; padding: 0 12px; border: 0; border-radius: 13px; color: var(--primary-dark); background: var(--primary-soft); font-weight: 850; }
+      .mini-btn.complete { flex: 0 0 auto; min-width: 88px; color: #26785f; background: var(--mint-soft); }
+      .mini-btn.delete { flex: 0 0 48px; min-width: 48px; color: #bd4a46; background: var(--coral-soft); }
+      .mini-btn.upload { display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: #8a6214; background: var(--sun-soft); }
+      .mini-btn.bonus { color: #9b6500; background: #fff2c4; }
+      .mini-btn:disabled { cursor: not-allowed; opacity: .48; }
+      .completion-proof {
+        display: flex; align-items: center; gap: 12px; margin: 12px 0; padding: 10px;
+        border: 1px solid #ccecdf; border-radius: 16px; background: #f2fcf8;
+      }
+      .proof-image { width: 72px; height: 72px; flex: 0 0 72px; object-fit: cover; border-radius: 12px; background: #dfe8e4; }
+      .proof-copy strong { display: block; color: #26785f; font-size: 14px; }
+      .proof-copy span { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
+      .bonus-chip {
+        display: inline-flex; align-items: center; gap: 6px; margin: 2px 0 12px; padding: 8px 11px;
+        border: 1px solid #f2d57b; border-radius: 999px; color: #8a5a00; background: #fff8dc;
+        font-size: 13px; font-weight: 900;
+      }
+
+      .report-summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 18px 0; }
+      .metric-card { min-width: 0; padding: 15px 12px; border: 1px solid var(--line); border-radius: 15px; background: white; box-shadow: 0 5px 16px rgba(63,78,126,.05); }
+      .metric-card span { display: block; color: var(--muted); font-size: 13px; }
+      .metric-card strong { display: block; margin-top: 7px; font-size: clamp(24px, 5vw, 34px); }
+      .report-grid { display: grid; gap: 14px; }
+      .report-card { min-width: 0; padding: 17px 15px; border: 1px solid var(--line); border-radius: 17px; background: white; box-shadow: 0 5px 16px rgba(63,78,126,.05); }
+      .report-card h3 { margin-bottom: 18px; }
+      .chart-row { display: grid; grid-template-columns: 58px minmax(0, 1fr) 34px; align-items: center; gap: 10px; margin-top: 13px; font-size: 13px; }
+      .chart-track { height: 12px; overflow: hidden; border-radius: 999px; background: #edf0f6; }
+      .chart-fill { height: 100%; min-width: 0; border-radius: inherit; transition: width .35s ease; }
+      .chart-fill.pending { background: var(--sun); }
+      .chart-fill.doing { background: var(--primary); }
+      .chart-fill.done { background: var(--mint); }
+      .location-list { display: grid; gap: 13px; }
+      .location-row { display: grid; grid-template-columns: minmax(90px, 1fr) minmax(100px, 2fr) 28px; align-items: center; gap: 10px; font-size: 13px; }
+      .location-row strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .location-fill { height: 9px; border-radius: 999px; background: linear-gradient(90deg, #6f8cff, #77d5ba); }
+      .report-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+      .report-table th, .report-table td { padding: 11px 7px; border-bottom: 1px solid var(--line); text-align: left; }
+      .report-table th { color: var(--muted); font-weight: 800; }
+      .report-table td:last-child, .report-table th:last-child { text-align: right; }
+      .report-note { margin: 12px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+      .bonus-total-card {
+        overflow: hidden; margin-bottom: 14px; padding: 20px; border-radius: 18px; color: #624000;
+        background: linear-gradient(135deg, #fff3bd, #ffe18a); box-shadow: 0 8px 24px rgba(180, 126, 15, .12);
+      }
+      .bonus-total-card span { font-size: 13px; font-weight: 800; }
+      .bonus-total-card strong { display: block; margin-top: 5px; font-size: 34px; }
+      .bonus-list { display: grid; gap: 9px; }
+      .bonus-row {
+        display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px;
+        padding: 13px; border: 1px solid var(--line); border-radius: 14px; background: #fafbfe;
+      }
+      .bonus-row strong, .bonus-row span { display: block; }
+      .bonus-row small { display: block; margin-top: 4px; color: var(--muted); line-height: 1.45; }
+      .bonus-amount { color: #a76d00; font-size: 18px; font-weight: 950; white-space: nowrap; }
+      .bonus-field { margin: 16px 0; }
+      .bonus-field label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 900; }
+      .bonus-field input {
+        width: 100%; min-height: 50px; padding: 0 14px; border: 2px solid var(--line);
+        border-radius: 14px; color: var(--ink); background: white;
+      }
+      .amount-presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 9px; }
+      .amount-btn {
+        min-height: 44px; border: 1px solid #efd682; border-radius: 12px; color: #8a5a00;
+        background: #fff9e5; font-weight: 900;
+      }
+
+      .empty-state { padding: 34px 16px; border: 1px dashed #ccd3e3; border-radius: 17px; background: rgba(255,255,255,.7); text-align: center; }
+      .empty-icon { display: grid; width: 72px; height: 72px; margin: 0 auto 14px; place-items: center; border-radius: 24px; background: var(--primary-soft); font-size: 34px; }
+      .empty-state h3 { margin-bottom: 7px; }
+      .empty-state p { margin: 0 0 17px; color: var(--muted); }
+
+      .profile-grid { display: grid; gap: 14px; }
+      .profile-card { padding: 17px 15px; border: 1px solid var(--line); border-radius: 17px; background: white; }
+      .profile-card h3 { margin-bottom: 6px; }
+      .profile-card p { margin: 0 0 17px; color: var(--muted); line-height: 1.6; }
+      .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 58px; padding: 8px 0; border-top: 1px solid var(--line); }
+      .setting-row:first-of-type { border-top: 0; }
+      .toggle {
+        position: relative; width: 52px; height: 30px; min-height: 30px; padding: 0; border: 0;
+        border-radius: 999px; background: #ccd2de;
+      }
+      .toggle::after { content: ""; position: absolute; top: 4px; left: 4px; width: 22px; height: 22px; border-radius: 50%; background: white; transition: left .2s ease; }
+      .toggle.on { background: var(--mint); }
+      .toggle.on::after { left: 26px; }
+
+      .bottom-nav {
+        position: fixed; z-index: 30; right: 0; bottom: 0; left: 0;
+        display: grid; grid-template-columns: repeat(4, 1fr); width: 100%; height: calc(64px + env(safe-area-inset-bottom));
+        padding: 4px 8px env(safe-area-inset-bottom); border: 0; border-top: 1px solid rgba(224,229,239,.94);
+        border-radius: 0; background: rgba(255,255,255,.97); box-shadow: 0 -6px 22px rgba(45,57,92,.08); backdrop-filter: blur(18px);
+      }
+      .bottom-nav.manager-mode { grid-template-columns: repeat(5, 1fr); }
+      .nav-btn { min-width: 0; min-height: 56px; padding: 4px 2px; border: 0; border-radius: 12px; color: #8993a5; background: transparent; font-weight: 800; font-size: 11px; }
+      .nav-btn span { display: block; margin-bottom: 2px; font-size: 20px; line-height: 1; }
+      .nav-btn.active { color: var(--primary-dark); background: var(--primary-soft); }
+
+      .toast {
+        position: fixed; z-index: 60; top: calc(66px + env(safe-area-inset-top)); left: 50%; display: flex; align-items: center; gap: 9px;
+        width: min(calc(100% - 24px), 440px); padding: 13px 14px; border-radius: 14px; color: white;
+        background: #26344d; box-shadow: 0 14px 40px rgba(25,34,52,.23);
+        transform: translate(-50%, -18px); opacity: 0; pointer-events: none; transition: .25s ease;
+      }
+      .toast.show { transform: translate(-50%, 0); opacity: 1; }
+      .toast.success { background: #22866a; }
+      .toast.error { background: #b64743; }
+
+      .modal {
+        position: fixed; z-index: 50; inset: 0; display: grid; place-items: end center; padding: 12px;
+        background: rgba(26,34,50,.46); backdrop-filter: blur(4px);
+      }
+      .modal-card { width: min(100%, 480px); padding: 23px 18px calc(23px + env(safe-area-inset-bottom)); border-radius: 22px 22px 16px 16px; background: white; box-shadow: var(--shadow); animation: modalIn .24s ease; }
+      @keyframes modalIn { from { opacity: 0; transform: translateY(18px); } }
+      .success-pop { display: grid; width: 78px; height: 78px; margin: 0 auto 18px; place-items: center; border-radius: 26px; color: white; background: var(--mint); font-size: 38px; animation: pop .45s cubic-bezier(.2,.9,.3,1.35); }
+      @keyframes pop { 0% { transform: scale(.3) rotate(-15deg); } 100% { transform: scale(1) rotate(0); } }
+      .modal-card h2, .modal-card p { text-align: center; }
+      .modal-card p { margin: 9px 0 22px; color: var(--muted); line-height: 1.6; }
+      .modal-actions { display: grid; gap: 9px; }
+
+      @media (min-width: 680px) {
+        main { width: calc(100% - 40px); padding-top: 24px; }
+        .quick-grid { grid-template-columns: repeat(3, 1fr); }
+        .quick-card { align-items: flex-start; flex-direction: column; }
+        .quick-arrow { display: none; }
+        .choice-grid { grid-template-columns: repeat(3, 1fr); }
+        .profile-grid { grid-template-columns: 1fr 1fr; }
+        .report-summary { grid-template-columns: repeat(5, 1fr); }
+        .report-grid { grid-template-columns: 1fr 1fr; }
+        .report-card.wide { grid-column: 1 / -1; }
+        .modal { place-items: center; }
+      }
+      @media (min-width: 900px) {
+        .app-shell { padding-bottom: 0; }
+        body {
+          background:
+            radial-gradient(circle at 10% 0, rgba(255, 216, 121, .25), transparent 23rem),
+            radial-gradient(circle at 100% 20%, rgba(116, 216, 190, .18), transparent 24rem),
+            #f6f8ff;
+        }
+        .topbar {
+          min-height: 72px;
+          padding: 0 max(20px, calc((100vw - 1120px) / 2));
+          gap: 16px;
+        }
+        .brand { gap: 10px; }
+        .brand-mark { flex-basis: 42px; width: 42px; height: 42px; border-radius: 15px; font-size: 22px; }
+        .brand-copy strong { font-size: 18px; }
+        .brand-copy small { font-size: 11px; }
+        .role-select { min-height: 42px; max-width: 132px; padding: 0 34px 0 13px; border-radius: 14px; font-size: 14px; }
+        .desktop-nav { display: flex; }
+        .bottom-nav { display: none; }
+        main { width: min(100% - 40px, 1120px); padding: 34px 0 42px; }
+        h1 { font-size: clamp(34px, 4vw, 48px); }
+        h2 { font-size: clamp(24px, 3vw, 30px); }
+        .section-head { margin: 28px 0 14px; }
+        .hero {
+          min-height: 360px; display: flex; align-items: center; padding: 44px 48px; border-radius: 30px;
+          background-image:
+            radial-gradient(circle at 82% 28%, rgba(104, 184, 255, .4), transparent 28%),
+            radial-gradient(circle at 73% 78%, rgba(106, 229, 190, .22), transparent 34%),
+            linear-gradient(125deg, #18233d 0%, #243a62 56%, #31517c 100%);
+          background-position: center 44%;
+        }
+        .hero-copy { max-width: 620px; padding-right: 0; }
+        .hero-art { display: none; }
+        .stats-grid { width: 68%; gap: 14px; }
+        .stat-card { padding: 20px; }
+        .panel { padding: 30px; border-radius: 24px; }
+        .task-card, .profile-card, .report-card { padding: 22px; border-radius: 22px; }
+        .metric-card { padding: 18px; border-radius: 20px; }
+        .report-layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(260px, .65fr); gap: 20px; align-items: start; }
+        .side-guide { position: sticky; top: 96px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+      }
+    </style>
+  
+<style id="portfolio-back-style">
+  body { padding-top: 54px !important; }
+  .topbar { top: 54px !important; }
+  .identity-gate { top: 54px !important; }
+  .portfolio-return-bar {
+    position: fixed;
+    z-index: 2147483647;
+    top: 0;
+    right: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    height: 54px;
+    padding: 0 14px;
+    border-bottom: 1px solid rgba(31, 62, 96, .14);
+    background: rgba(255, 255, 255, .96);
+    backdrop-filter: blur(14px);
+  }
+  .portfolio-back-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid rgba(31, 62, 96, .14);
+    border-radius: 999px;
+    color: #244b78;
+    background: #f5f8fd;
+    font: 800 14px/1 "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .portfolio-back-link:active { transform: scale(.97); }
+</style>
+<style id="ai-lab-responsive-v2">
+  /* 全站响应式增强：宽屏保持网页版，移动设备自动切换 H5。 */
+  html, body { max-width: 100%; }
+  body { overflow-x: clip; }
+  img, video, svg { max-width: 100%; height: auto; }
+  canvas { max-width: 100%; }
+  table { max-width: 100%; }
+  .table-wrap, .table-responsive, .report-table, .admin-table-section { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  html.ai-lab-h5 { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  html.ai-lab-h5, html.ai-lab-h5 body { width: 100%; min-width: 0 !important; overflow-x: hidden !important; }
+  html.ai-lab-h5 body { overscroll-behavior-x: none; }
+  html.ai-lab-h5 .app-shell,
+  html.ai-lab-h5 .game-shell,
+  html.ai-lab-h5 .game-app,
+  html.ai-lab-h5 .shell,
+  html.ai-lab-h5 .container,
+  html.ai-lab-h5 .wrapper,
+  html.ai-lab-h5 .content,
+  html.ai-lab-h5 .main,
+  html.ai-lab-h5 main { width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin-right: auto !important; margin-left: auto !important; }
+
+  html.ai-lab-h5 .home-layout,
+  html.ai-lab-h5 .calendar-layout,
+  html.ai-lab-h5 .dashboard-grid,
+  html.ai-lab-h5 .manager-grid,
+  html.ai-lab-h5 .map-grid,
+  html.ai-lab-h5 .report-layout,
+  html.ai-lab-h5 .report-grid,
+  html.ai-lab-h5 .profile-grid,
+  html.ai-lab-h5 .content-grid,
+  html.ai-lab-h5 .detail-grid,
+  html.ai-lab-h5 .library-grid,
+  html.ai-lab-h5 .test-reader-grid,
+  html.ai-lab-h5 .tech-grid,
+  html.ai-lab-h5 .controls-guide-grid,
+  html.ai-lab-h5 .shop-layout,
+  html.ai-lab-h5 .login,
+  html.ai-lab-h5 .hero { grid-template-columns: minmax(0, 1fr) !important; }
+
+  html.ai-lab-h5 .form-grid,
+  html.ai-lab-h5 .admin-form,
+  html.ai-lab-h5 .stats-grid,
+  html.ai-lab-h5 .quick-grid,
+  html.ai-lab-h5 .book-grid,
+  html.ai-lab-h5 .person-grid,
+  html.ai-lab-h5 .region-grid,
+  html.ai-lab-h5 .rules-grid,
+  html.ai-lab-h5 .identity-role-grid,
+  html.ai-lab-h5 .grid-3,
+  html.ai-lab-h5 .rewards-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)) !important; }
+
+  html.ai-lab-h5 .header-actions,
+  html.ai-lab-h5 .hero-actions,
+  html.ai-lab-h5 .main-actions,
+  html.ai-lab-h5 .top-controls,
+  html.ai-lab-h5 .action-row,
+  html.ai-lab-h5 .modal-actions,
+  html.ai-lab-h5 .toolbar,
+  html.ai-lab-h5 .controls { max-width: 100%; flex-wrap: wrap !important; }
+
+  html.ai-lab-h5 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  html.ai-lab-h5 select,
+  html.ai-lab-h5 textarea { width: 100%; max-width: 100%; min-width: 0; font-size: 16px !important; }
+  html.ai-lab-h5 button,
+  html.ai-lab-h5 .btn,
+  html.ai-lab-h5 [role="button"] { min-height: 44px; touch-action: manipulation; }
+  html.ai-lab-h5 textarea { resize: vertical; }
+
+  html.ai-lab-h5 canvas { display: block; width: auto; height: auto; max-width: 100% !important; max-height: min(68vh, 680px); margin-right: auto; margin-left: auto; touch-action: none; }
+  html.ai-lab-h5 .canvas-container,
+  html.ai-lab-h5 .canvas-wrapper,
+  html.ai-lab-h5 .canvas-wrap,
+  html.ai-lab-h5 .canvas-box,
+  html.ai-lab-h5 .board-shell,
+  html.ai-lab-h5 .board-wrapper,
+  html.ai-lab-h5 .gamewrap { width: 100% !important; max-width: 100% !important; min-width: 0 !important; overflow: hidden; }
+
+  html.ai-lab-h5 .modal-backdrop { padding: 12px !important; }
+  html.ai-lab-h5 .modal,
+  html.ai-lab-h5 .modal-card,
+  html.ai-lab-h5 .redeem-panel { width: min(100%, calc(100vw - 24px)) !important; max-width: calc(100vw - 24px) !important; max-height: 88dvh; overflow-y: auto; }
+  html.ai-lab-h5 .bottom-nav { padding-bottom: max(7px, env(safe-area-inset-bottom)); }
+  html.ai-lab-h5 .portfolio-return-bar { min-height: 54px; padding-right: 10px; padding-left: 10px; }
+  html.ai-lab-h5 .portfolio-back { max-width: calc(100vw - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  @media (max-width: 520px) {
+    html.ai-lab-h5 .stats-grid,
+    html.ai-lab-h5 .quick-grid,
+    html.ai-lab-h5 .form-grid,
+    html.ai-lab-h5 .admin-form,
+    html.ai-lab-h5 .identity-role-grid { grid-template-columns: minmax(0, 1fr) !important; }
+    html.ai-lab-h5 .card-footer { align-items: flex-start; flex-direction: column; }
+  }
+</style>
+<script id="ai-lab-responsive-runtime">
+(() => {
+  const root = document.documentElement;
+  const mobileUa = /Android|webOS|iPhone|iPad|iPod|Mobile|IEMobile|Opera Mini/i.test(navigator.userAgent || "");
+  const coarsePointer = window.matchMedia?.("(hover: none) and (pointer: coarse)")?.matches || false;
+  const updateLayoutMode = () => {
+    const narrowScreen = window.innerWidth <= 768;
+    const touchTablet = coarsePointer && window.innerWidth <= 1024;
+    const mobileDevice = mobileUa && window.innerWidth <= 1180;
+    const useH5 = narrowScreen || touchTablet || mobileDevice;
+    root.classList.toggle("ai-lab-h5", useH5);
+    root.classList.toggle("ai-lab-web", !useH5);
+    root.dataset.layoutMode = useH5 ? "h5" : "web";
+  };
+  updateLayoutMode();
+  window.addEventListener("resize", updateLayoutMode, { passive: true });
+  window.addEventListener("orientationchange", updateLayoutMode, { passive: true });
+})();
+</script>
+</head>
+  <body>
+<div class="portfolio-return-bar"><a class="portfolio-back-link" href="../cleaning-works.html" data-portfolio-back>← 返回物业保洁作品集</a></div>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand" aria-label="保洁快跑首页">
+          <div class="brand-mark" aria-hidden="true">✨</div>
+          <div class="brand-copy">
+            <strong>保洁快跑</strong>
+            <small>校园卫生小助手</small>
+          </div>
+        </div>
+        <nav class="desktop-nav" aria-label="主要导航">
+          <button class="active" data-view="home">首页</button>
+          <button data-view="report">上报</button>
+          <button data-view="tasks">任务</button>
+          <button class="manager-only" data-view="reports" hidden>报表</button>
+          <button data-view="profile">设置</button>
+        </nav>
+        <label>
+          <span class="sr-only" hidden>当前身份</span>
+          <select id="roleSelect" class="role-select" aria-label="切换使用身份">
+            <option value="student">我是学生</option>
+            <option value="cleaner">我是保洁员</option>
+            <option value="manager">我是管理员</option>
+          </select>
+        </label>
+      </header>
+
+      <main>
+        <section id="homeView" class="view">
+          <div class="hero">
+            <div class="hero-copy">
+              <div class="hero-badge"><span>●</span> 一起守护干净校园</div>
+              <h1 id="heroTitle">发现卫生问题？<br>30 秒快速上报</h1>
+              <p id="heroText">选择地点和问题类型，保洁老师就能更快看到。你的每次提醒，都在让校园变得更舒服。</p>
+              <button class="primary-btn" data-go="report">现在去上报 <span aria-hidden="true">→</span></button>
+            </div>
+            <div class="hero-art" aria-hidden="true">
+              <div class="bubble main">🧹</div><div class="bubble one"></div><div class="bubble two"></div>
+            </div>
+          </div>
+
+          <div class="stats-grid" aria-label="任务统计">
+            <div class="stat-card"><strong id="pendingCount">0</strong><span>等待处理</span></div>
+            <div class="stat-card"><strong id="doingCount">0</strong><span>正在处理</span></div>
+            <div class="stat-card"><strong id="doneCount">0</strong><span>已经完成</span></div>
+          </div>
+
+          <div class="section-head">
+            <div><h2>你想做什么？</h2><p class="muted">第一步很简单，选一个入口开始吧</p></div>
+          </div>
+          <div class="quick-grid">
+            <button class="quick-card" data-go="report"><span class="quick-icon">📍</span><strong>上报卫生问题</strong><span>选地点，告诉保洁老师</span><b class="quick-arrow">›</b></button>
+            <button class="quick-card" data-go="tasks"><span class="quick-icon">📋</span><strong>查看处理进度</strong><span>看看问题处理到哪一步</span><b class="quick-arrow">›</b></button>
+            <button class="quick-card" id="demoBtn"><span class="quick-icon">🌱</span><strong>体验完整流程</strong><span>自动添加一个示例任务</span><b class="quick-arrow">›</b></button>
+          </div>
+
+          <div class="section-head">
+            <div><h2>最新进度</h2><p class="muted">最近上报的 2 条记录</p></div>
+            <button class="text-btn" data-go="tasks">查看全部</button>
+          </div>
+          <div id="recentList" class="task-list"></div>
+        </section>
+
+        <section id="reportView" class="view" hidden>
+          <div class="form-intro">
+            <p class="eyebrow">快速上报</p>
+            <h1>告诉我们哪里需要打扫</h1>
+            <p class="muted">不用填写姓名，选好地点和问题就能提交。</p>
+          </div>
+          <div class="report-layout">
+            <form id="reportForm" class="panel" novalidate>
+              <div class="field-group">
+                <div class="step-row"><span class="step-num">1</span><span>问题在哪里？</span></div>
+                <div id="locationChoices" class="choice-grid" role="group" aria-label="选择地点"></div>
+              </div>
+              <div class="field-group">
+                <div class="step-row"><span class="step-num">2</span><span>发现了什么问题？</span></div>
+                <div id="issueChoices" class="choice-grid" role="group" aria-label="选择问题，可多选"></div>
+              </div>
+              <div class="field-group">
+                <div class="step-row"><span class="step-num">3</span><span>有多着急？</span></div>
+                <div class="urgency-row" role="group" aria-label="选择紧急程度">
+                  <button type="button" class="urgency-btn selected" data-level="普通">🌿 普通</button>
+                  <button type="button" class="urgency-btn" data-level="较急">⏰ 较急</button>
+                  <button type="button" class="urgency-btn" data-level="紧急">⚠️ 紧急</button>
+                </div>
+              </div>
+              <div class="field-group">
+                <div class="step-row"><span class="step-num">4</span><label for="note">补充说明（选填）</label></div>
+                <textarea id="note" maxlength="100" placeholder="例如：洗手池旁边地面有水，请小心滑倒。"></textarea>
+                <div class="char-count"><span id="charCount">0</span>/100</div>
+              </div>
+              <div id="formError" class="form-error" role="alert" hidden>⚠️ 请先选择地点和至少一个问题。</div>
+              <button class="primary-btn full-btn" type="submit">提交卫生问题</button>
+            </form>
+            <aside class="panel side-guide">
+              <h3>💡 上报小提示</h3>
+              <p class="muted">如果地面湿滑、有碎片等可能让人受伤的情况，请选择“紧急”。</p>
+              <div class="setting-row"><span>平均填写时间</span><strong>约 30 秒</strong></div>
+              <div class="setting-row"><span>是否需要登录</span><strong>不需要</strong></div>
+              <div class="setting-row"><span>数据保存位置</span><strong>本机浏览器</strong></div>
+            </aside>
+          </div>
+        </section>
+
+        <section id="tasksView" class="view" hidden>
+          <div class="form-intro">
+            <p class="eyebrow">处理进度</p>
+            <h1>卫生任务</h1>
+            <p id="taskHint" class="muted">每条上报都会显示最新处理状态。</p>
+          </div>
+          <div class="manager-bonus-banner manager-only" hidden>
+            <div><strong>🏆 管理员奖金入口</strong><span>进入已完成任务，即可给保洁发放或修改奖金。</span></div>
+            <button id="bonusManagerEntry" class="secondary-btn">奖金管理</button>
+          </div>
+          <div class="toolbar" role="group" aria-label="筛选任务">
+            <button class="filter-btn active" data-filter="all">全部</button>
+            <button class="filter-btn" data-filter="pending">待处理</button>
+            <button class="filter-btn" data-filter="doing">处理中</button>
+            <button class="filter-btn" data-filter="done">已完成</button>
+          </div>
+          <div id="taskList" class="task-list"></div>
+        </section>
+
+        <section id="reportsView" class="view" hidden>
+          <div class="form-intro">
+            <p class="eyebrow">管理员专属</p>
+            <h1>卫生任务报表</h1>
+            <p class="muted">汇总当前浏览器中的任务数据和完工图片凭证。</p>
+          </div>
+          <div id="reportEmpty" class="empty-state" hidden>
+            <div class="empty-icon">📊</div>
+            <h3>还没有数据可以统计</h3>
+            <p>任务产生后，报表会自动更新。</p>
+          </div>
+          <div id="reportContent">
+            <div class="report-summary">
+              <div class="metric-card"><span>全部任务</span><strong id="reportTotal">0</strong></div>
+              <div class="metric-card"><span>完成率</span><strong id="reportRate">0%</strong></div>
+              <div class="metric-card"><span>紧急任务</span><strong id="reportUrgent">0</strong></div>
+              <div class="metric-card"><span>有图片凭证</span><strong id="reportProof">0</strong></div>
+              <div class="metric-card"><span>已发奖金</span><strong id="reportBonus">¥0</strong></div>
+            </div>
+            <div class="report-grid">
+              <section class="report-card">
+                <h3>任务状态分布</h3>
+                <div id="statusChart"></div>
+              </section>
+              <section class="report-card">
+                <h3>问题地点排行</h3>
+                <div id="locationChart" class="location-list"></div>
+              </section>
+              <section class="report-card wide">
+                <div class="section-head" style="margin:0 0 10px">
+                  <div><h3>最近完成记录</h3><p class="muted">最多显示最近 5 条</p></div>
+                  <button id="exportReportBtn" class="secondary-btn">导出 CSV</button>
+                </div>
+                <div style="overflow-x:auto">
+                  <table class="report-table">
+                    <thead><tr><th>地点</th><th>完成时间</th><th>凭证</th></tr></thead>
+                    <tbody id="completedTable"></tbody>
+                  </table>
+                </div>
+                <p class="report-note">报表和图片仅保存在当前浏览器；换设备后不会自动同步。</p>
+              </section>
+              <section class="report-card wide">
+                <h3>🏆 保洁奖金记录</h3>
+                <div id="managerBonusList" class="bonus-list"></div>
+                <p class="report-note">请前往“任务”页，在保洁完成的任务上点击“发奖金”。</p>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section id="profileView" class="view" hidden>
+          <div class="form-intro">
+            <p class="eyebrow">本机设置</p>
+            <h1>设置与帮助</h1>
+            <p class="muted">这些设置只保存在当前浏览器中。</p>
+          </div>
+          <div class="profile-grid">
+            <section id="cleanerBonusCard" class="profile-card" hidden>
+              <h3>🏆 我的奖金</h3>
+              <p>认真完成任务获得的奖励，会记录在这里。</p>
+              <div class="bonus-total-card"><span>累计获得</span><strong id="cleanerBonusTotal">¥0</strong></div>
+              <div id="cleanerBonusList" class="bonus-list"></div>
+            </section>
+            <section class="profile-card">
+              <h3>使用偏好</h3>
+              <p>让操作反馈更适合你。</p>
+              <div class="setting-row"><span>操作提示音</span><button id="soundToggle" class="toggle" role="switch" aria-checked="false" aria-label="操作提示音"></button></div>
+              <div class="setting-row"><span>完成时显示庆祝动画</span><button id="celebrateToggle" class="toggle on" role="switch" aria-checked="true" aria-label="完成动画"></button></div>
+            </section>
+            <section class="profile-card">
+              <h3>数据管理</h3>
+              <p>可以清空记录，重新体验完整流程。</p>
+              <button id="resetBtn" class="danger-btn full-btn">清空记录并重新开始</button>
+            </section>
+            <section class="profile-card">
+              <h3>三步就会用</h3>
+              <p>① 选择地点和问题　② 提交上报　③ 在任务页查看处理结果。</p>
+              <button class="secondary-btn full-btn" data-go="report">现在试一试</button>
+            </section>
+            <section class="profile-card">
+              <h3>关于保洁快跑</h3>
+              <p>这是一个无需登录、无需联网的校园卫生协作演示应用。所有记录仅保存在你的设备中。</p>
+            </section>
+          </div>
+        </section>
+      </main>
+
+      <nav class="bottom-nav" aria-label="底部导航">
+        <button class="nav-btn active" data-view="home"><span>🏠</span>首页</button>
+        <button class="nav-btn" data-view="report"><span>➕</span>上报</button>
+        <button class="nav-btn" data-view="tasks"><span>📋</span>任务</button>
+        <button class="nav-btn manager-only" data-view="reports" hidden><span>📊</span>报表</button>
+        <button class="nav-btn" data-view="profile"><span>⚙️</span>设置</button>
+      </nav>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <div id="successModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="successTitle" hidden>
+      <div class="modal-card">
+        <div class="success-pop" aria-hidden="true">✓</div>
+        <h2 id="successTitle">上报成功！</h2>
+        <p>保洁老师已经能看到这条任务。你可以前往任务页查看进度。</p>
+        <div class="modal-actions">
+          <button id="viewTaskBtn" class="primary-btn full-btn">查看处理进度</button>
+          <button id="reportAgainBtn" class="secondary-btn full-btn">继续上报</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="confirmModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" hidden>
+      <div class="modal-card">
+        <div class="success-pop" style="background:var(--coral)" aria-hidden="true">?</div>
+        <h2 id="confirmTitle">要清空全部记录吗？</h2>
+        <p>清空后无法恢复，你会重新看到首次使用的空状态。</p>
+        <div class="modal-actions">
+          <button id="confirmResetBtn" class="danger-btn full-btn">确认清空</button>
+          <button id="cancelResetBtn" class="secondary-btn full-btn">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="bonusModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="bonusTitle" hidden>
+      <div class="modal-card">
+        <div class="success-pop" style="background:var(--sun)" aria-hidden="true">🏆</div>
+        <h2 id="bonusTitle">给保洁发奖金</h2>
+        <p id="bonusTaskName">奖励这次认真完成的清洁任务。</p>
+        <div class="bonus-field">
+          <label for="bonusAmount">奖金金额（1—999 元）</label>
+          <input id="bonusAmount" type="number" min="1" max="999" step="1" inputmode="numeric" placeholder="请输入金额">
+          <div class="amount-presets" aria-label="快速选择奖金金额">
+            <button type="button" class="amount-btn" data-amount="5">¥5</button>
+            <button type="button" class="amount-btn" data-amount="10">¥10</button>
+            <button type="button" class="amount-btn" data-amount="20">¥20</button>
+          </div>
+        </div>
+        <div class="bonus-field">
+          <label for="bonusReason">奖励原因</label>
+          <input id="bonusReason" maxlength="30" placeholder="例如：处理及时、打扫认真">
+        </div>
+        <div id="bonusError" class="form-error" role="alert" hidden>⚠️ 请填写正确金额和奖励原因。</div>
+        <div class="modal-actions">
+          <button id="saveBonusBtn" class="primary-btn full-btn">确认发放</button>
+          <button id="cancelBonusBtn" class="secondary-btn full-btn">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        "use strict";
+        var STORAGE_KEY = "cleanCampusDataV1";
+        var PREF_KEY = "cleanCampusPrefsV1";
+        var locations = ["一楼大厅", "一楼卫生间", "二楼卫生间", "楼梯口", "教室走廊", "操场附近"];
+        var issues = ["🗑️ 垃圾满了", "💧 地面湿滑", "🌫️ 有明显异味", "🧻 缺少纸巾", "🧼 洗手台脏", "🧹 需要清扫"];
+        var locationValue = "";
+        var issueValues = [];
+        var urgencyValue = "普通";
+        var currentFilter = "all";
+        var bonusTaskId = "";
+        var toastTimer;
+
+        function loadJSON(key, fallback) {
+          try {
+            var value = localStorage.getItem(key);
+            return value ? JSON.parse(value) : fallback;
+          } catch (error) {
+            showToast("读取本机数据失败，已使用空记录。", "error");
+            return fallback;
+          }
+        }
+        function getTasks() { return loadJSON(STORAGE_KEY, []); }
+        function saveTasks(tasks) {
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+            return true;
+          } catch (error) {
+            showToast("保存失败，请检查浏览器存储空间。", "error");
+            return false;
+          }
+        }
+        function getPrefs() {
+          return loadJSON(PREF_KEY, { role: "student", sound: false, celebrate: true, welcomed: false });
+        }
+        function savePrefs(prefs) {
+          try { localStorage.setItem(PREF_KEY, JSON.stringify(prefs)); } catch (error) {
+            showToast("设置暂时无法保存。", "error");
+          }
+        }
+        function esc(value) {
+          var div = document.createElement("div");
+          div.textContent = String(value || "");
+          return div.innerHTML;
+        }
+        function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+        function formatTime(timestamp) {
+          var date = new Date(timestamp);
+          var today = new Date();
+          var prefix = date.toDateString() === today.toDateString() ? "今天 " : (date.getMonth() + 1) + "月" + date.getDate() + "日 ";
+          return prefix + String(date.getHours()).padStart(2, "0") + ":" + String(date.getMinutes()).padStart(2, "0");
+        }
+        function showToast(message, type) {
+          var toast = document.getElementById("toast");
+          toast.className = "toast " + (type || "");
+          toast.textContent = (type === "success" ? "✓ " : type === "error" ? "⚠ " : "ℹ ") + message;
+          requestAnimationFrame(function () { toast.classList.add("show"); });
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(function () { toast.classList.remove("show"); }, 2800);
+        }
+        function playTone() {
+          var prefs = getPrefs();
+          if (!prefs.sound) return;
+          try {
+            var AudioCtx = window.AudioContext || window.webkitAudioContext;
+            var ctx = new AudioCtx();
+            var oscillator = ctx.createOscillator();
+            var gain = ctx.createGain();
+            oscillator.frequency.value = 660;
+            gain.gain.setValueAtTime(.05, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + .14);
+            oscillator.connect(gain); gain.connect(ctx.destination);
+            oscillator.start(); oscillator.stop(ctx.currentTime + .14);
+          } catch (error) {}
+        }
+
+        function goTo(viewName) {
+          if (viewName === "reports" && getPrefs().role !== "manager") {
+            showToast("只有管理员可以查看报表。", "error");
+            viewName = "home";
+          }
+          document.querySelectorAll(".view").forEach(function (view) { view.hidden = view.id !== viewName + "View"; });
+          document.querySelectorAll("[data-view]").forEach(function (button) {
+            button.classList.toggle("active", button.getAttribute("data-view") === viewName);
+          });
+          if (viewName === "tasks") renderTasks();
+          if (viewName === "home") renderHome();
+          if (viewName === "reports") renderReports();
+          if (viewName === "profile") renderCleanerBonuses();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function renderChoices() {
+          document.getElementById("locationChoices").innerHTML = locations.map(function (location) {
+            return '<button type="button" class="choice" data-location="' + esc(location) + '">📍 ' + esc(location) + '</button>';
+          }).join("");
+          document.getElementById("issueChoices").innerHTML = issues.map(function (issue) {
+            return '<button type="button" class="choice" data-issue="' + esc(issue) + '">' + esc(issue) + '</button>';
+          }).join("");
+        }
+        function statusText(status) { return status === "pending" ? "待处理" : status === "doing" ? "处理中" : "已完成"; }
+        function progressText(task) {
+          if (task.status === "done") {
+            return task.handler && task.handler.indexOf("管理员") === 0 ? "管理员已完成" : "保洁老师已完成";
+          }
+          if (task.status === "doing") {
+            return task.handler && task.handler.indexOf("管理员") === 0 ? "管理员处理中" : "保洁老师处理中";
+          }
+          return "等待保洁接单";
+        }
+        function safePhoto(task) {
+          return task.completionPhoto && /^data:image\/(?:jpeg|png|webp);base64,/.test(task.completionPhoto) ? task.completionPhoto : "";
+        }
+        function isCleanerCompletion(task) {
+          return task.status === "done";
+        }
+        function bonusMarkup(task) {
+          if (!task.bonusAmount || getPrefs().role === "student") return "";
+          return '<div class="bonus-chip">🏆 已获奖金 ¥' + esc(task.bonusAmount) + ' · ' +
+            esc(task.bonusReason || "认真完成任务") + '</div>';
+        }
+        function proofMarkup(task) {
+          var photo = safePhoto(task);
+          if (!photo) return "";
+          return '<div class="completion-proof"><img class="proof-image" src="' + photo + '" alt="' + esc(task.location) +
+            '完工图片"><div class="proof-copy"><strong>✓ 已上传完工凭证</strong><span>' +
+            (task.photoUploadedAt ? formatTime(task.photoUploadedAt) : "图片已保存在本机") + '</span></div></div>';
+        }
+        function taskCard(task, compact) {
+          var role = getPrefs().role;
+          var actions = "";
+          var hasPhoto = !!safePhoto(task);
+          var deleteButton = '<button class="mini-btn delete" aria-label="删除任务" data-action="delete" data-id="' + task.id + '">🗑</button>';
+          if (!compact && task.status === "pending" && role === "cleaner") {
+            actions = '<div class="task-actions"><button class="mini-btn" data-action="claim" data-id="' + task.id + '">🙋 接下任务</button></div>';
+          } else if (!compact && task.status === "pending" && role === "manager") {
+            actions = '<div class="task-actions"><button class="mini-btn" data-action="claim" data-id="' + task.id + '">🙋 接下任务</button>' + deleteButton + '</div>';
+          } else if (!compact && task.status === "doing" && role === "cleaner") {
+            actions = '<div class="task-actions"><label class="mini-btn upload">📷 ' + (hasPhoto ? "重新上传" : "上传图片") +
+              '<input class="photo-input" data-photo-id="' + task.id + '" type="file" accept="image/*" capture="environment" hidden></label>' +
+              '<button class="mini-btn complete" data-action="complete" data-id="' + task.id + '"' + (hasPhoto ? "" : " disabled") + '>✓ 完成</button></div>';
+          } else if (!compact && task.status === "doing" && role === "manager") {
+            actions = '<div class="task-actions"><button class="mini-btn complete" data-action="complete" data-id="' + task.id + '">✓ 完成</button>' + deleteButton + '</div>';
+          } else if (!compact && task.status === "done" && role === "manager") {
+            actions = '<div class="task-actions">' +
+              (isCleanerCompletion(task) ? '<button class="mini-btn bonus" data-action="bonus" data-id="' + task.id + '">🏆 ' +
+              (task.bonusAmount ? "修改奖金 ¥" + esc(task.bonusAmount) : "发奖金") + '</button>' : '') +
+              deleteButton + '</div>';
+          } else if (!compact && role === "manager") {
+            actions = '<div class="task-actions">' + deleteButton + '</div>';
+          }
+          return '<article class="task-card">' +
+            '<div class="task-top"><div><div class="task-title"><span>' + (task.urgency === "紧急" ? "🚨" : "📍") + '</span><h3>' + esc(task.location) + '</h3></div>' +
+            '<p class="task-meta">' + formatTime(task.createdAt) + ' · ' + esc(task.urgency) + ' · ' + esc(progressText(task)) + '</p></div>' +
+            '<span class="status ' + task.status + '">' + statusText(task.status) + '</span></div>' +
+            '<div class="issue-tags">' + task.issues.map(function (issue) { return '<span class="tag">' + esc(issue) + '</span>'; }).join("") + '</div>' +
+            (task.note ? '<p class="task-meta">补充：' + esc(task.note) + '</p>' : '') + proofMarkup(task) + bonusMarkup(task) + actions + '</article>';
+        }
+        function renderHome() {
+          var tasks = getTasks();
+          document.getElementById("pendingCount").textContent = tasks.filter(function (t) { return t.status === "pending"; }).length;
+          document.getElementById("doingCount").textContent = tasks.filter(function (t) { return t.status === "doing"; }).length;
+          document.getElementById("doneCount").textContent = tasks.filter(function (t) { return t.status === "done"; }).length;
+          var recent = tasks.slice().sort(function (a, b) { return b.createdAt - a.createdAt; }).slice(0, 2);
+          var list = document.getElementById("recentList");
+          list.innerHTML = recent.length ? recent.map(function (task) { return taskCard(task, true); }).join("") :
+            '<div class="empty-state"><div class="empty-icon">🌱</div><h3>还没有卫生记录</h3><p>发现需要打扫的地方，就从第一条上报开始吧。</p><button class="primary-btn" data-go="report">上报第一个问题</button></div>';
+          bindGoButtons(list);
+        }
+        function renderTasks() {
+          var role = getPrefs().role;
+          var hints = { student: "查看每条上报的最新处理状态。", cleaner: "上传完工图片完成任务，并在任务卡查看奖金。", manager: "查看任务、完工图片，并为保洁完成的任务发奖金。" };
+          document.getElementById("taskHint").textContent = hints[role];
+          var tasks = getTasks().slice().sort(function (a, b) { return b.createdAt - a.createdAt; });
+          if (currentFilter !== "all") tasks = tasks.filter(function (task) { return task.status === currentFilter; });
+          var list = document.getElementById("taskList");
+          if (!tasks.length) {
+            list.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><h3>这里暂时没有任务</h3><p>' +
+              (currentFilter === "all" ? "提交卫生问题后，记录会出现在这里。" : "当前筛选条件下没有记录，可以换个状态看看。") +
+              '</p><button class="primary-btn" data-go="' + (currentFilter === "all" ? "report" : "tasks") + '">' +
+              (currentFilter === "all" ? "去上报" : "查看全部") + '</button></div>';
+            bindGoButtons(list);
+            if (currentFilter !== "all") {
+              list.querySelector("button").addEventListener("click", function () {
+                currentFilter = "all"; document.querySelectorAll(".filter-btn").forEach(function (b) { b.classList.toggle("active", b.dataset.filter === "all"); }); renderTasks();
+              }, { once: true });
+            }
+          } else {
+            list.innerHTML = tasks.map(function (task) { return taskCard(task, false); }).join("");
+          }
+        }
+        function renderReports() {
+          var tasks = getTasks();
+          var total = tasks.length;
+          var pending = tasks.filter(function (task) { return task.status === "pending"; }).length;
+          var doing = tasks.filter(function (task) { return task.status === "doing"; }).length;
+          var done = tasks.filter(function (task) { return task.status === "done"; }).length;
+          var urgent = tasks.filter(function (task) { return task.urgency === "紧急"; }).length;
+          var proof = tasks.filter(function (task) { return !!safePhoto(task); }).length;
+          var bonusTotal = tasks.reduce(function (sum, task) { return sum + (Number(task.bonusAmount) || 0); }, 0);
+          document.getElementById("reportEmpty").hidden = total > 0;
+          document.getElementById("reportContent").hidden = total === 0;
+          if (!total) return;
+          document.getElementById("reportTotal").textContent = total;
+          document.getElementById("reportRate").textContent = Math.round(done / total * 100) + "%";
+          document.getElementById("reportUrgent").textContent = urgent;
+          document.getElementById("reportProof").textContent = proof;
+          document.getElementById("reportBonus").textContent = "¥" + bonusTotal;
+          function chartRow(label, status, count) {
+            var width = Math.round(count / total * 100);
+            return '<div class="chart-row"><strong>' + label + '</strong><div class="chart-track"><div class="chart-fill ' +
+              status + '" style="width:' + width + '%"></div></div><b>' + count + '</b></div>';
+          }
+          document.getElementById("statusChart").innerHTML =
+            chartRow("待处理", "pending", pending) + chartRow("处理中", "doing", doing) + chartRow("已完成", "done", done);
+          var locationCounts = {};
+          tasks.forEach(function (task) { locationCounts[task.location] = (locationCounts[task.location] || 0) + 1; });
+          var ranked = Object.keys(locationCounts).map(function (name) {
+            return { name: name, count: locationCounts[name] };
+          }).sort(function (a, b) { return b.count - a.count; }).slice(0, 6);
+          var maxCount = ranked.length ? ranked[0].count : 1;
+          document.getElementById("locationChart").innerHTML = ranked.map(function (item) {
+            return '<div class="location-row"><strong title="' + esc(item.name) + '">' + esc(item.name) +
+              '</strong><div class="chart-track"><div class="location-fill" style="width:' +
+              Math.round(item.count / maxCount * 100) + '%"></div></div><b>' + item.count + '</b></div>';
+          }).join("");
+          var completed = tasks.filter(function (task) { return task.status === "done"; })
+            .sort(function (a, b) { return (b.completedAt || 0) - (a.completedAt || 0); }).slice(0, 5);
+          document.getElementById("completedTable").innerHTML = completed.length ? completed.map(function (task) {
+            return '<tr><td>' + esc(task.location) + '</td><td>' +
+              (task.completedAt ? formatTime(task.completedAt) : "已完成") + '</td><td>' +
+              (safePhoto(task) ? "有图片" : "无图片") + '</td></tr>';
+          }).join("") : '<tr><td colspan="3" class="muted" style="text-align:center">暂无完成记录</td></tr>';
+          var bonuses = tasks.filter(function (task) { return Number(task.bonusAmount) > 0; })
+            .sort(function (a, b) { return (b.bonusAt || 0) - (a.bonusAt || 0); });
+          document.getElementById("managerBonusList").innerHTML = bonuses.length ? bonuses.map(function (task) {
+            return '<div class="bonus-row"><div><strong>' + esc(task.location) + '</strong><small>' +
+              esc(task.bonusReason || "认真完成任务") + ' · ' + (task.bonusAt ? formatTime(task.bonusAt) : "已发放") +
+              '</small></div><span class="bonus-amount">+¥' + esc(task.bonusAmount) + '</span></div>';
+          }).join("") : '<div class="empty-state" style="padding:24px 14px"><div class="empty-icon">🎁</div><h3>还没有发放奖金</h3><p>保洁完成任务后，可在任务页发放奖励。</p></div>';
+        }
+        function renderCleanerBonuses() {
+          var card = document.getElementById("cleanerBonusCard");
+          var isCleaner = getPrefs().role === "cleaner";
+          card.hidden = !isCleaner;
+          if (!isCleaner) return;
+          var bonuses = getTasks().filter(function (task) { return Number(task.bonusAmount) > 0 && isCleanerCompletion(task); })
+            .sort(function (a, b) { return (b.bonusAt || 0) - (a.bonusAt || 0); });
+          var total = bonuses.reduce(function (sum, task) { return sum + Number(task.bonusAmount); }, 0);
+          document.getElementById("cleanerBonusTotal").textContent = "¥" + total;
+          document.getElementById("cleanerBonusList").innerHTML = bonuses.length ? bonuses.map(function (task) {
+            return '<div class="bonus-row"><div><strong>' + esc(task.location) + '</strong><small>' +
+              esc(task.bonusReason || "认真完成任务") + ' · ' + (task.bonusAt ? formatTime(task.bonusAt) : "已到账") +
+              '</small></div><span class="bonus-amount">+¥' + esc(task.bonusAmount) + '</span></div>';
+          }).join("") : '<p class="muted">暂时还没有奖金。认真完成任务后，管理员可以为你发放奖励。</p>';
+        }
+        function openBonusModal(id) {
+          if (getPrefs().role !== "manager") { showToast("只有管理员可以发放奖金。", "error"); return; }
+          var task = getTasks().find(function (item) { return item.id === id; });
+          if (!task || !isCleanerCompletion(task)) {
+            showToast("任务完成后才能发放奖金。", "error");
+            return;
+          }
+          bonusTaskId = id;
+          document.getElementById("bonusTaskName").textContent = task.location + " · " + task.issues.join("、");
+          document.getElementById("bonusAmount").value = task.bonusAmount || "";
+          document.getElementById("bonusReason").value = task.bonusReason || "";
+          document.getElementById("saveBonusBtn").textContent = task.bonusAmount ? "保存奖金修改" : "确认发放";
+          document.getElementById("bonusError").hidden = true;
+          document.getElementById("bonusModal").hidden = false;
+          document.getElementById("bonusAmount").focus();
+        }
+        function closeBonusModal() {
+          bonusTaskId = "";
+          document.getElementById("bonusModal").hidden = true;
+        }
+        function saveBonus() {
+          var amount = Number(document.getElementById("bonusAmount").value);
+          var reason = document.getElementById("bonusReason").value.trim();
+          if (!Number.isInteger(amount) || amount < 1 || amount > 999 || !reason) {
+            document.getElementById("bonusError").hidden = false;
+            showToast("请填写 1—999 元的整数金额和奖励原因。", "error");
+            return;
+          }
+          var tasks = getTasks();
+          var index = tasks.findIndex(function (task) { return task.id === bonusTaskId; });
+          if (index < 0 || !isCleanerCompletion(tasks[index])) {
+            closeBonusModal();
+            showToast("任务状态已变化，暂时无法发放。", "error");
+            return;
+          }
+          tasks[index].bonusAmount = amount;
+          tasks[index].bonusReason = reason;
+          tasks[index].bonusAt = Date.now();
+          if (saveTasks(tasks)) {
+            closeBonusModal();
+            renderTasks(); renderHome(); renderReports(); renderCleanerBonuses();
+            playTone();
+            showToast("奖金已发放，保洁员可以立即查看。", "success");
+          }
+        }
+        function exportReport() {
+          var tasks = getTasks();
+          if (!tasks.length) { showToast("暂无数据可以导出。", "error"); return; }
+          function csvCell(value) { return '"' + String(value == null ? "" : value).replace(/"/g, '""') + '"'; }
+          var rows = [["任务编号", "地点", "问题", "紧急程度", "状态", "上报时间", "完成时间", "图片凭证", "奖金金额", "奖励原因"]];
+          tasks.forEach(function (task) {
+            rows.push([
+              task.id, task.location, task.issues.join("、"), task.urgency, statusText(task.status),
+              new Date(task.createdAt).toLocaleString("zh-CN"),
+              task.completedAt ? new Date(task.completedAt).toLocaleString("zh-CN") : "",
+              safePhoto(task) ? "已上传" : "未上传",
+              task.bonusAmount || "",
+              task.bonusReason || ""
+            ]);
+          });
+          var csv = "\uFEFF" + rows.map(function (row) { return row.map(csvCell).join(","); }).join("\n");
+          var blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+          var link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "保洁快跑任务报表-" + new Date().toISOString().slice(0, 10) + ".csv";
+          document.body.appendChild(link); link.click(); link.remove();
+          setTimeout(function () { URL.revokeObjectURL(link.href); }, 1000);
+          showToast("报表已导出。", "success");
+        }
+        function saveCompletionPhoto(id, file) {
+          if (!file || !/^image\//.test(file.type)) { showToast("请选择图片文件。", "error"); return; }
+          if (file.size > 12 * 1024 * 1024) { showToast("图片不能超过 12MB。", "error"); return; }
+          showToast("正在压缩并保存图片…");
+          var reader = new FileReader();
+          reader.onerror = function () { showToast("图片读取失败，请重新选择。", "error"); };
+          reader.onload = function (event) {
+            var image = new Image();
+            image.onerror = function () { showToast("无法识别这张图片。", "error"); };
+            image.onload = function () {
+              var maxSide = 900;
+              var scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+              var canvas = document.createElement("canvas");
+              canvas.width = Math.max(1, Math.round(image.width * scale));
+              canvas.height = Math.max(1, Math.round(image.height * scale));
+              var context = canvas.getContext("2d");
+              context.drawImage(image, 0, 0, canvas.width, canvas.height);
+              var dataUrl = canvas.toDataURL("image/jpeg", .68);
+              var tasks = getTasks();
+              var index = tasks.findIndex(function (task) { return task.id === id; });
+              if (index < 0) { showToast("找不到这条任务。", "error"); return; }
+              tasks[index].completionPhoto = dataUrl;
+              tasks[index].photoUploadedAt = Date.now();
+              if (saveTasks(tasks)) {
+                showToast("图片已上传，现在可以完成任务。", "success");
+                playTone(); renderTasks(); renderHome(); renderReports();
+              }
+            };
+            image.src = event.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+        function updateTask(id, action) {
+          var tasks = getTasks();
+          var index = tasks.findIndex(function (task) { return task.id === id; });
+          if (index < 0) { showToast("找不到这条任务，它可能已被删除。", "error"); return; }
+          if (action === "claim") {
+            tasks[index].status = "doing";
+            tasks[index].handler = getPrefs().role === "manager" ? "管理员处理中" : "保洁老师处理中";
+            showToast("接单成功，任务已变为“处理中”。", "success");
+          } else if (action === "complete") {
+            if (getPrefs().role === "cleaner" && !safePhoto(tasks[index])) {
+              showToast("请先上传完工图片，才能完成任务。", "error");
+              return;
+            }
+            tasks[index].status = "done";
+            tasks[index].completedAt = Date.now();
+            tasks[index].handler = getPrefs().role === "manager" ? "管理员已完成" : "保洁老师已完成";
+            showToast("太棒了，任务已经完成！", "success");
+          } else if (action === "delete") {
+            tasks.splice(index, 1);
+            showToast("任务记录已删除。");
+          }
+          if (saveTasks(tasks)) { playTone(); renderTasks(); renderHome(); renderReports(); renderCleanerBonuses(); }
+        }
+        function resetForm() {
+          locationValue = ""; issueValues = []; urgencyValue = "普通";
+          document.querySelectorAll("[data-location], [data-issue]").forEach(function (b) { b.classList.remove("selected"); });
+          document.querySelectorAll(".urgency-btn").forEach(function (b) { b.classList.toggle("selected", b.dataset.level === "普通"); });
+          document.getElementById("note").value = "";
+          document.getElementById("charCount").textContent = "0";
+          document.getElementById("formError").hidden = true;
+        }
+        function addDemoTask() {
+          var tasks = getTasks();
+          tasks.unshift({
+            id: uid(), location: "一楼卫生间", issues: ["💧 地面湿滑", "🧻 缺少纸巾"],
+            urgency: "较急", note: "洗手池旁边需要处理。", status: "pending", createdAt: Date.now()
+          });
+          if (saveTasks(tasks)) {
+            showToast("示例任务已添加，去任务页可以接单。", "success");
+            playTone(); renderHome(); goTo("tasks");
+          }
+        }
+        function bindGoButtons(root) {
+          (root || document).querySelectorAll("[data-go]").forEach(function (button) {
+            if (button.dataset.bound) return;
+            button.dataset.bound = "1";
+            button.addEventListener("click", function () { goTo(button.dataset.go); });
+          });
+        }
+        function updateRoleUI() {
+          var prefs = getPrefs();
+          var isManager = prefs.role === "manager";
+          document.getElementById("roleSelect").value = prefs.role;
+          document.querySelectorAll(".manager-only").forEach(function (element) { element.hidden = !isManager; });
+          document.querySelector(".bottom-nav").classList.toggle("manager-mode", isManager);
+          if (!isManager && !document.getElementById("reportsView").hidden) goTo("home");
+          var title = document.getElementById("heroTitle");
+          var text = document.getElementById("heroText");
+          var primary = document.querySelector(".hero .primary-btn");
+          if (prefs.role === "student") {
+            title.innerHTML = "发现卫生问题？<br>30 秒快速上报";
+            text.textContent = "选择地点和问题类型，保洁老师就能更快看到。你的每次提醒，都在让校园变得更舒服。";
+            primary.innerHTML = '现在去上报 <span aria-hidden="true">→</span>'; primary.dataset.go = "report";
+          } else if (prefs.role === "cleaner") {
+            title.innerHTML = "新任务来了，<br>让校园焕然一新";
+            text.textContent = "接下任务，上传完工图片；认真完成后，还能在设置页查看管理员发放的奖金。";
+            primary.innerHTML = '查看待处理任务 <span aria-hidden="true">→</span>'; primary.dataset.go = "tasks";
+          } else {
+            title.innerHTML = "卫生任务一目了然，<br>数据报表随时掌握";
+            text.textContent = "查看任务、图片凭证和数据报表，还能为认真完成工作的保洁发放奖金。";
+            primary.innerHTML = '查看管理报表 <span aria-hidden="true">→</span>'; primary.dataset.go = "reports";
+          }
+          renderHome(); renderTasks(); renderReports(); renderCleanerBonuses();
+        }
+        function setToggle(id, value) {
+          var button = document.getElementById(id);
+          button.classList.toggle("on", value);
+          button.setAttribute("aria-checked", String(value));
+        }
+
+        renderChoices();
+        bindGoButtons(document);
+        renderHome();
+        updateRoleUI();
+        var prefs = getPrefs();
+        setToggle("soundToggle", prefs.sound);
+        setToggle("celebrateToggle", prefs.celebrate);
+
+        document.querySelectorAll("[data-view]").forEach(function (button) {
+          button.addEventListener("click", function () { goTo(button.dataset.view); });
+        });
+        document.getElementById("locationChoices").addEventListener("click", function (event) {
+          var button = event.target.closest("[data-location]"); if (!button) return;
+          locationValue = button.dataset.location;
+          document.querySelectorAll("[data-location]").forEach(function (b) { b.classList.toggle("selected", b === button); });
+          document.getElementById("formError").hidden = true;
+        });
+        document.getElementById("issueChoices").addEventListener("click", function (event) {
+          var button = event.target.closest("[data-issue]"); if (!button) return;
+          var issue = button.dataset.issue; var index = issueValues.indexOf(issue);
+          if (index >= 0) issueValues.splice(index, 1); else issueValues.push(issue);
+          button.classList.toggle("selected", index < 0);
+          document.getElementById("formError").hidden = true;
+        });
+        document.querySelectorAll(".urgency-btn").forEach(function (button) {
+          button.addEventListener("click", function () {
+            urgencyValue = button.dataset.level;
+            document.querySelectorAll(".urgency-btn").forEach(function (b) { b.classList.toggle("selected", b === button); });
+          });
+        });
+        document.getElementById("note").addEventListener("input", function (event) {
+          document.getElementById("charCount").textContent = event.target.value.length;
+        });
+        document.getElementById("reportForm").addEventListener("submit", function (event) {
+          event.preventDefault();
+          if (!locationValue || !issueValues.length) {
+            document.getElementById("formError").hidden = false;
+            document.getElementById("formError").scrollIntoView({ behavior: "smooth", block: "center" });
+            showToast("还差一点：请选择地点和问题。", "error");
+            return;
+          }
+          var tasks = getTasks();
+          tasks.unshift({
+            id: uid(), location: locationValue, issues: issueValues.slice(), urgency: urgencyValue,
+            note: document.getElementById("note").value.trim(), status: "pending", createdAt: Date.now()
+          });
+          if (!saveTasks(tasks)) return;
+          playTone(); renderHome(); resetForm();
+          document.getElementById("successModal").hidden = false;
+          document.getElementById("viewTaskBtn").focus();
+        });
+        document.getElementById("viewTaskBtn").addEventListener("click", function () {
+          document.getElementById("successModal").hidden = true; goTo("tasks");
+        });
+        document.getElementById("reportAgainBtn").addEventListener("click", function () {
+          document.getElementById("successModal").hidden = true; goTo("report");
+        });
+        document.querySelectorAll(".filter-btn").forEach(function (button) {
+          button.addEventListener("click", function () {
+            currentFilter = button.dataset.filter;
+            document.querySelectorAll(".filter-btn").forEach(function (b) { b.classList.toggle("active", b === button); });
+            renderTasks();
+          });
+        });
+        document.getElementById("bonusManagerEntry").addEventListener("click", function () {
+          currentFilter = "done";
+          document.querySelectorAll(".filter-btn").forEach(function (button) {
+            button.classList.toggle("active", button.dataset.filter === "done");
+          });
+          renderTasks();
+          showToast("已显示完成任务，请点击任务卡上的“发奖金”。", "success");
+        });
+        document.getElementById("taskList").addEventListener("click", function (event) {
+          var button = event.target.closest("[data-action]");
+          if (!button) return;
+          if (button.dataset.action === "bonus") openBonusModal(button.dataset.id);
+          else updateTask(button.dataset.id, button.dataset.action);
+        });
+        document.getElementById("taskList").addEventListener("change", function (event) {
+          var input = event.target.closest(".photo-input");
+          if (input && input.files && input.files[0]) saveCompletionPhoto(input.dataset.photoId, input.files[0]);
+        });
+        document.getElementById("exportReportBtn").addEventListener("click", exportReport);
+        document.querySelectorAll(".amount-btn").forEach(function (button) {
+          button.addEventListener("click", function () {
+            document.getElementById("bonusAmount").value = button.dataset.amount;
+            document.getElementById("bonusError").hidden = true;
+          });
+        });
+        document.getElementById("saveBonusBtn").addEventListener("click", saveBonus);
+        document.getElementById("cancelBonusBtn").addEventListener("click", closeBonusModal);
+        document.getElementById("bonusAmount").addEventListener("input", function () { document.getElementById("bonusError").hidden = true; });
+        document.getElementById("bonusReason").addEventListener("input", function () { document.getElementById("bonusError").hidden = true; });
+        document.getElementById("demoBtn").addEventListener("click", addDemoTask);
+        document.getElementById("roleSelect").addEventListener("change", function (event) {
+          var next = getPrefs(); next.role = event.target.value; savePrefs(next); updateRoleUI();
+          showToast("身份已切换，页面功能同步更新。", "success");
+        });
+        ["sound", "celebrate"].forEach(function (name) {
+          var id = name + "Toggle";
+          document.getElementById(id).addEventListener("click", function () {
+            var next = getPrefs(); next[name] = !next[name]; savePrefs(next); setToggle(id, next[name]);
+            showToast(next[name] ? "功能已开启。" : "功能已关闭。", "success");
+          });
+        });
+        document.getElementById("resetBtn").addEventListener("click", function () {
+          document.getElementById("confirmModal").hidden = false; document.getElementById("confirmResetBtn").focus();
+        });
+        document.getElementById("cancelResetBtn").addEventListener("click", function () {
+          document.getElementById("confirmModal").hidden = true;
+        });
+        document.getElementById("confirmResetBtn").addEventListener("click", function () {
+          try { localStorage.removeItem(STORAGE_KEY); } catch (error) {}
+          document.getElementById("confirmModal").hidden = true;
+          currentFilter = "all"; renderHome(); renderTasks(); renderReports(); renderCleanerBonuses(); goTo("home");
+          showToast("记录已清空，可以重新开始了。", "success");
+        });
+        window.addEventListener("storage", function (event) {
+          if (event.key === STORAGE_KEY) {
+            renderHome();
+            renderTasks();
+            renderReports();
+            renderCleanerBonuses();
+            showToast("任务状态已同步更新。", "success");
+          } else if (event.key === PREF_KEY) {
+            updateRoleUI();
+          }
+        });
+        document.addEventListener("visibilitychange", function () {
+          if (!document.hidden) {
+            renderHome();
+            renderTasks();
+            renderReports();
+            renderCleanerBonuses();
+          }
+        });
+        document.addEventListener("keydown", function (event) {
+          if (event.key === "Escape") {
+            document.getElementById("successModal").hidden = true;
+            document.getElementById("confirmModal").hidden = true;
+            closeBonusModal();
+          }
+        });
+      })();
+    </script>
+  
+<script id="portfolio-back-bridge">
+  document.querySelector('[data-portfolio-back]').addEventListener('click', function (event) {
+    if (window.parent === window) return;
+    event.preventDefault();
+    window.parent.postMessage({ type: 'ai-lab-full-preview-nav', href: './cleaning-works.html' }, '*');
+  });
+</script>
+</body>
+</html>

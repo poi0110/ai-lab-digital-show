@@ -1,0 +1,2210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+
+  <!-- 让网页适配手机和电脑 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <title>粽子蛇吃饼干·音乐版</title>
+
+  <style>
+    /* =========================
+       一、网页基础样式
+       ========================= */
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 16px;
+
+      font-family:
+        "Microsoft YaHei",
+        "PingFang SC",
+        Arial,
+        sans-serif;
+
+      color: #3f4960;
+
+      /* 明亮可爱的渐变背景 */
+      background:
+        radial-gradient(circle at 10% 10%, #fff3a8 0, transparent 30%),
+        radial-gradient(circle at 90% 85%, #ffb9dd 0, transparent 30%),
+        linear-gradient(135deg, #9eeaff, #d8c9ff);
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      overscroll-behavior: none;
+    }
+
+    button,
+    select {
+      font: inherit;
+    }
+
+    /* =========================
+       二、游戏主卡片
+       ========================= */
+
+    .game-card {
+      width: min(96vw, 640px);
+      padding: 20px;
+
+      border: 4px solid rgba(255, 255, 255, 0.9);
+      border-radius: 28px;
+
+      background: rgba(255, 255, 255, 0.92);
+
+      box-shadow:
+        0 18px 45px rgba(71, 73, 125, 0.22),
+        inset 0 0 20px rgba(255, 255, 255, 0.85);
+
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+
+      color: #ff638f;
+      font-size: clamp(27px, 7vw, 43px);
+
+      text-shadow:
+        0 3px 0 #ffffff,
+        0 7px 15px rgba(255, 99, 143, 0.25);
+    }
+
+    .subtitle {
+      margin: 8px 0 15px;
+
+      color: #687386;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* =========================
+       三、分数显示区域
+       ========================= */
+
+    .score-board {
+      margin-bottom: 12px;
+
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+    }
+
+    .score-box {
+      padding: 9px 5px;
+
+      border-radius: 16px;
+      background: linear-gradient(135deg, #ffffff, #f1f6ff);
+
+      box-shadow: 0 5px 12px rgba(80, 96, 140, 0.12);
+    }
+
+    .score-label {
+      display: block;
+      margin-bottom: 3px;
+
+      color: #7b8496;
+      font-size: 12px;
+    }
+
+    .score-number {
+      display: block;
+
+      color: #5263dc;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    /* =========================
+       四、游戏设置
+       ========================= */
+
+    .settings {
+      margin-bottom: 12px;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .settings label {
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    select {
+      min-height: 40px;
+      padding: 0 12px;
+
+      color: #39445a;
+      background: #ffffff;
+
+      border: 2px solid #ccd6ff;
+      border-radius: 12px;
+
+      outline: none;
+      cursor: pointer;
+    }
+
+    select:focus {
+      border-color: #8290ff;
+      box-shadow: 0 0 0 3px rgba(130, 144, 255, 0.18);
+    }
+
+    /* 音乐和音效开关按钮 */
+    .sound-button {
+      min-height: 40px;
+      padding: 0 13px;
+
+      border: 2px solid #d8dcff;
+      border-radius: 12px;
+
+      color: #4d5670;
+      background: #ffffff;
+
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .sound-button.active {
+      color: #ffffff;
+      border-color: #6ecf9a;
+      background: #53bd82;
+    }
+
+    /* =========================
+       五、游戏画布
+       ========================= */
+
+    .canvas-box {
+      position: relative;
+      width: 100%;
+
+      overflow: hidden;
+
+      border: 5px solid #ffffff;
+      border-radius: 24px;
+
+      background: #edfff1;
+
+      box-shadow:
+        0 10px 25px rgba(61, 88, 120, 0.18),
+        inset 0 0 18px rgba(80, 190, 125, 0.15);
+
+      /* 防止手机滑动游戏时带动网页 */
+      touch-action: none;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1 / 1;
+
+      background: #edfff1;
+    }
+
+    /* =========================
+       六、粽子蛇台词气泡
+       ========================= */
+
+    .speech-bubble {
+      position: absolute;
+      top: 18px;
+      left: 50%;
+
+      min-width: 110px;
+      padding: 10px 18px;
+
+      color: #7a3b21;
+      background: #fff7d6;
+
+      border: 3px solid #e6ad54;
+      border-radius: 22px;
+
+      font-size: 22px;
+      font-weight: 900;
+
+      box-shadow: 0 7px 15px rgba(110, 75, 34, 0.18);
+
+      transform:
+        translateX(-50%)
+        translateY(-20px)
+        scale(0.8);
+
+      opacity: 0;
+      pointer-events: none;
+
+      transition:
+        opacity 0.18s ease,
+        transform 0.18s ease;
+    }
+
+    .speech-bubble.show {
+      opacity: 1;
+
+      transform:
+        translateX(-50%)
+        translateY(0)
+        scale(1);
+    }
+
+    /* 气泡下面的小三角 */
+    .speech-bubble::after {
+      content: "";
+
+      position: absolute;
+      left: 50%;
+      bottom: -12px;
+
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 12px solid #e6ad54;
+
+      transform: translateX(-50%);
+    }
+
+    /* =========================
+       七、游戏提示层
+       ========================= */
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+
+      padding: 20px;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      background: rgba(255, 255, 255, 0.83);
+      backdrop-filter: blur(4px);
+
+      transition: opacity 0.2s ease;
+    }
+
+    .overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .overlay-icon {
+      margin-bottom: 6px;
+      font-size: 58px;
+    }
+
+    .overlay-title {
+      margin: 0 0 8px;
+
+      color: #ff638f;
+      font-size: clamp(25px, 7vw, 38px);
+    }
+
+    .overlay-text {
+      max-width: 370px;
+      margin: 0 0 15px;
+
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    /* =========================
+       八、功能按钮
+       ========================= */
+
+    .button-row {
+      margin-top: 14px;
+
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .action-button {
+      min-width: 120px;
+      min-height: 46px;
+      padding: 8px 18px;
+
+      border: none;
+      border-radius: 15px;
+
+      color: #ffffff;
+      font-weight: 800;
+
+      cursor: pointer;
+
+      box-shadow: 0 6px 0 rgba(63, 70, 130, 0.2);
+
+      transition:
+        transform 0.1s ease,
+        box-shadow 0.1s ease,
+        filter 0.2s ease;
+    }
+
+    .action-button:hover {
+      filter: brightness(1.06);
+    }
+
+    .action-button:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 rgba(63, 70, 130, 0.2);
+    }
+
+    .start-button,
+    .restart-button {
+      background: linear-gradient(135deg, #ff70a7, #ff9f68);
+    }
+
+    .pause-button {
+      background: linear-gradient(135deg, #718cff, #9e75ff);
+    }
+
+    .pause-button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      filter: grayscale(0.4);
+    }
+
+    /* =========================
+       九、手机方向按钮
+       ========================= */
+
+    .direction-controls {
+      width: 220px;
+      margin: 18px auto 4px;
+
+      display: grid;
+      grid-template-columns: repeat(3, 64px);
+      grid-template-rows: repeat(2, 64px);
+      justify-content: center;
+      gap: 8px;
+
+      user-select: none;
+    }
+
+    .direction-button {
+      width: 64px;
+      height: 64px;
+
+      border: none;
+      border-radius: 20px;
+
+      color: #ffffff;
+      background: linear-gradient(145deg, #6bd78d, #42bfe1);
+
+      box-shadow:
+        0 6px 0 #299eae,
+        0 9px 15px rgba(46, 145, 163, 0.2);
+
+      font-size: 28px;
+      font-weight: 900;
+
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .direction-button:active {
+      transform: translateY(4px);
+
+      box-shadow:
+        0 2px 0 #299eae,
+        0 4px 8px rgba(46, 145, 163, 0.2);
+    }
+
+    .up-button {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .left-button {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .down-button {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    .right-button {
+      grid-column: 3;
+      grid-row: 2;
+    }
+
+    .help-text {
+      margin: 13px 0 0;
+
+      color: #788296;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    /* =========================
+       十、手机屏幕适配
+       ========================= */
+
+    @media (max-width: 480px) {
+      body {
+        padding: 8px;
+        align-items: flex-start;
+      }
+
+      .game-card {
+        width: 100%;
+        padding: 14px 11px;
+        border-radius: 22px;
+      }
+
+      .score-board {
+        gap: 6px;
+      }
+
+      .score-number {
+        font-size: 19px;
+      }
+
+      .speech-bubble {
+        top: 12px;
+        padding: 8px 14px;
+        font-size: 19px;
+      }
+
+      .direction-controls {
+        width: 196px;
+
+        grid-template-columns: repeat(3, 58px);
+        grid-template-rows: repeat(2, 58px);
+
+        gap: 7px;
+      }
+
+      .direction-button {
+        width: 58px;
+        height: 58px;
+        border-radius: 18px;
+      }
+    }
+  </style>
+
+<style id="portfolio-back-style">
+  .portfolio-back-link {
+    position: fixed;
+    z-index: 2147483647;
+    top: max(10px, env(safe-area-inset-top));
+    left: max(10px, env(safe-area-inset-left));
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid rgba(25, 52, 85, .18);
+    border-radius: 999px;
+    color: #173b68;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 8px 24px rgba(25, 52, 85, .16);
+    font: 800 14px/1 "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    text-decoration: none;
+    backdrop-filter: blur(12px);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .portfolio-back-link:active { transform: scale(.97); }
+</style>
+<style id="ai-lab-responsive-v2">
+  /* 全站响应式增强：宽屏保持网页版，移动设备自动切换 H5。 */
+  html, body { max-width: 100%; }
+  body { overflow-x: clip; }
+  img, video, svg { max-width: 100%; height: auto; }
+  canvas { max-width: 100%; }
+  table { max-width: 100%; }
+  .table-wrap, .table-responsive, .report-table, .admin-table-section { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  html.ai-lab-h5 { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  html.ai-lab-h5, html.ai-lab-h5 body { width: 100%; min-width: 0 !important; overflow-x: hidden !important; }
+  html.ai-lab-h5 body { overscroll-behavior-x: none; }
+  html.ai-lab-h5 .app-shell,
+  html.ai-lab-h5 .game-shell,
+  html.ai-lab-h5 .game-app,
+  html.ai-lab-h5 .shell,
+  html.ai-lab-h5 .container,
+  html.ai-lab-h5 .wrapper,
+  html.ai-lab-h5 .content,
+  html.ai-lab-h5 .main,
+  html.ai-lab-h5 main { width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin-right: auto !important; margin-left: auto !important; }
+
+  html.ai-lab-h5 .home-layout,
+  html.ai-lab-h5 .calendar-layout,
+  html.ai-lab-h5 .dashboard-grid,
+  html.ai-lab-h5 .manager-grid,
+  html.ai-lab-h5 .map-grid,
+  html.ai-lab-h5 .report-layout,
+  html.ai-lab-h5 .report-grid,
+  html.ai-lab-h5 .profile-grid,
+  html.ai-lab-h5 .content-grid,
+  html.ai-lab-h5 .detail-grid,
+  html.ai-lab-h5 .library-grid,
+  html.ai-lab-h5 .test-reader-grid,
+  html.ai-lab-h5 .tech-grid,
+  html.ai-lab-h5 .controls-guide-grid,
+  html.ai-lab-h5 .shop-layout,
+  html.ai-lab-h5 .login,
+  html.ai-lab-h5 .hero { grid-template-columns: minmax(0, 1fr) !important; }
+
+  html.ai-lab-h5 .form-grid,
+  html.ai-lab-h5 .admin-form,
+  html.ai-lab-h5 .stats-grid,
+  html.ai-lab-h5 .quick-grid,
+  html.ai-lab-h5 .book-grid,
+  html.ai-lab-h5 .person-grid,
+  html.ai-lab-h5 .region-grid,
+  html.ai-lab-h5 .rules-grid,
+  html.ai-lab-h5 .identity-role-grid,
+  html.ai-lab-h5 .grid-3,
+  html.ai-lab-h5 .rewards-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)) !important; }
+
+  html.ai-lab-h5 .header-actions,
+  html.ai-lab-h5 .hero-actions,
+  html.ai-lab-h5 .main-actions,
+  html.ai-lab-h5 .top-controls,
+  html.ai-lab-h5 .action-row,
+  html.ai-lab-h5 .modal-actions,
+  html.ai-lab-h5 .toolbar,
+  html.ai-lab-h5 .controls { max-width: 100%; flex-wrap: wrap !important; }
+
+  html.ai-lab-h5 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  html.ai-lab-h5 select,
+  html.ai-lab-h5 textarea { width: 100%; max-width: 100%; min-width: 0; font-size: 16px !important; }
+  html.ai-lab-h5 button,
+  html.ai-lab-h5 .btn,
+  html.ai-lab-h5 [role="button"] { min-height: 44px; touch-action: manipulation; }
+  html.ai-lab-h5 textarea { resize: vertical; }
+
+  html.ai-lab-h5 canvas { display: block; width: auto; height: auto; max-width: 100% !important; max-height: min(68vh, 680px); margin-right: auto; margin-left: auto; touch-action: none; }
+  html.ai-lab-h5 .canvas-container,
+  html.ai-lab-h5 .canvas-wrapper,
+  html.ai-lab-h5 .canvas-wrap,
+  html.ai-lab-h5 .canvas-box,
+  html.ai-lab-h5 .board-shell,
+  html.ai-lab-h5 .board-wrapper,
+  html.ai-lab-h5 .gamewrap { width: 100% !important; max-width: 100% !important; min-width: 0 !important; overflow: hidden; }
+
+  html.ai-lab-h5 .modal-backdrop { padding: 12px !important; }
+  html.ai-lab-h5 .modal,
+  html.ai-lab-h5 .modal-card,
+  html.ai-lab-h5 .redeem-panel { width: min(100%, calc(100vw - 24px)) !important; max-width: calc(100vw - 24px) !important; max-height: 88dvh; overflow-y: auto; }
+  html.ai-lab-h5 .bottom-nav { padding-bottom: max(7px, env(safe-area-inset-bottom)); }
+  html.ai-lab-h5 .portfolio-return-bar { min-height: 54px; padding-right: 10px; padding-left: 10px; }
+  html.ai-lab-h5 .portfolio-back { max-width: calc(100vw - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  @media (max-width: 520px) {
+    html.ai-lab-h5 .stats-grid,
+    html.ai-lab-h5 .quick-grid,
+    html.ai-lab-h5 .form-grid,
+    html.ai-lab-h5 .admin-form,
+    html.ai-lab-h5 .identity-role-grid { grid-template-columns: minmax(0, 1fr) !important; }
+    html.ai-lab-h5 .card-footer { align-items: flex-start; flex-direction: column; }
+  }
+</style>
+<script id="ai-lab-responsive-runtime">
+(() => {
+  const root = document.documentElement;
+  const mobileUa = /Android|webOS|iPhone|iPad|iPod|Mobile|IEMobile|Opera Mini/i.test(navigator.userAgent || "");
+  const coarsePointer = window.matchMedia?.("(hover: none) and (pointer: coarse)")?.matches || false;
+  const updateLayoutMode = () => {
+    const narrowScreen = window.innerWidth <= 768;
+    const touchTablet = coarsePointer && window.innerWidth <= 1024;
+    const mobileDevice = mobileUa && window.innerWidth <= 1180;
+    const useH5 = narrowScreen || touchTablet || mobileDevice;
+    root.classList.toggle("ai-lab-h5", useH5);
+    root.classList.toggle("ai-lab-web", !useH5);
+    root.dataset.layoutMode = useH5 ? "h5" : "web";
+  };
+  updateLayoutMode();
+  window.addEventListener("resize", updateLayoutMode, { passive: true });
+  window.addEventListener("orientationchange", updateLayoutMode, { passive: true });
+})();
+</script>
+</head>
+
+<body>
+<a class="portfolio-back-link" href="../snake-games.html" data-portfolio-back>← 返回贪吃蛇合集</a>
+  <main class="game-card">
+    <h1>🥟 粽子蛇吃饼干</h1>
+
+    <p class="subtitle">
+      音乐版：控制粽子蛇吃饼干，听听它会说什么！
+    </p>
+
+    <!-- 分数显示区域 -->
+    <section class="score-board">
+      <div class="score-box">
+        <span class="score-label">当前分数</span>
+        <span class="score-number" id="score">0</span>
+      </div>
+
+      <div class="score-box">
+        <span class="score-label">最高分</span>
+        <span class="score-number" id="highScore">0</span>
+      </div>
+
+      <div class="score-box">
+        <span class="score-label">粽子数量</span>
+        <span class="score-number" id="snakeLength">3</span>
+      </div>
+    </section>
+
+    <!-- 游戏设置 -->
+    <section class="settings">
+      <label for="speedSelect">移动速度：</label>
+
+      <select id="speedSelect">
+        <!-- 数字越大，蛇移动得越慢 -->
+        <option value="280" selected>🐢 悠闲模式</option>
+        <option value="215">🥟 普通模式</option>
+        <option value="155">⚡ 挑战模式</option>
+      </select>
+
+      <button
+        type="button"
+        class="sound-button active"
+        id="musicButton"
+      >
+        🎵 音乐开
+      </button>
+
+      <button
+        type="button"
+        class="sound-button active"
+        id="soundButton"
+      >
+        🔊 音效开
+      </button>
+    </section>
+
+    <!-- 游戏画布 -->
+    <section class="canvas-box" id="canvasBox">
+      <canvas
+        id="gameCanvas"
+        width="500"
+        height="500"
+        aria-label="粽子蛇吃饼干游戏区域"
+      ></canvas>
+
+      <!-- 粽子蛇说话时显示的气泡 -->
+      <div
+        class="speech-bubble"
+        id="speechBubble"
+        aria-live="polite"
+      >
+        那咋了！
+      </div>
+
+      <!-- 游戏提示层 -->
+      <div class="overlay" id="overlay">
+        <div class="overlay-icon" id="overlayIcon">🥟🍪</div>
+
+        <h2 class="overlay-title" id="overlayTitle">
+          准备好了吗？
+        </h2>
+
+        <p class="overlay-text" id="overlayText">
+          点击开始后会播放音乐。吃到饼干时，粽子蛇会说“那咋了”！
+        </p>
+
+        <button
+          type="button"
+          class="action-button start-button"
+          id="overlayButton"
+        >
+          开始游戏
+        </button>
+      </div>
+    </section>
+
+    <!-- 重新开始和暂停按钮 -->
+    <section class="button-row">
+      <button
+        type="button"
+        class="action-button restart-button"
+        id="restartButton"
+      >
+        🔄 重新开始
+      </button>
+
+      <button
+        type="button"
+        class="action-button pause-button"
+        id="pauseButton"
+        disabled
+      >
+        ⏸ 暂停
+      </button>
+    </section>
+
+    <!-- 手机方向控制按钮 -->
+    <section class="direction-controls">
+      <button
+        type="button"
+        class="direction-button up-button"
+        data-direction="up"
+        aria-label="向上移动"
+      >
+        ▲
+      </button>
+
+      <button
+        type="button"
+        class="direction-button left-button"
+        data-direction="left"
+        aria-label="向左移动"
+      >
+        ◀
+      </button>
+
+      <button
+        type="button"
+        class="direction-button down-button"
+        data-direction="down"
+        aria-label="向下移动"
+      >
+        ▼
+      </button>
+
+      <button
+        type="button"
+        class="direction-button right-button"
+        data-direction="right"
+        aria-label="向右移动"
+      >
+        ▶
+      </button>
+    </section>
+
+    <p class="help-text">
+      电脑：方向键或 W、A、S、D<br>
+      手机：点击方向按钮或滑动游戏区域<br>
+      每吃到一块饼干增加10分，并说“那咋了”。
+    </p>
+  </main>
+
+  <script>
+    /*
+     * ======================================
+     * 粽子蛇吃饼干·音乐版
+     * 音乐和音效使用 Web Audio API 生成
+     * 不需要外部音乐文件
+     * ======================================
+     */
+
+    /* 获取画布与绘图工具 */
+    const canvas = document.getElementById("gameCanvas");
+    const context = canvas.getContext("2d");
+
+    /* 获取网页元素 */
+    const canvasBox = document.getElementById("canvasBox");
+
+    const scoreElement = document.getElementById("score");
+    const highScoreElement = document.getElementById("highScore");
+    const snakeLengthElement =
+      document.getElementById("snakeLength");
+
+    const speedSelect = document.getElementById("speedSelect");
+    const restartButton =
+      document.getElementById("restartButton");
+    const pauseButton =
+      document.getElementById("pauseButton");
+
+    const musicButton =
+      document.getElementById("musicButton");
+    const soundButton =
+      document.getElementById("soundButton");
+
+    const speechBubble =
+      document.getElementById("speechBubble");
+
+    const overlay = document.getElementById("overlay");
+    const overlayIcon =
+      document.getElementById("overlayIcon");
+    const overlayTitle =
+      document.getElementById("overlayTitle");
+    const overlayText =
+      document.getElementById("overlayText");
+    const overlayButton =
+      document.getElementById("overlayButton");
+
+    /* 游戏区域分成20行和20列 */
+    const gridCount = 20;
+    const cellSize = canvas.width / gridCount;
+
+    /* 粽子蛇和饼干的数据 */
+    let snake = [];
+    let cookie = { x: 0, y: 0 };
+
+    /* 当前方向和下一次方向 */
+    let direction = { x: 1, y: 0 };
+    let nextDirection = { x: 1, y: 0 };
+
+    /* 分数 */
+    let score = 0;
+
+    /* 从浏览器读取最高分 */
+    let highScore =
+      Number(
+        localStorage.getItem("zongziMusicSnakeHighScore")
+      ) || 0;
+
+    /* 游戏运行状态 */
+    let gameTimer = null;
+    let gameRunning = false;
+    let gamePaused = false;
+    let canChangeDirection = true;
+
+    /* 手机滑动起点 */
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    /* 台词气泡计时器 */
+    let bubbleTimer = null;
+
+    /* 提示层按钮的功能 */
+    let overlayButtonAction = startGame;
+
+    /* =========================
+       音乐和音效数据
+       ========================= */
+
+    /*
+     * AudioContext是浏览器的声音控制器。
+     * 它必须在玩家点击按钮后才能启动。
+     */
+    let audioContext = null;
+
+    /* 音乐是否开启 */
+    let musicEnabled = true;
+
+    /* 音效与语音是否开启 */
+    let soundEnabled = true;
+
+    /* 背景音乐计时器 */
+    let musicTimer = null;
+
+    /* 当前播放到第几个音符 */
+    let musicNoteIndex = 0;
+
+    /*
+     * 一组轻快的背景音乐音符频率。
+     * 单位是赫兹Hz。
+     */
+    const musicNotes = [
+      523.25,
+      659.25,
+      783.99,
+      659.25,
+      587.33,
+      698.46,
+      880.00,
+      698.46,
+      523.25,
+      659.25,
+      783.99,
+      1046.50,
+      880.00,
+      783.99,
+      659.25,
+      587.33
+    ];
+
+    highScoreElement.textContent = highScore;
+
+    /**
+     * 创建或恢复声音控制器
+     */
+    function prepareAudio() {
+      if (!audioContext) {
+        const AudioContextClass =
+          window.AudioContext ||
+          window.webkitAudioContext;
+
+        if (!AudioContextClass) {
+          return;
+        }
+
+        audioContext = new AudioContextClass();
+      }
+
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+    }
+
+    /**
+     * 播放一个电子音符
+     *
+     * frequency：音符频率
+     * duration：播放时长
+     * volume：音量
+     * waveType：声音波形
+     */
+    function playTone(
+      frequency,
+      duration,
+      volume = 0.06,
+      waveType = "sine"
+    ) {
+      if (!audioContext) {
+        return;
+      }
+
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.type = waveType;
+      oscillator.frequency.value = frequency;
+
+      /*
+       * 音量先快速升高，再慢慢降低，
+       * 可以防止声音突然出现爆音。
+       */
+      gainNode.gain.setValueAtTime(
+        0.0001,
+        audioContext.currentTime
+      );
+
+      gainNode.gain.exponentialRampToValueAtTime(
+        volume,
+        audioContext.currentTime + 0.02
+      );
+
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.0001,
+        audioContext.currentTime + duration
+      );
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      oscillator.start();
+      oscillator.stop(
+        audioContext.currentTime + duration + 0.03
+      );
+    }
+
+    /**
+     * 开始播放循环背景音乐
+     */
+    function startBackgroundMusic() {
+      stopBackgroundMusic();
+
+      if (
+        !musicEnabled ||
+        !gameRunning ||
+        gamePaused
+      ) {
+        return;
+      }
+
+      prepareAudio();
+
+      musicNoteIndex = 0;
+
+      /*
+       * 每隔260毫秒播放一个音符，
+       * 组成一段循环旋律。
+       */
+      musicTimer = setInterval(function () {
+        if (
+          !musicEnabled ||
+          !gameRunning ||
+          gamePaused
+        ) {
+          return;
+        }
+
+        const frequency =
+          musicNotes[musicNoteIndex];
+
+        playTone(
+          frequency,
+          0.2,
+          0.035,
+          "triangle"
+        );
+
+        musicNoteIndex =
+          (musicNoteIndex + 1) %
+          musicNotes.length;
+      }, 260);
+    }
+
+    /**
+     * 停止背景音乐
+     */
+    function stopBackgroundMusic() {
+      clearInterval(musicTimer);
+      musicTimer = null;
+    }
+
+    /**
+     * 播放吃到饼干的得分音效
+     */
+    function playCookieSound() {
+      if (!soundEnabled) {
+        return;
+      }
+
+      prepareAudio();
+
+      playTone(659.25, 0.12, 0.09, "sine");
+
+      setTimeout(function () {
+        playTone(880, 0.18, 0.08, "sine");
+      }, 90);
+    }
+
+    /**
+     * 播放游戏失败音效
+     */
+    function playGameOverSound() {
+      if (!soundEnabled) {
+        return;
+      }
+
+      prepareAudio();
+
+      playTone(392, 0.18, 0.08, "sawtooth");
+
+      setTimeout(function () {
+        playTone(311.13, 0.22, 0.07, "sawtooth");
+      }, 130);
+
+      setTimeout(function () {
+        playTone(220, 0.4, 0.06, "sawtooth");
+      }, 280);
+    }
+
+    /**
+     * 显示粽子蛇的台词
+     */
+    function showSnakeSpeech() {
+      clearTimeout(bubbleTimer);
+
+      speechBubble.textContent = "那咋了！";
+      speechBubble.classList.add("show");
+
+      bubbleTimer = setTimeout(function () {
+        speechBubble.classList.remove("show");
+      }, 1100);
+    }
+
+    /**
+     * 使用浏览器语音说出“那咋了”
+     */
+    function speakSnakeLine() {
+      if (
+        !soundEnabled ||
+        !("speechSynthesis" in window)
+      ) {
+        return;
+      }
+
+      /*
+       * 停止上一句还没有说完的语音，
+       * 防止连续吃饼干时语音重叠。
+       */
+      window.speechSynthesis.cancel();
+
+      const speech =
+        new SpeechSynthesisUtterance("那咋了");
+
+      speech.lang = "zh-CN";
+      speech.rate = 1.05;
+      speech.pitch = 1.25;
+      speech.volume = 0.8;
+
+      window.speechSynthesis.speak(speech);
+    }
+
+    /**
+     * 初始化游戏数据
+     */
+    function resetGameData() {
+      /* 数组第一项是蛇头 */
+      snake = [
+        { x: 10, y: 10 },
+        { x: 9, y: 10 },
+        { x: 8, y: 10 }
+      ];
+
+      direction = { x: 1, y: 0 };
+      nextDirection = { x: 1, y: 0 };
+
+      score = 0;
+      gamePaused = false;
+      canChangeDirection = true;
+
+      scoreElement.textContent = score;
+      snakeLengthElement.textContent = snake.length;
+
+      pauseButton.textContent = "⏸ 暂停";
+
+      speechBubble.classList.remove("show");
+
+      createCookie();
+      drawGame();
+    }
+
+    /**
+     * 开始或重新开始游戏
+     */
+    function startGame() {
+      clearInterval(gameTimer);
+      stopBackgroundMusic();
+
+      /* 点击开始时允许浏览器启动声音 */
+      prepareAudio();
+
+      resetGameData();
+
+      gameRunning = true;
+      gamePaused = false;
+
+      pauseButton.disabled = false;
+      speedSelect.disabled = true;
+
+      hideOverlay();
+
+      const gameSpeed =
+        Number(speedSelect.value);
+
+      gameTimer = setInterval(
+        gameLoop,
+        gameSpeed
+      );
+
+      startBackgroundMusic();
+    }
+
+    /**
+     * 游戏主循环
+     */
+    function gameLoop() {
+      if (!gameRunning || gamePaused) {
+        return;
+      }
+
+      moveSnake();
+      drawGame();
+    }
+
+    /**
+     * 移动粽子蛇
+     */
+    function moveSnake() {
+      direction = { ...nextDirection };
+
+      const newHead = {
+        x: snake[0].x + direction.x,
+        y: snake[0].y + direction.y
+      };
+
+      /* 判断是否撞墙 */
+      const hitWall =
+        newHead.x < 0 ||
+        newHead.x >= gridCount ||
+        newHead.y < 0 ||
+        newHead.y >= gridCount;
+
+      /* 判断是否会吃到饼干 */
+      const willEatCookie =
+        newHead.x === cookie.x &&
+        newHead.y === cookie.y;
+
+      /*
+       * 没吃饼干时，尾巴会移动，
+       * 所以不用检查最后一个尾巴格子。
+       */
+      const bodyToCheck = willEatCookie
+        ? snake
+        : snake.slice(0, -1);
+
+      /* 判断是否撞到自己的身体 */
+      const hitSelf = bodyToCheck.some(
+        function (part) {
+          return (
+            part.x === newHead.x &&
+            part.y === newHead.y
+          );
+        }
+      );
+
+      if (hitWall || hitSelf) {
+        endGame();
+        return;
+      }
+
+      /* 加入新蛇头 */
+      snake.unshift(newHead);
+
+      if (willEatCookie) {
+        score += 10;
+
+        scoreElement.textContent = score;
+        snakeLengthElement.textContent =
+          snake.length;
+
+        if (score > highScore) {
+          highScore = score;
+          highScoreElement.textContent =
+            highScore;
+
+          localStorage.setItem(
+            "zongziMusicSnakeHighScore",
+            String(highScore)
+          );
+        }
+
+        /*
+         * 吃到饼干后：
+         * 1. 播放音效
+         * 2. 显示台词
+         * 3. 朗读台词
+         */
+        playCookieSound();
+        showSnakeSpeech();
+        speakSnakeLine();
+
+        createCookie();
+      } else {
+        snake.pop();
+      }
+
+      canChangeDirection = true;
+    }
+
+    /**
+     * 随机生成饼干
+     */
+    function createCookie() {
+      let newCookie;
+      let cookieIsOnSnake;
+
+      do {
+        newCookie = {
+          x: Math.floor(
+            Math.random() * gridCount
+          ),
+          y: Math.floor(
+            Math.random() * gridCount
+          )
+        };
+
+        cookieIsOnSnake = snake.some(
+          function (part) {
+            return (
+              part.x === newCookie.x &&
+              part.y === newCookie.y
+            );
+          }
+        );
+      } while (cookieIsOnSnake);
+
+      cookie = newCookie;
+    }
+
+    /**
+     * 绘制完整游戏画面
+     */
+    function drawGame() {
+      drawBackground();
+      drawCookie();
+      drawSnake();
+    }
+
+    /**
+     * 绘制棋盘背景
+     */
+    function drawBackground() {
+      context.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+      context.fillStyle = "#edfff1";
+
+      context.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+      /* 绘制交错的小方格 */
+      for (let y = 0; y < gridCount; y++) {
+        for (let x = 0; x < gridCount; x++) {
+          if ((x + y) % 2 === 0) {
+            context.fillStyle =
+              "rgba(111, 205, 143, 0.14)";
+
+            context.fillRect(
+              x * cellSize,
+              y * cellSize,
+              cellSize,
+              cellSize
+            );
+          }
+        }
+      }
+    }
+
+    /**
+     * 绘制巧克力豆饼干
+     */
+    function drawCookie() {
+      const centerX =
+        cookie.x * cellSize +
+        cellSize / 2;
+
+      const centerY =
+        cookie.y * cellSize +
+        cellSize / 2;
+
+      const radius = cellSize * 0.38;
+
+      /* 饼干外面的发光圆圈 */
+      context.beginPath();
+
+      context.arc(
+        centerX,
+        centerY,
+        cellSize * 0.47,
+        0,
+        Math.PI * 2
+      );
+
+      context.fillStyle =
+        "rgba(255, 218, 94, 0.38)";
+
+      context.fill();
+
+      /* 饼干主体 */
+      context.beginPath();
+
+      context.arc(
+        centerX,
+        centerY,
+        radius,
+        0,
+        Math.PI * 2
+      );
+
+      context.fillStyle = "#d99b55";
+      context.fill();
+
+      context.lineWidth = 2;
+      context.strokeStyle = "#ae7038";
+      context.stroke();
+
+      /* 饼干高光 */
+      context.beginPath();
+
+      context.arc(
+        centerX - radius * 0.28,
+        centerY - radius * 0.3,
+        radius * 0.18,
+        0,
+        Math.PI * 2
+      );
+
+      context.fillStyle =
+        "rgba(255, 236, 191, 0.75)";
+
+      context.fill();
+
+      /* 巧克力豆的位置 */
+      const chips = [
+        { x: -0.32, y: -0.08 },
+        { x: 0.2, y: -0.28 },
+        { x: 0.3, y: 0.2 },
+        { x: -0.12, y: 0.3 },
+        { x: 0.04, y: 0.02 }
+      ];
+
+      chips.forEach(function (chip) {
+        context.beginPath();
+
+        context.arc(
+          centerX + chip.x * radius,
+          centerY + chip.y * radius,
+          radius * 0.1,
+          0,
+          Math.PI * 2
+        );
+
+        context.fillStyle = "#704125";
+        context.fill();
+      });
+    }
+
+    /**
+     * 绘制整条粽子蛇
+     */
+    function drawSnake() {
+      for (
+        let index = snake.length - 1;
+        index >= 0;
+        index--
+      ) {
+        const part = snake[index];
+
+        if (index === 0) {
+          drawZongziHead(part);
+        } else {
+          drawZongziBody(part, index);
+        }
+      }
+    }
+
+    /**
+     * 绘制一颗粽子身体
+     */
+    function drawZongziBody(part, index) {
+      const centerX =
+        part.x * cellSize +
+        cellSize / 2;
+
+      const centerY =
+        part.y * cellSize +
+        cellSize / 2;
+
+      const leafColors = [
+        "#4eb86f",
+        "#65c982"
+      ];
+
+      drawZongzi(
+        centerX,
+        centerY,
+        cellSize * 0.82,
+        leafColors[index % leafColors.length],
+        false
+      );
+    }
+
+    /**
+     * 绘制粽子蛇头
+     */
+    function drawZongziHead(head) {
+      const centerX =
+        head.x * cellSize +
+        cellSize / 2;
+
+      const centerY =
+        head.y * cellSize +
+        cellSize / 2;
+
+      drawZongzi(
+        centerX,
+        centerY,
+        cellSize * 0.95,
+        "#31a962",
+        true
+      );
+    }
+
+    /**
+     * 绘制一颗三角形粽子
+     */
+    function drawZongzi(
+      centerX,
+      centerY,
+      size,
+      leafColor,
+      hasFace
+    ) {
+      const halfWidth = size * 0.43;
+      const topY =
+        centerY - size * 0.43;
+      const bottomY =
+        centerY + size * 0.42;
+
+      /* 阴影 */
+      context.beginPath();
+
+      context.moveTo(
+        centerX + 3,
+        topY + 3
+      );
+
+      context.lineTo(
+        centerX - halfWidth + 3,
+        bottomY + 3
+      );
+
+      context.lineTo(
+        centerX + halfWidth + 3,
+        bottomY + 3
+      );
+
+      context.closePath();
+
+      context.fillStyle =
+        "rgba(31, 96, 61, 0.18)";
+
+      context.fill();
+
+      /* 粽子主体 */
+      context.beginPath();
+
+      context.moveTo(centerX, topY);
+
+      context.lineTo(
+        centerX - halfWidth,
+        bottomY
+      );
+
+      context.lineTo(
+        centerX + halfWidth,
+        bottomY
+      );
+
+      context.closePath();
+
+      context.fillStyle = leafColor;
+      context.fill();
+
+      context.lineWidth = 1.8;
+      context.strokeStyle = "#267f4a";
+      context.stroke();
+
+      /* 左侧叶片阴影 */
+      context.beginPath();
+
+      context.moveTo(centerX, topY);
+
+      context.lineTo(
+        centerX - halfWidth,
+        bottomY
+      );
+
+      context.lineTo(centerX, bottomY);
+      context.closePath();
+
+      context.fillStyle =
+        "rgba(32, 128, 73, 0.24)";
+
+      context.fill();
+
+      /* 右侧叶片高光 */
+      context.beginPath();
+
+      context.moveTo(centerX, topY);
+
+      context.lineTo(
+        centerX + halfWidth,
+        bottomY
+      );
+
+      context.lineTo(centerX, bottomY);
+      context.closePath();
+
+      context.fillStyle =
+        "rgba(159, 235, 171, 0.24)";
+
+      context.fill();
+
+      /* 粽叶中间纹路 */
+      context.beginPath();
+
+      context.moveTo(
+        centerX,
+        topY + size * 0.08
+      );
+
+      context.lineTo(
+        centerX,
+        bottomY - size * 0.05
+      );
+
+      context.lineWidth = 1.2;
+      context.strokeStyle =
+        "rgba(24, 105, 55, 0.55)";
+
+      context.stroke();
+
+      /* 粽子绳子 */
+      context.beginPath();
+
+      context.moveTo(
+        centerX - halfWidth * 0.72,
+        centerY + size * 0.12
+      );
+
+      context.lineTo(
+        centerX + halfWidth * 0.72,
+        centerY + size * 0.12
+      );
+
+      context.lineWidth = size * 0.08;
+      context.lineCap = "round";
+      context.strokeStyle = "#f0cf73";
+
+      context.stroke();
+
+      if (hasFace) {
+        drawZongziFace(
+          centerX,
+          centerY,
+          size
+        );
+      }
+    }
+
+    /**
+     * 绘制粽子蛇头的脸
+     */
+    function drawZongziFace(
+      centerX,
+      centerY,
+      size
+    ) {
+      /* 让眼珠看向移动方向 */
+      const lookX =
+        direction.x * size * 0.025;
+
+      const lookY =
+        direction.y * size * 0.025;
+
+      const eyeY =
+        centerY - size * 0.03;
+
+      const eyeDistance =
+        size * 0.14;
+
+      /* 左眼眼白 */
+      context.beginPath();
+
+      context.arc(
+        centerX - eyeDistance,
+        eyeY,
+        size * 0.075,
+        0,
+        Math.PI * 2
+      );
+
+      context.fillStyle = "#ffffff";
+      context.fill();
+
+      /* 右眼眼白 */
+      context.beginPath();
+
+      context.arc(
+        centerX + eyeDistance,
+        eyeY,
+        size * 0.075,
+        0,
+        Math.PI * 2
+      );
+
+      context.fillStyle = "#ffffff";
+      context.fill();
+
+      /* 左眼眼珠 */
+      context.beginPath();
+
+      context.arc(
+        centerX - eyeDistance + lookX,
+        eyeY + lookY,
+        size * 0.035,
+        0,
+        Math.PI * 2
+      );
+
+      context.fillStyle = "#24352d";
+      context.fill();
+
+      /* 右眼眼珠 */
+      context.beginPath();
+
+      context.arc(
+        centerX + eyeDistance + lookX,
+        eyeY + lookY,
+        size * 0.035,
+        0,
+        Math.PI * 2
+      );
+
+      context.fillStyle = "#24352d";
+      context.fill();
+
+      /* 笑脸 */
+      context.beginPath();
+
+      context.arc(
+        centerX,
+        centerY + size * 0.1,
+        size * 0.11,
+        0.15 * Math.PI,
+        0.85 * Math.PI
+      );
+
+      context.lineWidth =
+        size * 0.035;
+
+      context.lineCap = "round";
+      context.strokeStyle = "#24563b";
+      context.stroke();
+
+      /* 红色脸颊 */
+      context.beginPath();
+
+      context.arc(
+        centerX - size * 0.25,
+        centerY + size * 0.08,
+        size * 0.045,
+        0,
+        Math.PI * 2
+      );
+
+      context.fillStyle =
+        "rgba(255, 130, 145, 0.7)";
+
+      context.fill();
+
+      context.beginPath();
+
+      context.arc(
+        centerX + size * 0.25,
+        centerY + size * 0.08,
+        size * 0.045,
+        0,
+        Math.PI * 2
+      );
+
+      context.fillStyle =
+        "rgba(255, 130, 145, 0.7)";
+
+      context.fill();
+    }
+
+    /**
+     * 改变蛇的移动方向
+     */
+    function changeDirection(directionName) {
+      if (
+        !gameRunning ||
+        gamePaused ||
+        !canChangeDirection
+      ) {
+        return;
+      }
+
+      let requestedDirection;
+
+      switch (directionName) {
+        case "up":
+          requestedDirection = {
+            x: 0,
+            y: -1
+          };
+          break;
+
+        case "down":
+          requestedDirection = {
+            x: 0,
+            y: 1
+          };
+          break;
+
+        case "left":
+          requestedDirection = {
+            x: -1,
+            y: 0
+          };
+          break;
+
+        case "right":
+          requestedDirection = {
+            x: 1,
+            y: 0
+          };
+          break;
+
+        default:
+          return;
+      }
+
+      /* 禁止直接反方向掉头 */
+      const isOppositeDirection =
+        requestedDirection.x === -direction.x &&
+        requestedDirection.y === -direction.y;
+
+      if (isOppositeDirection) {
+        return;
+      }
+
+      nextDirection = requestedDirection;
+      canChangeDirection = false;
+    }
+
+    /**
+     * 暂停或继续游戏
+     */
+    function togglePause() {
+      if (!gameRunning) {
+        return;
+      }
+
+      gamePaused = !gamePaused;
+
+      if (gamePaused) {
+        pauseButton.textContent = "▶ 继续";
+
+        stopBackgroundMusic();
+
+        showOverlay(
+          "⏸️",
+          "游戏暂停",
+          "粽子蛇正在休息，准备好后继续吃饼干吧！",
+          "继续游戏",
+          togglePause
+        );
+      } else {
+        pauseButton.textContent = "⏸ 暂停";
+
+        hideOverlay();
+        startBackgroundMusic();
+      }
+    }
+
+    /**
+     * 游戏结束
+     */
+    function endGame() {
+      gameRunning = false;
+      gamePaused = false;
+
+      clearInterval(gameTimer);
+      stopBackgroundMusic();
+
+      pauseButton.disabled = true;
+      pauseButton.textContent = "⏸ 暂停";
+
+      speedSelect.disabled = false;
+
+      playGameOverSound();
+
+      showOverlay(
+        "💥🥟",
+        "挑战结束！",
+        `你获得了${score}分，粽子蛇一共有${snake.length}颗粽子。`,
+        "重新开始",
+        startGame
+      );
+    }
+
+    /**
+     * 显示提示层
+     */
+    function showOverlay(
+      icon,
+      title,
+      text,
+      buttonText,
+      buttonAction
+    ) {
+      overlayIcon.textContent = icon;
+      overlayTitle.textContent = title;
+      overlayText.textContent = text;
+      overlayButton.textContent = buttonText;
+
+      overlayButtonAction = buttonAction;
+
+      overlay.classList.remove("hidden");
+    }
+
+    /**
+     * 隐藏提示层
+     */
+    function hideOverlay() {
+      overlay.classList.add("hidden");
+    }
+
+    /* =========================
+       按钮事件
+       ========================= */
+
+    overlayButton.addEventListener(
+      "click",
+      function () {
+        overlayButtonAction();
+      }
+    );
+
+    restartButton.addEventListener(
+      "click",
+      startGame
+    );
+
+    pauseButton.addEventListener(
+      "click",
+      togglePause
+    );
+
+    /**
+     * 打开或关闭背景音乐
+     */
+    musicButton.addEventListener(
+      "click",
+      function () {
+        prepareAudio();
+
+        musicEnabled = !musicEnabled;
+
+        if (musicEnabled) {
+          musicButton.textContent =
+            "🎵 音乐开";
+
+          musicButton.classList.add(
+            "active"
+          );
+
+          if (
+            gameRunning &&
+            !gamePaused
+          ) {
+            startBackgroundMusic();
+          }
+        } else {
+          musicButton.textContent =
+            "🎵 音乐关";
+
+          musicButton.classList.remove(
+            "active"
+          );
+
+          stopBackgroundMusic();
+        }
+      }
+    );
+
+    /**
+     * 打开或关闭音效和语音
+     */
+    soundButton.addEventListener(
+      "click",
+      function () {
+        prepareAudio();
+
+        soundEnabled = !soundEnabled;
+
+        if (soundEnabled) {
+          soundButton.textContent =
+            "🔊 音效开";
+
+          soundButton.classList.add(
+            "active"
+          );
+
+          /* 打开音效时播放一个提示音 */
+          playTone(
+            783.99,
+            0.15,
+            0.08,
+            "sine"
+          );
+        } else {
+          soundButton.textContent =
+            "🔇 音效关";
+
+          soundButton.classList.remove(
+            "active"
+          );
+
+          if (
+            "speechSynthesis" in window
+          ) {
+            window.speechSynthesis.cancel();
+          }
+        }
+      }
+    );
+
+    /**
+     * 监听电脑键盘
+     */
+    document.addEventListener(
+      "keydown",
+      function (event) {
+        const key =
+          event.key.toLowerCase();
+
+        const gameKeys = [
+          "arrowup",
+          "arrowdown",
+          "arrowleft",
+          "arrowright",
+          "w",
+          "a",
+          "s",
+          "d",
+          " "
+        ];
+
+        if (gameKeys.includes(key)) {
+          event.preventDefault();
+        }
+
+        switch (key) {
+          case "arrowup":
+          case "w":
+            changeDirection("up");
+            break;
+
+          case "arrowdown":
+          case "s":
+            changeDirection("down");
+            break;
+
+          case "arrowleft":
+          case "a":
+            changeDirection("left");
+            break;
+
+          case "arrowright":
+          case "d":
+            changeDirection("right");
+            break;
+
+          case " ":
+            togglePause();
+            break;
+        }
+      }
+    );
+
+    /**
+     * 监听屏幕方向按钮
+     */
+    document
+      .querySelectorAll(".direction-button")
+      .forEach(function (button) {
+        button.addEventListener(
+          "pointerdown",
+          function (event) {
+            event.preventDefault();
+
+            changeDirection(
+              button.dataset.direction
+            );
+          }
+        );
+      });
+
+    /**
+     * 记录手机滑动起点
+     */
+    canvasBox.addEventListener(
+      "touchstart",
+      function (event) {
+        const touch =
+          event.changedTouches[0];
+
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+      },
+      { passive: true }
+    );
+
+    /**
+     * 判断手机滑动方向
+     */
+    canvasBox.addEventListener(
+      "touchend",
+      function (event) {
+        const touch =
+          event.changedTouches[0];
+
+        const moveX =
+          touch.clientX - touchStartX;
+
+        const moveY =
+          touch.clientY - touchStartY;
+
+        const minimumSwipeDistance = 25;
+
+        if (
+          Math.abs(moveX) <
+            minimumSwipeDistance &&
+          Math.abs(moveY) <
+            minimumSwipeDistance
+        ) {
+          return;
+        }
+
+        if (
+          Math.abs(moveX) >
+          Math.abs(moveY)
+        ) {
+          changeDirection(
+            moveX > 0
+              ? "right"
+              : "left"
+          );
+        } else {
+          changeDirection(
+            moveY > 0
+              ? "down"
+              : "up"
+          );
+        }
+      },
+      { passive: true }
+    );
+
+    /**
+     * 切换到其他网页时自动暂停
+     */
+    document.addEventListener(
+      "visibilitychange",
+      function () {
+        if (
+          document.hidden &&
+          gameRunning &&
+          !gamePaused
+        ) {
+          togglePause();
+        }
+      }
+    );
+
+    /*
+     * 页面打开时绘制初始画面。
+     * 点击开始游戏后才播放音乐并移动。
+     */
+    resetGameData();
+  </script>
+
+<script id="portfolio-back-bridge">
+  document.querySelector('[data-portfolio-back]').addEventListener('click', function (event) {
+    if (window.parent === window) return;
+    event.preventDefault();
+    window.parent.postMessage({ type: 'ai-lab-full-preview-nav', href: './snake-games.html' }, '*');
+  });
+</script>
+</body>
+</html>
