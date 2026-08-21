@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f4f5f8" />
+    <meta
+      name="description"
+      content="海人角色预售展示页：角色视频、身份卡、故事、主海报、手办画廊、贴纸周边与设计理念。"
+    />
+    <title>TANG 角色预售｜海人</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳至主要内容</a>
+    <a class="collection-return" href="../../index.html#digital-galleries" aria-label="返回3D打印数字展厅">← 返回数字展厅</a>
+
+    <header class="site-header" id="top">
+      <div class="shell header-inner">
+        <a class="brand" href="#top" aria-label="返回顶部">
+          <img src="assets/logo.webp" alt="TANO*C Logo" />
+          <span>
+            <strong>海人</strong>
+            <small>角色预售档案</small>
+          </span>
+        </a>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-nav">
+          <span></span><span></span><span></span>
+          <span class="sr-only">展开导航</span>
+        </button>
+        <nav class="main-nav" id="main-nav" aria-label="页面导航">
+          <a href="#identity">身份</a>
+          <a href="#story">故事</a>
+          <a href="#poster">海报</a>
+          <a href="#figures">手办</a>
+          <a href="#peripherals">周边</a>
+          <a href="#designer">设计师</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="video-card" id="video-card">
+          <div class="video-stage">
+            <video
+              id="hero-video"
+              muted
+              autoplay
+              loop
+              playsinline
+              preload="metadata"
+              aria-label="海人角色全屏视频"
+            >
+              <source src="assets/character-video.mp4" type="video/mp4" />
+            </video>
+            <img
+              id="video-fallback"
+              class="video-fallback"
+              src="assets/figure-01.webp"
+              alt="海人手办备用画面"
+              hidden
+            />
+            <div class="video-shade" aria-hidden="true"></div>
+            <div class="video-caption">
+              <span>角色视频</span>
+              <strong>16:9 全屏展示</strong>
+            </div>
+            <button class="autoplay-prompt" id="autoplay-prompt" type="button" hidden>
+              点击播放
+            </button>
+          </div>
+          <div class="video-controls" aria-label="视频控制">
+            <button id="play-toggle" type="button" aria-pressed="false">
+              <span class="control-icon" aria-hidden="true">Ⅱ</span>
+              <span class="control-label">暂停</span>
+            </button>
+            <button id="sound-toggle" type="button" aria-pressed="false">
+              <span class="control-icon" aria-hidden="true">♪</span>
+              <span class="control-label">打开声音</span>
+            </button>
+            <span class="video-status" id="video-status" aria-live="polite">静音循环播放</span>
+          </div>
+        </div>
+
+        <div class="shell hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">REALITY × VIRTUAL</p>
+            <h1 id="hero-title">海人</h1>
+            <p class="hero-slogan">现实与虚拟交织</p>
+            <p class="hero-note">16岁学生 · 摄影与游戏爱好者 · 游戏形象使用太刀</p>
+            <div class="hero-actions">
+              <a class="primary-button" href="#presale">查看预售内容</a>
+              <a class="text-link" href="#story">阅读角色故事 <span aria-hidden="true">↓</span></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section identity-section" id="identity" aria-labelledby="identity-title">
+        <span class="identity-accent identity-accent-one" aria-hidden="true"></span>
+        <span class="identity-accent identity-accent-two" aria-hidden="true"></span>
+        <span class="identity-accent identity-accent-three" aria-hidden="true"></span>
+        <span class="identity-accent identity-accent-four" aria-hidden="true"></span>
+        <span class="identity-accent identity-accent-five" aria-hidden="true"></span>
+        <span class="identity-accent identity-accent-six" aria-hidden="true"></span>
+        <div class="shell">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">IDENTITY FILES</p>
+              <h2 id="identity-title">人物背景</h2>
+            </div>
+          </div>
+
+          <div class="identity-grid">
+            <article class="identity-image-card">
+              <span class="card-index">01 / 基本档案</span>
+              <img src="assets/identity-profile.webp" alt="海人基本身份卡" loading="lazy" />
+            </article>
+            <article class="identity-image-card">
+              <span class="card-index">02 / 不为人知的一面</span>
+              <img src="assets/identity-hidden.webp" alt="海人生活侧面身份卡" loading="lazy" />
+            </article>
+            <article class="identity-image-card">
+              <span class="card-index">03 / 游戏形象</span>
+              <img src="assets/identity-avatar.webp" alt="海人游戏形象与武器设定卡" loading="lazy" />
+            </article>
+
+            <article class="identity-data-card blue-card">
+              <span class="card-index">04 / 现实身份摘要</span>
+              <div class="data-card-content">
+                <p class="data-label">NAME</p>
+                <h3>海人</h3>
+                <dl>
+                  <div><dt>身份</dt><dd>16岁学生</dd></div>
+                  <div><dt>性格</dt><dd>随性、温柔、细致，不喜欢社交</dd></div>
+                  <div><dt>衣着</dt><dd>常穿深蓝色外套</dd></div>
+                  <div><dt>爱好</dt><dd>摄影、游戏</dd></div>
+                </dl>
+              </div>
+            </article>
+
+            <article class="identity-data-card yellow-card">
+              <span class="card-index">05 / 双面信息摘要</span>
+              <div class="data-card-content">
+                <p class="data-label">REAL / VIRTUAL</p>
+                <h3>生活与游戏</h3>
+                <dl>
+                  <div><dt>生活</dt><dd>热爱自然与生活，收集怀旧物件，爱听经典老歌</dd></div>
+                  <div><dt>游戏形象</dt><dd>白发、蓝眼、蓝白外套</dd></div>
+                  <div><dt>武器</dt><dd>一把轻快的太刀</dd></div>
+                  <div><dt>台词</dt><dd>骗了谁也不如骗你自己最爽，所以务必真实的面对一切</dd></div>
+                </dl>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section story-section" id="story" aria-labelledby="story-title">
+        <div class="shell story-grid">
+          <div class="story-mark">
+            <img src="assets/story-logo.webp" alt="TANO*C Logo" loading="lazy" />
+          </div>
+          <div class="story-content">
+            <p class="eyebrow">CHARACTER STORY</p>
+            <h2 id="story-title">一个人在两种世界里的样子</h2>
+            <p class="lead">
+              海人是一位16岁的学生。现实中的他随性、温柔、细致，不喜欢社交，总是穿着一件深蓝色外套，喜欢摄影和游戏。
+            </p>
+            <p>
+              少有人知道，他同样热爱自然与生活，喜欢收集怀旧物件，也爱听经典老歌。进入游戏后，海人使用白发、蓝眼、身穿蓝白外套的形象，武器是一把轻快的太刀。
+            </p>
+            <blockquote>“现实与虚拟交织”</blockquote>
+          </div>
+        </div>
+      </section>
+
+      <section class="section poster-section" id="poster" aria-labelledby="poster-title">
+        <div class="shell poster-grid">
+          <div class="poster-copy">
+            <h2 id="poster-title">宣传海报</h2>
+          </div>
+          <button class="image-frame portrait-frame lightbox-trigger" type="button" data-image="assets/main-poster.webp" data-alt="角色宣传海报">
+            <img src="assets/main-poster.webp" alt="角色宣传海报" loading="lazy" />
+            <span>点击查看宣传海报</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="section gallery-section" id="figures" aria-labelledby="figures-title">
+        <span class="gallery-accent gallery-accent-one" aria-hidden="true"></span>
+        <span class="gallery-accent gallery-accent-two" aria-hidden="true"></span>
+        <span class="gallery-accent gallery-accent-three" aria-hidden="true"></span>
+        <span class="gallery-accent gallery-accent-four" aria-hidden="true"></span>
+        <span class="gallery-accent gallery-accent-five" aria-hidden="true"></span>
+        <span class="gallery-accent gallery-accent-six" aria-hidden="true"></span>
+        <div class="shell">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">FIGURE GALLERY</p>
+              <h2 id="figures-title">5张手办画廊</h2>
+            </div>
+            <p>每张图片均完整显示；第1张同时作为Banner视频加载失败时的备用画面。</p>
+          </div>
+          <div class="figure-grid">
+            <button class="figure-card lightbox-trigger" type="button" data-image="assets/figure-01.webp" data-alt="海人深蓝外套手办">
+              <span>01</span><img src="assets/figure-01.webp" alt="海人深蓝外套手办" loading="lazy" />
+            </button>
+            <button class="figure-card lightbox-trigger" type="button" data-image="assets/figure-02.webp" data-alt="海人游戏形象持刀手办">
+              <span>02</span><img src="assets/figure-02.webp" alt="海人游戏形象持刀手办" loading="lazy" />
+            </button>
+            <button class="figure-card lightbox-trigger" type="button" data-image="assets/figure-03.webp" data-alt="海人VR游戏手办">
+              <span>03</span><img src="assets/figure-03.webp" alt="海人VR游戏手办" loading="lazy" />
+            </button>
+            <button class="figure-card lightbox-trigger" type="button" data-image="assets/figure-04.webp" data-alt="海人公园听歌手办">
+              <span>04</span><img src="assets/figure-04.webp" alt="海人公园听歌手办" loading="lazy" />
+            </button>
+            <button class="figure-card lightbox-trigger" type="button" data-image="assets/figure-05.webp" data-alt="海人自然主题Q版手办">
+              <span>05</span><img src="assets/figure-05.webp" alt="海人自然主题Q版手办" loading="lazy" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="section peripherals-section" id="peripherals" aria-labelledby="peripherals-title">
+        <div class="shell">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">STICKERS & MERCH</p>
+              <h2 id="peripherals-title">贴纸和周边</h2>
+            </div>
+          </div>
+          <div class="peripheral-grid">
+            <article class="asset-card asset-card-wide">
+              <div class="asset-title"><span>01</span><h3>A4贴纸设计</h3></div>
+              <img src="assets/stickers.webp" alt="角色贴纸设计页" loading="lazy" />
+            </article>
+            <article class="asset-card">
+              <div class="asset-title"><span>02</span><h3>包装展示</h3></div>
+              <img src="assets/package.webp" alt="角色系列包装展示" loading="lazy" />
+            </article>
+            <article class="asset-card">
+              <div class="asset-title"><span>03</span><h3>武士刀钥匙链</h3></div>
+              <img src="assets/katana-keychain.webp" alt="武士刀钥匙链完整产品说明图" loading="lazy" />
+            </article>
+            <article class="asset-card">
+              <div class="asset-title"><span>04</span><h3>品牌Logo周边</h3></div>
+              <img src="assets/logo-merch.webp" alt="黑白黄配色品牌Logo周边" loading="lazy" />
+            </article>
+            <article class="asset-card asset-card-wide">
+              <div class="asset-title"><span>05</span><h3>武士刀雨伞</h3></div>
+              <img src="assets/katana-umbrella.webp" alt="武士刀雨伞开合状态完整展示图" loading="lazy" />
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section presale-section" id="presale" aria-labelledby="presale-title">
+        <div class="shell presale-grid">
+          <button class="image-frame portrait-frame lightbox-trigger" type="button" data-image="assets/presale-card.webp" data-alt="预售体验卡">
+            <img src="assets/presale-card.webp" alt="预售体验卡" loading="lazy" />
+            <span>查看完整预售体验卡</span>
+          </button>
+          <div class="presale-copy">
+            <p class="eyebrow">PRESALE EXPERIENCE</p>
+            <h2 id="presale-title">预售体验卡</h2>
+            <p class="lead">以“现实 × 虚拟”为视觉线索，汇集海人在现实、游戏与Q版形态中的不同呈现。</p>
+            <div class="info-strip">
+              <span>角色</span><strong>海人</strong>
+            </div>
+            <div class="info-strip">
+              <span>短口号</span><strong>现实与虚拟交织</strong>
+            </div>
+            <div class="info-strip muted-strip">
+              <span>角色台词</span><strong>素材未提供</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section designer-section" id="designer" aria-labelledby="designer-title">
+        <div class="shell designer-grid">
+          <div class="designer-copy">
+            <p class="eyebrow">DESIGNER'S NOTE</p>
+            <h2 id="designer-title">设计师介绍</h2>
+            <blockquote>
+              我希望每个人看到我的作品都可以感到愉快，哪怕只有一丝；同时我也深爱着我所创作的作品，所以我才会一丝不苟地一次次改进，坚持我的简约化，使角色更加鲜活且真实。最后请支持我吧。
+            </blockquote>
+          </div>
+          <button class="image-frame concept-frame lightbox-trigger" type="button" data-image="assets/design-concept.webp" data-alt="设计师设计理念原图">
+            <img src="assets/design-concept.webp" alt="设计师设计理念原图" loading="lazy" />
+            <span>查看设计理念原图</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="logo-section" aria-labelledby="logo-title">
+        <div class="shell logo-panel">
+          <div>
+            <p class="eyebrow">STANDALONE LOGO</p>
+            <h2 id="logo-title">单独Logo</h2>
+          </div>
+          <img src="assets/logo.webp" alt="TANO*C 独立Logo" loading="lazy" />
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="shell footer-inner">
+        <div class="footer-brand">
+          <img src="assets/logo.webp" alt="" />
+          <span><strong>海人</strong><small>现实与虚拟交织</small></span>
+        </div>
+        <p>本页仅使用本对话中上传的角色素材制作。</p>
+        <a href="#top">返回顶部 ↑</a>
+      </div>
+    </footer>
+
+    <button class="back-to-top" id="back-to-top" type="button" aria-label="返回页面顶部" aria-hidden="true" tabindex="-1" title="返回顶部">
+      <img src="assets/back-to-top.webp" alt="" />
+    </button>
+
+    <dialog class="lightbox" id="lightbox" aria-label="图片预览">
+      <button class="lightbox-close" id="lightbox-close" type="button" aria-label="关闭图片预览">×</button>
+      <img id="lightbox-image" alt="" />
+    </dialog>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
